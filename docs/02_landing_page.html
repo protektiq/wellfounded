@@ -1,0 +1,1078 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wellfounded — The case prep workbench for asylum attorneys</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT,WONK@9..144,300..800,0..100,0..1&family=Public+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #F4EEE3;
+    --paper-light: #FBF8F2;
+    --ink: #1F1B16;
+    --ink-soft: #3B342B;
+    --muted: #6B6157;
+    --rule: #D9CFC0;
+    --rule-soft: #E6DFD2;
+    --oxblood: #6E2A2A;
+    --oxblood-deep: #4A1A1A;
+    --forest: #2C4A3E;
+    --gold: #8A6E2A;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Public Sans', -apple-system, sans-serif;
+    font-size: 17px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  /* Paper texture */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 0.12 0 0 0 0 0.10 0 0 0 0 0.08 0 0 0 0.04 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    opacity: 0.6;
+    mix-blend-mode: multiply;
+  }
+
+  .display { font-family: 'Fraunces', Georgia, serif; font-optical-sizing: auto; }
+  .mono { font-family: 'JetBrains Mono', monospace; }
+
+  /* Navigation */
+  nav.top {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(244, 238, 227, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--rule-soft);
+  }
+  .nav-inner {
+    max-width: 1280px; margin: 0 auto;
+    padding: 18px 40px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .wordmark {
+    font-family: 'Fraunces', serif;
+    font-variation-settings: 'opsz' 144, 'SOFT' 30, 'WONK' 0;
+    font-weight: 500;
+    font-size: 24px;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    text-decoration: none;
+    display: flex; align-items: baseline; gap: 2px;
+  }
+  .wordmark .dot { color: var(--oxblood); font-style: italic; }
+  .nav-links { display: flex; gap: 36px; align-items: center; }
+  .nav-links a {
+    color: var(--ink-soft);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--oxblood); }
+  .nav-cta {
+    background: var(--ink);
+    color: var(--paper-light) !important;
+    padding: 10px 18px;
+    border-radius: 2px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background 0.2s;
+  }
+  .nav-cta:hover { background: var(--oxblood) !important; color: var(--paper-light) !important; }
+
+  /* Container */
+  .container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 40px;
+    position: relative;
+    z-index: 2;
+  }
+
+  /* Hero */
+  .hero {
+    padding: 120px 0 100px;
+    position: relative;
+  }
+  .hero-grid {
+    display: grid;
+    grid-template-columns: 7fr 5fr;
+    gap: 80px;
+    align-items: end;
+  }
+  .eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--oxblood);
+    margin-bottom: 32px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .eyebrow::before {
+    content: '';
+    width: 32px; height: 1px;
+    background: var(--oxblood);
+  }
+  h1.hero-title {
+    font-family: 'Fraunces', serif;
+    font-variation-settings: 'opsz' 144, 'SOFT' 50, 'WONK' 0;
+    font-weight: 400;
+    font-size: clamp(48px, 6vw, 84px);
+    line-height: 0.98;
+    letter-spacing: -0.03em;
+    color: var(--ink);
+  }
+  h1.hero-title em {
+    font-style: italic;
+    font-variation-settings: 'opsz' 144, 'SOFT' 100, 'WONK' 1;
+    color: var(--oxblood);
+  }
+  .hero-sub {
+    font-family: 'Fraunces', serif;
+    font-weight: 300;
+    font-size: 22px;
+    line-height: 1.45;
+    color: var(--ink-soft);
+    max-width: 480px;
+  }
+  .hero-sub strong { font-weight: 500; color: var(--ink); }
+  .hero-cta-row {
+    margin-top: 36px;
+    display: flex; gap: 16px; align-items: center;
+    flex-wrap: wrap;
+  }
+  .btn-primary {
+    background: var(--ink);
+    color: var(--paper-light);
+    padding: 16px 28px;
+    border: none;
+    border-radius: 2px;
+    font-family: 'Public Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex; align-items: center; gap: 10px;
+    transition: all 0.2s;
+  }
+  .btn-primary:hover { background: var(--oxblood); transform: translateY(-1px); }
+  .btn-primary svg { width: 14px; height: 14px; }
+  .btn-secondary {
+    color: var(--ink);
+    padding: 16px 4px;
+    text-decoration: none;
+    font-size: 15px;
+    font-weight: 500;
+    border-bottom: 1px solid var(--ink);
+    transition: all 0.2s;
+  }
+  .btn-secondary:hover { color: var(--oxblood); border-color: var(--oxblood); }
+
+  /* Hero document mock */
+  .doc-stack {
+    position: relative;
+    height: 480px;
+  }
+  .doc {
+    position: absolute;
+    background: var(--paper-light);
+    border: 1px solid var(--rule);
+    box-shadow: 0 1px 0 var(--rule-soft), 0 24px 48px -24px rgba(31, 27, 22, 0.18);
+    padding: 28px 32px;
+    border-radius: 1px;
+  }
+  .doc.d1 {
+    top: 0; left: 0; width: 78%;
+    transform: rotate(-1.5deg);
+    z-index: 1;
+  }
+  .doc.d2 {
+    top: 70px; right: 0; width: 75%;
+    transform: rotate(2deg);
+    z-index: 2;
+  }
+  .doc.d3 {
+    bottom: 0; left: 8%; width: 80%;
+    transform: rotate(-0.8deg);
+    z-index: 3;
+  }
+  .doc-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+  .doc-title {
+    font-family: 'Fraunces', serif;
+    font-weight: 500;
+    font-size: 18px;
+    color: var(--ink);
+    margin-bottom: 14px;
+    line-height: 1.2;
+  }
+  .doc-line {
+    height: 6px;
+    background: var(--rule-soft);
+    border-radius: 1px;
+    margin-bottom: 8px;
+  }
+  .doc-line.w90 { width: 90%; }
+  .doc-line.w70 { width: 70%; }
+  .doc-line.w85 { width: 85%; }
+  .doc-line.w60 { width: 60%; }
+  .doc-stamp {
+    position: absolute;
+    top: 16px; right: 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    color: var(--oxblood);
+    border: 1px solid var(--oxblood);
+    padding: 4px 8px;
+    transform: rotate(8deg);
+  }
+
+  /* Section dividers */
+  .section-rule {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 40px;
+    position: relative; z-index: 2;
+  }
+  .section-rule hr {
+    border: none;
+    border-top: 1px solid var(--rule);
+  }
+
+  /* Problem section */
+  .problem {
+    padding: 120px 0;
+    position: relative;
+    z-index: 2;
+  }
+  .problem-grid {
+    display: grid;
+    grid-template-columns: 4fr 8fr;
+    gap: 80px;
+  }
+  .section-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .section-heading {
+    font-family: 'Fraunces', serif;
+    font-variation-settings: 'opsz' 144, 'SOFT' 40;
+    font-weight: 400;
+    font-size: clamp(36px, 4vw, 52px);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    margin-top: 16px;
+  }
+  .section-heading em {
+    font-style: italic;
+    color: var(--oxblood);
+  }
+  .problem-prose p {
+    font-family: 'Fraunces', serif;
+    font-weight: 300;
+    font-size: 21px;
+    line-height: 1.55;
+    color: var(--ink-soft);
+    margin-bottom: 24px;
+  }
+  .problem-prose p:last-child { margin-bottom: 0; }
+  .problem-prose strong {
+    font-weight: 500;
+    color: var(--ink);
+  }
+  .problem-stats {
+    margin-top: 56px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 40px;
+    padding-top: 40px;
+    border-top: 1px solid var(--rule);
+  }
+  .stat-num {
+    font-family: 'Fraunces', serif;
+    font-variation-settings: 'opsz' 144;
+    font-weight: 400;
+    font-size: 56px;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+  }
+  .stat-num .unit {
+    font-size: 24px;
+    color: var(--oxblood);
+    font-style: italic;
+  }
+  .stat-label {
+    margin-top: 12px;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--muted);
+    max-width: 220px;
+  }
+
+  /* Features section */
+  .features {
+    padding: 120px 0;
+    background: var(--paper-light);
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+    position: relative;
+    z-index: 2;
+  }
+  .features-header {
+    display: grid;
+    grid-template-columns: 4fr 8fr;
+    gap: 80px;
+    margin-bottom: 80px;
+  }
+  .features-intro {
+    font-family: 'Fraunces', serif;
+    font-weight: 300;
+    font-size: 21px;
+    line-height: 1.5;
+    color: var(--ink-soft);
+  }
+  .feature-list {
+    display: flex;
+    flex-direction: column;
+  }
+  .feature {
+    display: grid;
+    grid-template-columns: 80px 1fr 1.2fr;
+    gap: 60px;
+    padding: 56px 0;
+    border-top: 1px solid var(--rule);
+    align-items: start;
+  }
+  .feature:last-child { border-bottom: 1px solid var(--rule); }
+  .feature-num {
+    font-family: 'Fraunces', serif;
+    font-variation-settings: 'opsz' 144;
+    font-style: italic;
+    font-weight: 300;
+    font-size: 48px;
+    line-height: 1;
+    color: var(--oxblood);
+  }
+  .feature-content h3 {
+    font-family: 'Fraunces', serif;
+    font-variation-settings: 'opsz' 144, 'SOFT' 30;
+    font-weight: 500;
+    font-size: 30px;
+    line-height: 1.1;
+    margin-bottom: 16px;
+    letter-spacing: -0.01em;
+  }
+  .feature-content p {
+    color: var(--ink-soft);
+    line-height: 1.6;
+    margin-bottom: 18px;
+  }
+  .feature-content .tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    display: inline-block;
+    padding: 4px 10px;
+    border: 1px solid var(--rule);
+    border-radius: 1px;
+    margin-right: 8px;
+    margin-top: 4px;
+  }
+  .feature-visual {
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    padding: 24px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--ink-soft);
+    line-height: 1.7;
+    min-height: 180px;
+    position: relative;
+  }
+  .feature-visual::before {
+    content: attr(data-label);
+    position: absolute;
+    top: 12px; right: 12px;
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+  }
+  .cite { color: var(--oxblood); }
+  .flag { color: var(--gold); font-weight: 500; }
+  .check { color: var(--forest); }
+
+  /* Built for section */
+  .built-for {
+    padding: 120px 0;
+    position: relative;
+    z-index: 2;
+  }
+  .audience-grid {
+    margin-top: 64px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0;
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+  }
+  .audience {
+    padding: 48px 40px 48px 0;
+    border-right: 1px solid var(--rule);
+  }
+  .audience:nth-child(2) { padding-left: 40px; }
+  .audience:last-child { padding-left: 40px; border-right: none; }
+  .audience h4 {
+    font-family: 'Fraunces', serif;
+    font-weight: 500;
+    font-size: 22px;
+    margin-bottom: 12px;
+  }
+  .audience p {
+    color: var(--muted);
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  /* Quote section */
+  .quote-section {
+    padding: 120px 0;
+    background: var(--ink);
+    color: var(--paper);
+    position: relative;
+    z-index: 2;
+  }
+  .quote-inner {
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 0 40px;
+    text-align: center;
+  }
+  blockquote {
+    font-family: 'Fraunces', serif;
+    font-variation-settings: 'opsz' 144, 'SOFT' 50;
+    font-weight: 300;
+    font-style: italic;
+    font-size: clamp(28px, 3.5vw, 42px);
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+  }
+  blockquote::before {
+    content: '"';
+    display: block;
+    font-size: 80px;
+    line-height: 0.5;
+    color: var(--oxblood);
+    margin-bottom: 24px;
+    opacity: 0.7;
+  }
+  .quote-attr {
+    margin-top: 40px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: rgba(244, 238, 227, 0.6);
+  }
+  .quote-attr span { color: var(--paper); }
+
+  /* Pricing */
+  .pricing {
+    padding: 120px 0;
+    position: relative;
+    z-index: 2;
+  }
+  .price-grid {
+    margin-top: 72px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+  }
+  .price-tier {
+    padding: 40px 28px;
+    border-right: 1px solid var(--rule);
+  }
+  .price-tier:last-child { border-right: none; }
+  .price-tier.featured {
+    background: var(--paper-light);
+    position: relative;
+  }
+  .price-tier.featured::before {
+    content: 'Most common';
+    position: absolute;
+    top: -10px; left: 28px;
+    background: var(--oxblood);
+    color: var(--paper-light);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+  }
+  .price-tier h5 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 20px;
+  }
+  .price-amount {
+    font-family: 'Fraunces', serif;
+    font-weight: 400;
+    font-size: 48px;
+    line-height: 1;
+    letter-spacing: -0.02em;
+  }
+  .price-amount .per {
+    font-size: 15px;
+    color: var(--muted);
+    font-family: 'Public Sans', sans-serif;
+    font-weight: 400;
+  }
+  .price-desc {
+    margin-top: 20px;
+    font-size: 14px;
+    color: var(--ink-soft);
+    line-height: 1.6;
+    min-height: 80px;
+  }
+  .price-tier ul {
+    list-style: none;
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px solid var(--rule);
+  }
+  .price-tier li {
+    font-size: 13px;
+    color: var(--ink-soft);
+    padding: 6px 0;
+    display: flex; gap: 8px;
+  }
+  .price-tier li::before {
+    content: '•';
+    color: var(--oxblood);
+  }
+
+  /* FAQ */
+  .faq {
+    padding: 120px 0;
+    background: var(--paper-light);
+    border-top: 1px solid var(--rule);
+    position: relative;
+    z-index: 2;
+  }
+  .faq-grid {
+    margin-top: 64px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px 80px;
+  }
+  .faq-item h4 {
+    font-family: 'Fraunces', serif;
+    font-weight: 500;
+    font-size: 20px;
+    margin-bottom: 12px;
+    color: var(--ink);
+  }
+  .faq-item p {
+    color: var(--ink-soft);
+    line-height: 1.6;
+    font-size: 15px;
+  }
+
+  /* Footer */
+  footer {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 80px 0 40px;
+    position: relative;
+    z-index: 2;
+  }
+  .footer-inner {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 40px;
+  }
+  .footer-top {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 60px;
+    padding-bottom: 60px;
+    border-bottom: 1px solid rgba(244, 238, 227, 0.1);
+  }
+  .footer-brand .wordmark { color: var(--paper); font-size: 32px; }
+  .footer-brand p {
+    margin-top: 16px;
+    color: rgba(244, 238, 227, 0.6);
+    font-size: 14px;
+    line-height: 1.6;
+    max-width: 300px;
+  }
+  .footer-col h6 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(244, 238, 227, 0.5);
+    margin-bottom: 20px;
+  }
+  .footer-col a {
+    display: block;
+    color: var(--paper);
+    text-decoration: none;
+    font-size: 14px;
+    padding: 6px 0;
+    transition: color 0.2s;
+  }
+  .footer-col a:hover { color: var(--oxblood); }
+  .footer-bottom {
+    margin-top: 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    color: rgba(244, 238, 227, 0.5);
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.05em;
+  }
+
+  /* Animations */
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .rise { animation: rise 0.8s ease-out both; }
+  .rise.d1 { animation-delay: 0.1s; }
+  .rise.d2 { animation-delay: 0.2s; }
+  .rise.d3 { animation-delay: 0.35s; }
+  .rise.d4 { animation-delay: 0.5s; }
+
+  /* Responsive */
+  @media (max-width: 960px) {
+    .hero-grid, .problem-grid, .features-header { grid-template-columns: 1fr; gap: 40px; }
+    .problem-stats, .audience-grid, .price-grid, .faq-grid { grid-template-columns: 1fr; }
+    .audience, .price-tier { border-right: none; border-bottom: 1px solid var(--rule); padding: 32px 0 !important; }
+    .feature { grid-template-columns: 1fr; gap: 24px; }
+    .doc-stack { height: 340px; }
+    .footer-top { grid-template-columns: 1fr; gap: 32px; }
+    .nav-links a:not(.nav-cta) { display: none; }
+    .container, .nav-inner, .footer-inner, .section-rule { padding-left: 24px; padding-right: 24px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="top">
+  <div class="nav-inner">
+    <a href="/" class="wordmark">Wellfounded<span class="dot">.</span></a>
+    <div class="nav-links">
+      <a href="#product">Product</a>
+      <a href="#how">How it works</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#faq">FAQ</a>
+      <a href="https://app.wellfounded.com" class="nav-cta">Sign in</a>
+    </div>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-grid">
+      <div>
+        <div class="eyebrow rise d1">Vol. I · Affirmative asylum practice</div>
+        <h1 class="hero-title rise d2">
+          The case prep workbench<br>for <em>asylum attorneys.</em>
+        </h1>
+        <p class="hero-sub rise d3" style="margin-top: 36px;">
+          Country conditions research, client declarations, evidence packets, and credibility audits — <strong>four hours of work, not forty</strong>, on every I-589 you file.
+        </p>
+        <div class="hero-cta-row rise d4">
+          <a href="#demo" class="btn-primary">
+            Request a demo
+            <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 7h12M8 2l5 5-5 5"/></svg>
+          </a>
+          <a href="#how" class="btn-secondary">See how it works</a>
+        </div>
+      </div>
+
+      <div class="doc-stack rise d3">
+        <div class="doc d1">
+          <div class="doc-label">Exhibit C · Country Conditions</div>
+          <div class="doc-title">Conditions for journalists in Eritrea, 2022–2026</div>
+          <div class="doc-line w90"></div>
+          <div class="doc-line w85"></div>
+          <div class="doc-line w70"></div>
+          <div class="doc-line w90"></div>
+          <div class="doc-line w60"></div>
+          <div class="doc-stamp">Cited · 14 sources</div>
+        </div>
+        <div class="doc d2">
+          <div class="doc-label">Declaration of M.A. · Draft v3</div>
+          <div class="doc-title">In support of application for asylum</div>
+          <div class="doc-line w85"></div>
+          <div class="doc-line w90"></div>
+          <div class="doc-line w70"></div>
+          <div class="doc-line w85"></div>
+          <div class="doc-line w60"></div>
+        </div>
+        <div class="doc d3">
+          <div class="doc-label">Credibility Audit · M.A. v. USCIS</div>
+          <div class="doc-title">3 inconsistencies flagged for resolution</div>
+          <div class="doc-line w90"></div>
+          <div class="doc-line w70"></div>
+          <div class="doc-line w85"></div>
+          <div class="doc-line w90"></div>
+          <div class="doc-stamp">2 critical</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Problem -->
+<section class="problem">
+  <div class="container">
+    <div class="problem-grid">
+      <div>
+        <div class="section-label">§ 01 · The work</div>
+        <h2 class="section-heading">An asylum case is, on average, <em>forty hours of paperwork.</em></h2>
+      </div>
+      <div class="problem-prose">
+        <p>
+          A single affirmative asylum filing requires a <strong>country conditions memo</strong> synthesized from dozens of authoritative sources, a <strong>client declaration</strong> drafted from interview notes in a language you may not speak, an <strong>evidence packet</strong> assembled from phone photos and WhatsApp screenshots, and a careful pass to ensure none of it contradicts the credible fear interview transcript on file.
+        </p>
+        <p>
+          Solo immigration attorneys file three or four asylum cases a year because that is the limit of what one person can do well. Legal aid organizations turn away clients who have viable claims because their attorneys are saturated. The work that decides whether a family can stay or must return is bottlenecked on the same forty hours, case after case.
+        </p>
+        <p>
+          Wellfounded compresses those forty hours into four. The case is still yours. The judgment is still yours. The drafting is no longer the bottleneck.
+        </p>
+      </div>
+    </div>
+
+    <div class="problem-stats">
+      <div>
+        <div class="stat-num">40<span class="unit">hrs</span></div>
+        <div class="stat-label">Average prep time per affirmative asylum case in current practice.</div>
+      </div>
+      <div>
+        <div class="stat-num">3.5<span class="unit">M</span></div>
+        <div class="stat-label">Pending US immigration court cases as of 2026, with capacity growing slower than demand.</div>
+      </div>
+      <div>
+        <div class="stat-num">80<span class="unit">%</span></div>
+        <div class="stat-label">Of US immigration practitioners are in firms of five or fewer attorneys.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="section-rule"><hr></div>
+
+<!-- Features -->
+<section class="features" id="product">
+  <div class="container">
+    <div class="features-header">
+      <div>
+        <div class="section-label">§ 02 · The workbench</div>
+        <h2 class="section-heading">Four surfaces, <em>one case file.</em></h2>
+      </div>
+      <div class="features-intro">
+        <p>Each component is useful on its own. Together they share a single case file, so the work compounds: the declaration informs the credibility audit, the audit checks the evidence, the evidence is matched to the country conditions, and nothing falls between the cracks.</p>
+      </div>
+    </div>
+
+    <div class="feature-list">
+
+      <div class="feature">
+        <div class="feature-num">01</div>
+        <div class="feature-content">
+          <h3>Country Conditions Memo Generator</h3>
+          <p>Specify the country, the basis of claim, and the timeframe. Wellfounded produces a memo grounded in State Department, USCIRF, UNHCR, Human Rights Watch, Amnesty International, and peer-reviewed academic sources — structured around the legal elements you need: general conditions, treatment of the relevant group, state actor involvement, internal relocation analysis.</p>
+          <p>Every paragraph cites a source. No paragraph is invented.</p>
+          <span class="tag">14+ source families</span>
+          <span class="tag">Citation-enforced</span>
+        </div>
+        <div class="feature-visual" data-label="EXCERPT">
+          <strong>§3. Treatment of journalists, 2022–2026</strong><br><br>
+          Independent journalism in Eritrea remains effectively prohibited. <span class="cite">[1]</span> The state operates the only licensed broadcast outlets, and journalists who attempt independent reporting are detained without charge for indefinite periods. <span class="cite">[2,3]</span> The 2025 USCIRF report classifies Eritrea as a Country of Particular Concern, citing... <span class="cite">[4]</span>
+        </div>
+      </div>
+
+      <div class="feature">
+        <div class="feature-num">02</div>
+        <div class="feature-content">
+          <h3>Declaration Drafter</h3>
+          <p>Record or upload your client interview in their language. Wellfounded transcribes, translates, and produces a first-draft declaration in the client's voice — structured around the five protected grounds, the nexus requirement, and the elements your circuit requires.</p>
+          <p>Inconsistencies, gaps, and questions you should resolve with your client are flagged inline, never silently smoothed over.</p>
+          <span class="tag">12 languages</span>
+          <span class="tag">In client's voice</span>
+          <span class="tag">Gaps flagged inline</span>
+        </div>
+        <div class="feature-visual" data-label="DRAFT">
+          <strong>¶14.</strong> On the night of March 3, 2023, four men arrived at my home. I recognized two of them from the security forces stationed near my office.<br><br>
+          <span class="flag">⚑ Gap:</span> Names of the two recognized men — confirm with client before finalizing.<br><br>
+          <span class="flag">⚑ Inconsistency:</span> Credible fear interview states "three men" on this date. Resolve.
+        </div>
+      </div>
+
+      <div class="feature">
+        <div class="feature-num">03</div>
+        <div class="feature-content">
+          <h3>Evidence Packet Assembler</h3>
+          <p>Drop in everything your client has given you — phone photos, WhatsApp screenshots, medical records, school transcripts, news articles in other languages, scanned police reports. Wellfounded organizes, summarizes, and indexes them, matching each exhibit to the elements of the claim it corroborates.</p>
+          <p>Documents needing certified translation are flagged. Duplicates are merged. The exhibit list comes out filing-ready.</p>
+          <span class="tag">Auto-indexed</span>
+          <span class="tag">Translation flags</span>
+          <span class="tag">Matched to claim</span>
+        </div>
+        <div class="feature-visual" data-label="EXHIBIT LIST">
+          <strong>Tab A</strong> — Birth certificate, M.A. <span class="flag">[CT req'd]</span><br>
+          <strong>Tab B</strong> — Press credentials, 2021–2023<br>
+          <strong>Tab C</strong> — Medical record, hospital admission Mar 2023 <span class="flag">[CT req'd]</span><br>
+          <strong>Tab D</strong> — WhatsApp messages, threats received Feb–Mar 2023<br>
+          <strong>Tab E</strong> — US State Dept Country Report 2025 §3a<br>
+          <span style="color:var(--muted)">— 12 more exhibits indexed —</span>
+        </div>
+      </div>
+
+      <div class="feature">
+        <div class="feature-num">04</div>
+        <div class="feature-content">
+          <h3>Credibility &amp; Consistency Auditor</h3>
+          <p>The keystone. Cross-checks the declaration, the I-589, prior statements available to you (credible fear interviews, airport statements, earlier filings), the evidence packet, and the country conditions memo for inconsistencies an asylum officer or immigration judge will flag.</p>
+          <p>Each inconsistency comes with a suggested resolution: clarify in the declaration, address in a pre-hearing brief, prepare client testimony on this point, or supplement with corroborating evidence.</p>
+          <span class="tag">Cross-document</span>
+          <span class="tag">Severity-ranked</span>
+          <span class="tag">Resolution paths</span>
+        </div>
+        <div class="feature-visual" data-label="AUDIT REPORT">
+          <strong>Finding 1 · Critical</strong><br>
+          Declaration ¶14 states 4 men. CFI transcript p.7 states 3 men.<br>
+          <span class="check">→ Resolution:</span> Discuss with client. Likely translation artifact; clarify in revised declaration.<br><br>
+          <strong>Finding 2 · Moderate</strong><br>
+          Date of departure differs by 2 days between I-589 Part B Q1 and declaration ¶22.<br>
+          <span class="check">→ Resolution:</span> Verify against passport stamp (Tab F).
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- Built for -->
+<section class="built-for" id="how">
+  <div class="container">
+    <div class="problem-grid">
+      <div>
+        <div class="section-label">§ 03 · Built for</div>
+        <h2 class="section-heading">The practitioners who <em>actually do the work.</em></h2>
+      </div>
+      <div class="problem-prose">
+        <p>Wellfounded is not built for AmLaw 100. It is built for the people taking the cases.</p>
+      </div>
+    </div>
+
+    <div class="audience-grid">
+      <div class="audience">
+        <div class="section-label" style="color: var(--oxblood);">For</div>
+        <h4>Nonprofit legal aid organizations</h4>
+        <p>CLINIC affiliates, Catholic Charities programs, HIAS partners, immigrant rights organizations. Predictable per-seat pricing that fits your grant budget. SOC 2 compliance. Bulk case import.</p>
+      </div>
+      <div class="audience">
+        <div class="section-label" style="color: var(--oxblood);">For</div>
+        <h4>Law school asylum clinics</h4>
+        <p>Flat-rate academic licensing. Built-in workflow templates that scaffold student work. Institutional case memory that survives semester rotations.</p>
+      </div>
+      <div class="audience">
+        <div class="section-label" style="color: var(--oxblood);">For</div>
+        <h4>Solo &amp; small-firm attorneys</h4>
+        <p>The capacity multiplier that lets you take the cases you have to turn away today. Per-case and monthly tiers. AILA member discount.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Quote -->
+<section class="quote-section">
+  <div class="quote-inner">
+    <blockquote>
+      The bottleneck in asylum work was never the law or the judgment. It was always the forty hours per case. That is what changes here.
+    </blockquote>
+    <div class="quote-attr">— <span>Practitioner advisor</span> · Asylum &amp; humanitarian immigration, 14 years</div>
+  </div>
+</section>
+
+<!-- Pricing -->
+<section class="pricing" id="pricing">
+  <div class="container">
+    <div class="problem-grid">
+      <div>
+        <div class="section-label">§ 04 · Pricing</div>
+        <h2 class="section-heading">Built to fit a <em>grant line item.</em></h2>
+      </div>
+      <div class="problem-prose">
+        <p>No usage limits. No per-token surprises. No 20-seat minimums. The price you sign for is the price for the year.</p>
+      </div>
+    </div>
+
+    <div class="price-grid">
+      <div class="price-tier">
+        <h5>Per-case</h5>
+        <div class="price-amount">$79<span class="per"> / case</span></div>
+        <p class="price-desc">For very low-volume practitioners. Capped at 6 cases per year. The skeptic's on-ramp.</p>
+        <ul>
+          <li>Full workbench</li>
+          <li>1 attorney seat</li>
+          <li>Email support</li>
+        </ul>
+      </div>
+
+      <div class="price-tier featured">
+        <h5>Legal aid (501c3)</h5>
+        <div class="price-amount">$129<span class="per"> / seat / mo</span></div>
+        <p class="price-desc">For nonprofit organizations operating asylum and humanitarian immigration programs. Billed annually.</p>
+        <ul>
+          <li>Unlimited cases</li>
+          <li>SOC 2 Type II</li>
+          <li>Bulk import</li>
+          <li>Onboarding workshops</li>
+        </ul>
+      </div>
+
+      <div class="price-tier">
+        <h5>Solo / Small firm</h5>
+        <div class="price-amount">$189<span class="per"> / mo</span></div>
+        <p class="price-desc">For private practitioners. Per-seat pricing scales down for firms of 2–5. AILA member discount available.</p>
+        <ul>
+          <li>Unlimited cases</li>
+          <li>Calendar &amp; deadline tracking</li>
+          <li>Practice mgmt integrations</li>
+        </ul>
+      </div>
+
+      <div class="price-tier">
+        <h5>Academic clinic</h5>
+        <div class="price-amount">$999<span class="per"> / year</span></div>
+        <p class="price-desc">Flat rate per clinic, unlimited student users under faculty supervision. Includes teaching modules.</p>
+        <ul>
+          <li>Unlimited students</li>
+          <li>Faculty oversight tools</li>
+          <li>Curriculum materials</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="faq" id="faq">
+  <div class="container">
+    <div class="problem-grid">
+      <div>
+        <div class="section-label">§ 05 · Common questions</div>
+        <h2 class="section-heading">The questions <em>every attorney asks first.</em></h2>
+      </div>
+      <div></div>
+    </div>
+
+    <div class="faq-grid">
+      <div class="faq-item">
+        <h4>Does Wellfounded file the I-589 for me?</h4>
+        <p>No. Wellfounded produces drafts. You review, revise, and sign every document. The attorney is always the final author. This is by design — both ethically and as a matter of law.</p>
+      </div>
+      <div class="faq-item">
+        <h4>How do you handle hallucinations?</h4>
+        <p>Every citation in a country conditions memo links to a verifiable source. The credibility auditor exists specifically to catch errors before filing. We publish our internal accuracy benchmarks and re-run them on every model release.</p>
+      </div>
+      <div class="faq-item">
+        <h4>What about attorney-client privilege?</h4>
+        <p>SOC 2 Type II. Zero-retention contracts with all model providers. Encryption at rest with per-tenant keys. We never train on your case data. Data destruction on demand.</p>
+      </div>
+      <div class="faq-item">
+        <h4>Which languages do you support for declarations?</h4>
+        <p>At launch: Spanish, Mandarin, French, Haitian Creole, Tigrinya, Dari, Pashto, Russian, Arabic, Portuguese, Amharic, and Ukrainian. We add languages by client demand and translator availability.</p>
+      </div>
+      <div class="faq-item">
+        <h4>Will this work for defensive cases in immigration court?</h4>
+        <p>The core workbench transfers cleanly. Removal defense and EOIR-specific workflows ship in early 2027 as part of our adjacent practice expansion.</p>
+      </div>
+      <div class="faq-item">
+        <h4>How is this different from Harvey or ChatGPT?</h4>
+        <p>Harvey is built for BigLaw at $1,200 per seat. ChatGPT is general-purpose and unsafe for filings. Wellfounded is built specifically for asylum practice, with a structured case file, citation enforcement, and a workflow that maps to how asylum cases are actually prepared.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <a href="/" class="wordmark">Wellfounded<span class="dot">.</span></a>
+        <p>The case prep workbench for asylum attorneys. Built in collaboration with practitioners and legal aid organizations.</p>
+      </div>
+      <div class="footer-col">
+        <h6>Product</h6>
+        <a href="#product">Country conditions</a>
+        <a href="#product">Declarations</a>
+        <a href="#product">Evidence packets</a>
+        <a href="#product">Credibility audit</a>
+      </div>
+      <div class="footer-col">
+        <h6>For</h6>
+        <a href="#">Legal aid orgs</a>
+        <a href="#">Law school clinics</a>
+        <a href="#">Solo &amp; small firms</a>
+        <a href="#">Pro bono programs</a>
+      </div>
+      <div class="footer-col">
+        <h6>Company</h6>
+        <a href="#">About</a>
+        <a href="#">Trust &amp; security</a>
+        <a href="#">Practitioner advisory board</a>
+        <a href="#">Contact</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div>© 2026 Wellfounded, Inc. · Not a law firm. Not legal advice.</div>
+      <div>v0.1 · Built with care</div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

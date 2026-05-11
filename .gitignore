@@ -1,0 +1,26 @@
+# Environment and secrets
+.env
+.env.local
+.env.*.local
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+dist/
+build/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+apps/api/.venv/
+
+# Node / Next.js
+node_modules/
+apps/web/.next/
+apps/web/out/
+
+# OS and editors
+.DS_Store
+.idea/
+.vscode/
