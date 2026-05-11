@@ -10,6 +10,7 @@ import pytest
 import pytest_asyncio
 from alembic import command
 from alembic.config import Config
+from httpx import ASGITransport, AsyncClient
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -42,11 +43,39 @@ async def db_session(_alembic_upgrade_head: None) -> AsyncIterator[AsyncSession]
 
     factory = get_async_session_maker()
     async with factory() as session:
-        await session.execute(
-            text("TRUNCATE TABLE audit_log_entries, organizations CASCADE"),
-        )
+        await session.execute(text("TRUNCATE TABLE organizations CASCADE"))
         await session.commit()
         try:
             yield session
         finally:
             await session.rollback()
+
+
+@pytest_asyncio.fixture(scope="function", loop_scope="session")
+async def api_client(db_session: AsyncSession) -> AsyncIterator[AsyncClient]:
+    """HTTP client against the ASGI app with DB session override for one test."""
+    from config import Settings, get_settings
+    from db.session import get_db_session
+    from main import app
+
+    async def _db_override() -> AsyncIterator[AsyncSession]:
+        yield db_session
+
+    def _settings_override() -> Settings:
+        get_settings.cache_clear()
+        return Settings().model_copy(
+            update={
+                "public_app_url": "http://test/web",
+                "api_public_url": "http://test",
+            },
+        )
+
+    app.dependency_overrides[get_db_session] = _db_override
+    app.dependency_overrides[get_settings] = _settings_override
+
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
+        yield client
+
+    app.dependency_overrides.clear()
+    get_settings.cache_clear()

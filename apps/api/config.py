@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from functools import lru_cache
+from typing import Literal
 
 from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -42,6 +43,37 @@ class Settings(BaseSettings):
 
     anthropic_api_key: str | None = Field(default=None)
     openai_api_key: str | None = Field(default=None)
+
+    public_app_url: str = Field(
+        default="http://127.0.0.1:3000",
+        max_length=512,
+        description="Browser app base URL for post-login redirect",
+    )
+    api_public_url: str = Field(
+        default="http://127.0.0.1:8000",
+        max_length=512,
+        description="Public base URL of this API (magic-link callback host)",
+    )
+    magic_link_ttl_seconds: int = Field(
+        default=900,
+        ge=60,
+        le=86400,
+        description="Magic-link token lifetime in seconds",
+    )
+    email_backend: Literal["console", "ses"] = Field(
+        default="console",
+        description="Email transport: console (dev) or ses (stub)",
+    )
+
+    @field_validator("public_app_url", "api_public_url")
+    @classmethod
+    def http_base_url(cls, value: str) -> str:
+        stripped = value.strip().rstrip("/")
+        if not stripped.startswith(("http://", "https://")):
+            raise ValueError("URL must start with http:// or https://")
+        if len(stripped) > 512:
+            raise ValueError("URL exceeds maximum length")
+        return stripped
 
     @field_validator("log_level")
     @classmethod

@@ -23,6 +23,17 @@ class OrgRepository:
         result = await self._session.execute(stmt)
         return result.scalar_one_or_none()
 
+    async def get_organization_by_id(
+        self,
+        organization_id: uuid.UUID,
+    ) -> Organization | None:
+        stmt = select(Organization).where(
+            Organization.id == organization_id,
+            Organization.deleted_at.is_(None),
+        )
+        result = await self._session.execute(stmt)
+        return result.scalar_one_or_none()
+
     async def create_org(
         self,
         *,

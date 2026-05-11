@@ -10,6 +10,7 @@ import structlog
 from fastapi import FastAPI
 
 from audit.middleware import RequestContextMiddleware
+from auth.routes import router as auth_router
 from config import Settings, get_settings
 from orgs.router import router as orgs_router
 
@@ -40,9 +41,12 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
 app = FastAPI(title="Wellfounded API", version="0.1.0", lifespan=lifespan)
 app.add_middleware(RequestContextMiddleware)
 app.include_router(orgs_router)
+app.include_router(auth_router)
 
 # Register ORM models with SQLAlchemy metadata.
 import audit.models  # noqa: E402, F401
+import auth.models  # noqa: E402, F401
+import orgs.models  # noqa: E402, F401
 
 
 def _repo_root() -> Path:
