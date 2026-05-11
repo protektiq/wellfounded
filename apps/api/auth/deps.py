@@ -111,3 +111,15 @@ def require_role(
         return user
 
     return _require
+
+
+async def require_mfa(
+    auth: Annotated[RequestAuth, Depends(get_request_auth)],
+) -> RequestAuth:
+    """Admin sessions must pass WebAuthn before calling admin-gated routes."""
+    if auth.user.role is UserRole.admin and auth.session.mfa_verified_at is None:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="WebAuthn verification required for this action",
+        )
+    return auth

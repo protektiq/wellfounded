@@ -79,3 +79,36 @@ async def api_client(db_session: AsyncSession) -> AsyncIterator[AsyncClient]:
 
     app.dependency_overrides.clear()
     get_settings.cache_clear()
+
+
+@pytest_asyncio.fixture(scope="function", loop_scope="session")
+async def api_client_webauthn(db_session: AsyncSession) -> AsyncIterator[AsyncClient]:
+    """HTTP client with WebAuthn RP/origin aligned to py_webauthn test vectors."""
+    from config import Settings, get_settings
+    from db.session import get_db_session
+    from main import app
+
+    async def _db_override() -> AsyncIterator[AsyncSession]:
+        yield db_session
+
+    def _settings_override() -> Settings:
+        get_settings.cache_clear()
+        return Settings().model_copy(
+            update={
+                "public_app_url": "http://localhost:5000",
+                "api_public_url": "http://localhost:5000",
+            },
+        )
+
+    app.dependency_overrides[get_db_session] = _db_override
+    app.dependency_overrides[get_settings] = _settings_override
+
+    transport = ASGITransport(app=app)
+    async with AsyncClient(
+        transport=transport,
+        base_url="http://localhost:5000",
+    ) as client:
+        yield client
+
+    app.dependency_overrides.clear()
+    get_settings.cache_clear()

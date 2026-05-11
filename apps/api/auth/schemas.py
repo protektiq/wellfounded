@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
+import json
 import re
 import uuid
+from typing import Any
 
 # email-validator is listed in pyproject.toml; required by pydantic.EmailStr.
 from pydantic import BaseModel, EmailStr, Field, field_validator
@@ -47,3 +49,33 @@ class UserSummary(BaseModel):
 class MeResponse(BaseModel):
     user: UserSummary
     organization: OrganizationSummary
+    mfa_verified: bool
+    webauthn_credential_count: int
+
+
+_MAX_WEBAUTHN_CREDENTIAL_JSON_BYTES = 256 * 1024
+
+
+class WebAuthnRegisterFinishRequest(BaseModel):
+    friendly_name: str = Field(min_length=1, max_length=64)
+    credential: dict[str, Any]
+
+    @field_validator("credential")
+    @classmethod
+    def credential_size(cls, value: dict[str, Any]) -> dict[str, Any]:
+        payload = json.dumps(value, separators=(",", ":"), default=str)
+        if len(payload.encode("utf-8")) > _MAX_WEBAUTHN_CREDENTIAL_JSON_BYTES:
+            raise ValueError("credential JSON exceeds maximum allowed size")
+        return value
+
+
+class WebAuthnAuthenticateFinishRequest(BaseModel):
+    credential: dict[str, Any]
+
+    @field_validator("credential")
+    @classmethod
+    def credential_size(cls, value: dict[str, Any]) -> dict[str, Any]:
+        payload = json.dumps(value, separators=(",", ":"), default=str)
+        if len(payload.encode("utf-8")) > _MAX_WEBAUTHN_CREDENTIAL_JSON_BYTES:
+            raise ValueError("credential JSON exceeds maximum allowed size")
+        return value

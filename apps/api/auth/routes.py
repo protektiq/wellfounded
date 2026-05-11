@@ -21,6 +21,7 @@ from auth.repository import AuthRepository
 from auth.schemas import MagicLinkRequest, MeResponse, OrganizationSummary, UserSummary
 from auth.sessions import build_user_session
 from auth.tokens import generate_raw_token, hash_token
+from auth.webauthn_routes import router as webauthn_router
 from config import Settings, get_settings
 from db.session import get_db_session
 from orgs.models import User, UserStatus
@@ -29,6 +30,7 @@ from orgs.repository import OrgRepository
 log = structlog.get_logger()
 
 router = APIRouter(prefix="/auth", tags=["auth"])
+router.include_router(webauthn_router)
 
 SESSION_COOKIE_NAME = "wf_session"
 _MAX_RAW_TOKEN_LEN = 512
@@ -244,6 +246,12 @@ async def me(
 ) -> MeResponse:
     u = auth_ctx.user
     o = auth_ctx.organization
+    auth_repo = AuthRepository(db)
+    webauthn_n = await auth_repo.count_webauthn_credentials(
+        u.organization_id,
+        u.id,
+    )
+    mfa_verified = auth_ctx.session.mfa_verified_at is not None
     await db.commit()
     return MeResponse(
         user=UserSummary(
@@ -257,4 +265,6 @@ async def me(
             name=o.name,
             slug=o.slug,
         ),
+        mfa_verified=mfa_verified,
+        webauthn_credential_count=webauthn_n,
     )

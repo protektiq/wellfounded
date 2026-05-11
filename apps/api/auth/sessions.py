@@ -33,4 +33,5 @@ def build_user_session(
         revoked_at=None,
         user_agent=user_agent,
         ip_addr=ip_addr,
+        mfa_verified_at=None,
     )

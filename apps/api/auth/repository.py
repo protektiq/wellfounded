@@ -5,10 +5,16 @@ from __future__ import annotations
 import uuid
 from datetime import UTC, datetime
 
-from sqlalchemy import select, update
+from sqlalchemy import delete, func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from auth.models import MagicLinkToken, UserSession
+from auth.models import (
+    MagicLinkToken,
+    UserSession,
+    WebAuthnChallenge,
+    WebAuthnChallengePurpose,
+    WebAuthnCredential,
+)
 
 
 class AuthRepository:
@@ -110,3 +116,154 @@ class AuthRepository:
             )
             .values(last_seen_at=ts),
         )
+
+    async def set_session_mfa_verified_at(
+        self,
+        session_id: uuid.UUID,
+        organization_id: uuid.UUID,
+        *,
+        verified_at: datetime,
+    ) -> bool:
+        stmt = (
+            update(UserSession)
+            .where(
+                UserSession.id == session_id,
+                UserSession.organization_id == organization_id,
+                UserSession.revoked_at.is_(None),
+            )
+            .values(mfa_verified_at=verified_at)
+            .returning(UserSession.id)
+        )
+        result = await self._session.execute(stmt)
+        return result.scalar_one_or_none() is not None
+
+    async def replace_webauthn_challenge(
+        self,
+        *,
+        organization_id: uuid.UUID,
+        session_id: uuid.UUID,
+        purpose: WebAuthnChallengePurpose,
+        challenge: bytes,
+        expires_at: datetime,
+        row_id: uuid.UUID,
+    ) -> WebAuthnChallenge:
+        await self._session.execute(
+            delete(WebAuthnChallenge).where(
+                WebAuthnChallenge.organization_id == organization_id,
+                WebAuthnChallenge.session_id == session_id,
+                WebAuthnChallenge.purpose == purpose,
+            ),
+        )
+        row = WebAuthnChallenge(
+            id=row_id,
+            organization_id=organization_id,
+            session_id=session_id,
+            purpose=purpose,
+            challenge=challenge,
+            expires_at=expires_at,
+        )
+        self._session.add(row)
+        await self._session.flush()
+        return row
+
+    async def get_webauthn_challenge(
+        self,
+        organization_id: uuid.UUID,
+        session_id: uuid.UUID,
+        purpose: WebAuthnChallengePurpose,
+    ) -> WebAuthnChallenge | None:
+        stmt = select(WebAuthnChallenge).where(
+            WebAuthnChallenge.organization_id == organization_id,
+            WebAuthnChallenge.session_id == session_id,
+            WebAuthnChallenge.purpose == purpose,
+        )
+        result = await self._session.execute(stmt)
+        return result.scalar_one_or_none()
+
+    async def delete_webauthn_challenge(
+        self,
+        challenge_row_id: uuid.UUID,
+        organization_id: uuid.UUID,
+    ) -> bool:
+        stmt = (
+            delete(WebAuthnChallenge)
+            .where(
+                WebAuthnChallenge.id == challenge_row_id,
+                WebAuthnChallenge.organization_id == organization_id,
+            )
+            .returning(WebAuthnChallenge.id)
+        )
+        result = await self._session.execute(stmt)
+        return result.scalar_one_or_none() is not None
+
+    async def insert_webauthn_credential(
+        self,
+        row: WebAuthnCredential,
+    ) -> WebAuthnCredential:
+        self._session.add(row)
+        await self._session.flush()
+        return row
+
+    async def count_webauthn_credentials(
+        self,
+        organization_id: uuid.UUID,
+        user_id: uuid.UUID,
+    ) -> int:
+        stmt = (
+            select(func.count())
+            .select_from(WebAuthnCredential)
+            .where(
+                WebAuthnCredential.organization_id == organization_id,
+                WebAuthnCredential.user_id == user_id,
+            )
+        )
+        result = await self._session.execute(stmt)
+        return int(result.scalar_one())
+
+    async def list_webauthn_credentials_for_user(
+        self,
+        organization_id: uuid.UUID,
+        user_id: uuid.UUID,
+    ) -> list[WebAuthnCredential]:
+        stmt = (
+            select(WebAuthnCredential)
+            .where(
+                WebAuthnCredential.organization_id == organization_id,
+                WebAuthnCredential.user_id == user_id,
+            )
+            .order_by(WebAuthnCredential.created_at.asc())
+        )
+        result = await self._session.execute(stmt)
+        return list(result.scalars().all())
+
+    async def get_webauthn_credential_by_credential_id(
+        self,
+        organization_id: uuid.UUID,
+        credential_id: bytes,
+    ) -> WebAuthnCredential | None:
+        stmt = select(WebAuthnCredential).where(
+            WebAuthnCredential.organization_id == organization_id,
+            WebAuthnCredential.credential_id == credential_id,
+        )
+        result = await self._session.execute(stmt)
+        return result.scalar_one_or_none()
+
+    async def update_webauthn_credential_sign_count(
+        self,
+        organization_id: uuid.UUID,
+        credential_pk: uuid.UUID,
+        *,
+        sign_count: int,
+        last_used_at: datetime,
+    ) -> bool:
+        stmt = (
+            update(WebAuthnCredential)
+            .where(
+                WebAuthnCredential.id == credential_pk,
+                WebAuthnCredential.organization_id == organization_id,
+            )
+            .values(sign_count=sign_count, last_used_at=last_used_at)
+            .returning(WebAuthnCredential.id)
+        )
+        result = await self._session.execute(stmt)
+        return result.scalar_one_or_none() is not None

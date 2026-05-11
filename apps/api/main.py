@@ -8,6 +8,7 @@ from pathlib import Path
 
 import structlog
 from fastapi import FastAPI
+from starlette.middleware.cors import CORSMiddleware
 
 from audit.middleware import RequestContextMiddleware
 from auth.routes import router as auth_router
@@ -40,6 +41,25 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
 
 app = FastAPI(title="Wellfounded API", version="0.1.0", lifespan=lifespan)
 app.add_middleware(RequestContextMiddleware)
+
+
+def _cors_allow_origins() -> list[str]:
+    """Browser clients (Next.js) call the API with cookies; origins must be explicit."""
+    settings = get_settings()
+    origins = list(settings.resolved_webauthn_expected_origins())
+    for extra in ("http://127.0.0.1:3000", "http://localhost:3000"):
+        if extra not in origins:
+            origins.append(extra)
+    return origins
+
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=_cors_allow_origins(),
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "OPTIONS", "PUT", "DELETE", "PATCH"],
+    allow_headers=["*"],
+)
 app.include_router(orgs_router)
 app.include_router(auth_router)
 
