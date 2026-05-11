@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>M.A. v. USCIS · Wellfounded</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,300..700,0..100&family=Public+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #F4EEE3;
+    --paper-light: #FBF8F2;
+    --surface: #FFFFFF;
+    --ink: #1F1B16;
+    --ink-soft: #3B342B;
+    --muted: #6B6157;
+    --muted-2: #948A7D;
+    --rule: #D9CFC0;
+    --rule-soft: #E6DFD2;
+    --oxblood: #6E2A2A;
+    --oxblood-light: #F5E5E5;
+    --forest: #2C4A3E;
+    --forest-light: #E5EDE7;
+    --gold: #8A6E2A;
+    --gold-light: #F5EFDC;
+    --critical: #A82929;
+    --critical-light: #F8E6E6;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Public Sans', -apple-system, sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  .display { font-family: 'Fraunces', Georgia, serif; }
+  .mono { font-family: 'JetBrains Mono', monospace; }
+
+  /* App shell */
+  .app {
+    display: grid;
+    grid-template-columns: 60px 280px 1fr;
+    height: 100vh;
+  }
+
+  /* Rail */
+  .rail {
+    background: var(--ink);
+    color: var(--paper);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 16px 0;
+    border-right: 1px solid var(--ink);
+  }
+  .rail-logo {
+    font-family: 'Fraunces', serif;
+    font-weight: 500;
+    font-size: 24px;
+    color: var(--paper);
+    margin-bottom: 32px;
+  }
+  .rail-logo .dot { color: var(--oxblood); }
+  .rail-icon {
+    width: 36px; height: 36px;
+    display: flex; align-items: center; justify-content: center;
+    color: rgba(244, 238, 227, 0.5);
+    margin-bottom: 4px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s;
+    position: relative;
+  }
+  .rail-icon svg { width: 18px; height: 18px; }
+  .rail-icon:hover { color: var(--paper); background: rgba(244, 238, 227, 0.06); }
+  .rail-icon.active { color: var(--paper); background: rgba(244, 238, 227, 0.1); }
+  .rail-icon.active::before {
+    content: '';
+    position: absolute;
+    left: -12px; top: 8px;
+    width: 3px; height: 20px;
+    background: var(--oxblood);
+    border-radius: 0 2px 2px 0;
+  }
+  .rail-spacer { flex: 1; }
+  .rail-avatar {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: var(--oxblood);
+    color: var(--paper);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 500;
+    font-size: 12px;
+    letter-spacing: 0.05em;
+  }
+
+  /* Sidebar */
+  .sidebar {
+    background: var(--paper-light);
+    border-right: 1px solid var(--rule);
+    overflow-y: auto;
+    display: flex; flex-direction: column;
+  }
+  .sidebar-header {
+    padding: 20px 20px 12px;
+    border-bottom: 1px solid var(--rule-soft);
+  }
+  .sidebar-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .sidebar-title button {
+    background: none; border: none; cursor: pointer;
+    color: var(--ink); padding: 2px;
+  }
+  .search-box {
+    margin-top: 12px;
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    padding: 8px 10px;
+    display: flex; align-items: center; gap: 8px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .search-box svg { width: 14px; height: 14px; }
+  .search-box .kbd {
+    margin-left: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    padding: 1px 5px;
+    border-radius: 3px;
+  }
+
+  .filter-tabs {
+    padding: 12px 12px 8px;
+    display: flex; gap: 4px;
+    border-bottom: 1px solid var(--rule-soft);
+  }
+  .filter-tab {
+    padding: 5px 10px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--muted);
+    cursor: pointer;
+    border-radius: 3px;
+    border: 1px solid transparent;
+  }
+  .filter-tab.active {
+    background: var(--surface);
+    border-color: var(--rule);
+    color: var(--ink);
+  }
+  .filter-tab .count {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    margin-left: 4px;
+    color: var(--muted-2);
+  }
+
+  .case-list { padding: 8px; flex: 1; }
+  .case-item {
+    padding: 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-bottom: 2px;
+    border: 1px solid transparent;
+  }
+  .case-item:hover { background: var(--paper); }
+  .case-item.active {
+    background: var(--surface);
+    border-color: var(--rule);
+    box-shadow: 0 1px 0 var(--rule-soft);
+  }
+  .case-top { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+  .case-id {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+  }
+  .case-status {
+    margin-left: auto;
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 2px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+  }
+  .case-status.prep { background: var(--gold-light); color: var(--gold); }
+  .case-status.review { background: var(--forest-light); color: var(--forest); }
+  .case-status.filed { background: var(--rule-soft); color: var(--muted); }
+  .case-status.critical { background: var(--critical-light); color: var(--critical); }
+  .case-name {
+    font-family: 'Fraunces', serif;
+    font-weight: 500;
+    font-size: 15px;
+    color: var(--ink);
+    margin-bottom: 2px;
+  }
+  .case-meta {
+    font-size: 11px;
+    color: var(--muted);
+    display: flex; gap: 10px;
+  }
+  .case-meta span { display: flex; align-items: center; gap: 4px; }
+
+  /* Main panel */
+  .main {
+    background: var(--paper);
+    overflow-y: auto;
+    display: flex; flex-direction: column;
+  }
+  .main-header {
+    background: var(--paper-light);
+    border-bottom: 1px solid var(--rule);
+    padding: 20px 40px 0;
+  }
+  .breadcrumb {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+  }
+  .breadcrumb .sep { margin: 0 8px; color: var(--rule); }
+  .case-header {
+    display: flex; align-items: start; justify-content: space-between;
+    padding-bottom: 20px;
+  }
+  .case-header h1 {
+    font-family: 'Fraunces', serif;
+    font-variation-settings: 'opsz' 144, 'SOFT' 30;
+    font-weight: 500;
+    font-size: 32px;
+    letter-spacing: -0.01em;
+    line-height: 1.1;
+  }
+  .case-header .sub {
+    color: var(--muted);
+    margin-top: 6px;
+    font-size: 14px;
+  }
+  .case-actions {
+    display: flex; gap: 8px;
+  }
+  .btn {
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    padding: 8px 14px;
+    font-family: 'Public Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    border-radius: 4px;
+    cursor: pointer;
+    color: var(--ink);
+    transition: all 0.15s;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .btn:hover { background: var(--paper); border-color: var(--ink-soft); }
+  .btn svg { width: 13px; height: 13px; }
+  .btn.primary {
+    background: var(--ink);
+    color: var(--paper-light);
+    border-color: var(--ink);
+  }
+  .btn.primary:hover { background: var(--oxblood); border-color: var(--oxblood); }
+
+  /* Tabs */
+  .case-tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid var(--rule);
+    padding: 0;
+    margin: 0 -40px;
+    padding: 0 40px;
+  }
+  .case-tab {
+    padding: 14px 0;
+    margin-right: 32px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--muted);
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: -1px;
+    transition: color 0.15s;
+  }
+  .case-tab .num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--muted-2);
+    letter-spacing: 0.05em;
+  }
+  .case-tab:hover { color: var(--ink); }
+  .case-tab.active {
+    color: var(--ink);
+    border-bottom-color: var(--oxblood);
+  }
+  .case-tab.active .num { color: var(--oxblood); }
+  .case-tab .badge {
+    background: var(--critical);
+    color: var(--paper-light);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    padding: 1px 5px;
+    border-radius: 8px;
+    margin-left: 2px;
+  }
+
+  /* Content area */
+  .content {
+    padding: 32px 40px 80px;
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 32px;
+    align-items: start;
+  }
+
+  /* Audit panel (left/main) */
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .panel-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--rule-soft);
+    display: flex; align-items: center; justify-content: space-between;
+    background: var(--paper-light);
+  }
+  .panel-title {
+    font-family: 'Fraunces', serif;
+    font-weight: 500;
+    font-size: 17px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .panel-title .icon {
+    width: 24px; height: 24px;
+    background: var(--oxblood-light);
+    color: var(--oxblood);
+    border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .panel-meta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+  }
+  .panel-body { padding: 24px 20px; }
+
+  /* Audit summary */
+  .audit-summary {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    margin-bottom: 28px;
+    overflow: hidden;
+  }
+  .audit-stat {
+    padding: 16px;
+    border-right: 1px solid var(--rule);
+    background: var(--paper-light);
+  }
+  .audit-stat:last-child { border-right: none; }
+  .audit-stat .num {
+    font-family: 'Fraunces', serif;
+    font-size: 32px;
+    font-weight: 500;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .audit-stat .label {
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 500;
+  }
+  .audit-stat.critical .num { color: var(--critical); }
+  .audit-stat.moderate .num { color: var(--gold); }
+  .audit-stat.minor .num { color: var(--forest); }
+
+  /* Finding cards */
+  .findings { display: flex; flex-direction: column; gap: 16px; }
+  .finding {
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    padding: 18px 20px;
+    background: var(--surface);
+  }
+  .finding.critical { border-left: 3px solid var(--critical); }
+  .finding.moderate { border-left: 3px solid var(--gold); }
+  .finding.minor { border-left: 3px solid var(--forest); }
+  .finding-head {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 10px;
+  }
+  .finding-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+  }
+  .finding-severity {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border-radius: 2px;
+    font-weight: 500;
+  }
+  .finding-severity.critical { background: var(--critical-light); color: var(--critical); }
+  .finding-severity.moderate { background: var(--gold-light); color: var(--gold); }
+  .finding-severity.minor { background: var(--forest-light); color: var(--forest); }
+  .finding-action {
+    margin-left: auto;
+    font-size: 12px;
+    color: var(--muted);
+    display: flex; gap: 12px;
+  }
+  .finding-action a { color: var(--ink); text-decoration: none; font-weight: 500; }
+  .finding-action a:hover { color: var(--oxblood); }
+  .finding h4 {
+    font-family: 'Fraunces', serif;
+    font-weight: 500;
+    font-size: 16px;
+    margin-bottom: 10px;
+    line-height: 1.3;
+  }
+  .finding-evidence {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+  .evidence-block {
+    background: var(--paper-light);
+    border: 1px solid var(--rule-soft);
+    padding: 10px 12px;
+    border-radius: 3px;
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--ink-soft);
+  }
+  .evidence-block .source {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .evidence-block em { color: var(--ink); font-style: italic; font-weight: 500; }
+  .resolution {
+    background: var(--forest-light);
+    border-left: 2px solid var(--forest);
+    padding: 10px 14px;
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--ink-soft);
+    border-radius: 0 3px 3px 0;
+  }
+  .resolution strong { color: var(--forest); font-weight: 600; }
+
+  /* Right sidebar / case spine */
+  .case-spine { display: flex; flex-direction: column; gap: 16px; }
+  .spine-card {
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .spine-card-head {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--rule-soft);
+    background: var(--paper-light);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .spine-card-head h5 {
+    font-family: 'Fraunces', serif;
+    font-weight: 500;
+    font-size: 14px;
+  }
+  .spine-card-head .status-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+  }
+  .status-dot.green { background: var(--forest); }
+  .status-dot.amber { background: var(--gold); }
+  .status-dot.red { background: var(--critical); }
+  .spine-card-body {
+    padding: 14px 16px;
+    font-size: 13px;
+    color: var(--ink-soft);
+    line-height: 1.5;
+  }
+  .spine-list { list-style: none; }
+  .spine-list li {
+    padding: 8px 0;
+    border-bottom: 1px solid var(--rule-soft);
+    display: flex; align-items: center; gap: 10px;
+    font-size: 13px;
+  }
+  .spine-list li:last-child { border-bottom: none; }
+  .spine-list .check {
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    border: 1.5px solid var(--rule);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .spine-list .check.done { border-color: var(--forest); background: var(--forest); color: var(--paper); }
+  .spine-list .check.done::after { content: '✓'; font-size: 9px; }
+  .spine-list .check.warn { border-color: var(--gold); background: var(--gold); color: var(--paper); }
+  .spine-list .check.warn::after { content: '!'; font-size: 10px; font-weight: 600; }
+  .spine-list li.muted { color: var(--muted); }
+
+  .deadline {
+    background: var(--oxblood-light);
+    color: var(--oxblood);
+    padding: 12px 14px;
+    border-radius: 4px;
+    font-size: 13px;
+    margin: 14px 16px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .deadline-num {
+    font-family: 'Fraunces', serif;
+    font-weight: 500;
+    font-size: 24px;
+    line-height: 1;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--rule); border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--muted-2); }
+
+  @media (max-width: 1180px) {
+    .app { grid-template-columns: 60px 1fr; }
+    .sidebar { display: none; }
+    .content { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- Left rail -->
+  <div class="rail">
+    <div class="rail-logo">W<span class="dot">.</span></div>
+    <div class="rail-icon active" title="Cases">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="14" height="14" rx="1"/><path d="M3 8h14M8 3v14"/></svg>
+    </div>
+    <div class="rail-icon" title="Country library">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="10" cy="10" r="7"/><path d="M3 10h14M10 3a10 10 0 010 14M10 3a10 10 0 000 14"/></svg>
+    </div>
+    <div class="rail-icon" title="Exhibits">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 3h7l4 4v10a1 1 0 01-1 1H5a1 1 0 01-1-1V4a1 1 0 011-1z"/><path d="M12 3v4h4"/></svg>
+    </div>
+    <div class="rail-icon" title="Calendar">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="14" height="13" rx="1"/><path d="M3 8h14M7 2v4M13 2v4"/></svg>
+    </div>
+    <div class="rail-icon" title="Team">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="8" r="3"/><path d="M2 17a5 5 0 0110 0"/><circle cx="14" cy="7" r="2"/><path d="M12 16a4 4 0 016-1"/></svg>
+    </div>
+    <div class="rail-spacer"></div>
+    <div class="rail-icon" title="Settings">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="10" cy="10" r="2.5"/><path d="M10 1.5v3M10 15.5v3M1.5 10h3M15.5 10h3M3.5 3.5l2 2M14.5 14.5l2 2M3.5 16.5l2-2M14.5 5.5l2-2"/></svg>
+    </div>
+    <div class="rail-avatar">DK</div>
+  </div>
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-title">
+        <span>Active cases</span>
+        <button><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 2v10M2 7h10"/></svg></button>
+      </div>
+      <div class="search-box">
+        <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="6" r="4"/><path d="M9 9l3 3"/></svg>
+        <span>Search cases</span>
+        <span class="kbd">⌘K</span>
+      </div>
+    </div>
+
+    <div class="filter-tabs">
+      <div class="filter-tab active">All <span class="count">14</span></div>
+      <div class="filter-tab">Prep <span class="count">8</span></div>
+      <div class="filter-tab">Review <span class="count">4</span></div>
+      <div class="filter-tab">Filed <span class="count">2</span></div>
+    </div>
+
+    <div class="case-list">
+      <div class="case-item active">
+        <div class="case-top">
+          <span class="case-id">WF-2026-0114</span>
+          <span class="case-status critical">3 issues</span>
+        </div>
+        <div class="case-name">M.A. — Eritrea</div>
+        <div class="case-meta">
+          <span>Political opinion</span>
+          <span>·</span>
+          <span>Filing in 21d</span>
+        </div>
+      </div>
+
+      <div class="case-item">
+        <div class="case-top">
+          <span class="case-id">WF-2026-0119</span>
+          <span class="case-status prep">In prep</span>
+        </div>
+        <div class="case-name">J.N. — Honduras</div>
+        <div class="case-meta">
+          <span>PSG · family</span>
+          <span>·</span>
+          <span>Filing in 47d</span>
+        </div>
+      </div>
+
+      <div class="case-item">
+        <div class="case-top">
+          <span class="case-id">WF-2026-0122</span>
+          <span class="case-status review">In review</span>
+        </div>
+        <div class="case-name">R.K. — Afghanistan</div>
+        <div class="case-meta">
+          <span>Political opinion</span>
+          <span>·</span>
+          <span>Filing in 12d</span>
+        </div>
+      </div>
+
+      <div class="case-item">
+        <div class="case-top">
+          <span class="case-id">WF-2026-0124</span>
+          <span class="case-status prep">In prep</span>
+        </div>
+        <div class="case-name">L.O. — Cameroon</div>
+        <div class="case-meta">
+          <span>Anglophone PSG</span>
+          <span>·</span>
+          <span>Filing in 89d</span>
+        </div>
+      </div>
+
+      <div class="case-item">
+        <div class="case-top">
+          <span class="case-id">WF-2026-0127</span>
+          <span class="case-status review">In review</span>
+        </div>
+        <div class="case-name">S.T. — Venezuela</div>
+        <div class="case-meta">
+          <span>Political opinion</span>
+          <span>·</span>
+          <span>Filing in 6d</span>
+        </div>
+      </div>
+
+      <div class="case-item">
+        <div class="case-top">
+          <span class="case-id">WF-2026-0131</span>
+          <span class="case-status prep">In prep</span>
+        </div>
+        <div class="case-name">F.D. — Iran</div>
+        <div class="case-meta">
+          <span>Religion</span>
+          <span>·</span>
+          <span>Filing in 62d</span>
+        </div>
+      </div>
+
+      <div class="case-item">
+        <div class="case-top">
+          <span class="case-id">WF-2026-0135</span>
+          <span class="case-status filed">Filed</span>
+        </div>
+        <div class="case-name">P.W. — Russia</div>
+        <div class="case-meta">
+          <span>Political opinion</span>
+          <span>·</span>
+          <span>Awaiting interview</span>
+        </div>
+      </div>
+
+      <div class="case-item">
+        <div class="case-top">
+          <span class="case-id">WF-2026-0140</span>
+          <span class="case-status prep">In prep</span>
+        </div>
+        <div class="case-name">G.M. — Ethiopia</div>
+        <div class="case-meta">
+          <span>Tigrayan PSG</span>
+          <span>·</span>
+          <span>Filing in 38d</span>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+
+    <div class="main-header">
+      <div class="breadcrumb">
+        Active cases <span class="sep">/</span> WF-2026-0114 <span class="sep">/</span> Credibility audit
+      </div>
+
+      <div class="case-header">
+        <div>
+          <h1>M.A. — Eritrea <span style="color: var(--muted); font-weight: 400; font-size: 22px;">· Asylum (Political opinion, PSG)</span></h1>
+          <div class="sub">
+            Filing deadline · Jun 1, 2026 (21 days) &nbsp;·&nbsp; Interview · TBD &nbsp;·&nbsp; Asylum office · Newark
+          </div>
+        </div>
+        <div class="case-actions">
+          <button class="btn"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 1v9M3 7l4 4 4-4M1 13h12"/></svg> Export packet</button>
+          <button class="btn primary">Open case file</button>
+        </div>
+      </div>
+
+      <div class="case-tabs">
+        <div class="case-tab">
+          <span class="num">01</span> Country conditions
+        </div>
+        <div class="case-tab">
+          <span class="num">02</span> Declaration
+        </div>
+        <div class="case-tab">
+          <span class="num">03</span> Evidence packet
+        </div>
+        <div class="case-tab active">
+          <span class="num">04</span> Credibility audit <span class="badge">3</span>
+        </div>
+        <div class="case-tab">
+          <span class="num">05</span> I-589 form
+        </div>
+        <div class="case-tab">
+          <span class="num">06</span> Timeline &amp; notes
+        </div>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- Audit panel -->
+      <div>
+        <div class="panel" style="margin-bottom: 24px;">
+          <div class="panel-header">
+            <div class="panel-title">
+              <div class="icon">04</div>
+              Credibility &amp; consistency audit
+            </div>
+            <div class="panel-meta">Last run · 12 min ago · v3</div>
+          </div>
+          <div class="panel-body">
+
+            <div class="audit-summary">
+              <div class="audit-stat critical">
+                <div class="num">1</div>
+                <div class="label">Critical</div>
+              </div>
+              <div class="audit-stat moderate">
+                <div class="num">2</div>
+                <div class="label">Moderate</div>
+              </div>
+              <div class="audit-stat minor">
+                <div class="num">4</div>
+                <div class="label">Minor</div>
+              </div>
+              <div class="audit-stat">
+                <div class="num">14</div>
+                <div class="label">Checks passed</div>
+              </div>
+            </div>
+
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 14px;">
+              Findings, ordered by severity
+            </div>
+
+            <div class="findings">
+
+              <div class="finding critical">
+                <div class="finding-head">
+                  <span class="finding-num">F-01</span>
+                  <span class="finding-severity critical">Critical</span>
+                  <div class="finding-action">
+                    <a href="#">Resolve in declaration →</a>
+                  </div>
+                </div>
+                <h4>Number of state security agents present at March 3, 2023 incident differs between declaration and credible fear interview.</h4>
+                <div class="finding-evidence">
+                  <div class="evidence-block">
+                    <div class="source">Declaration · ¶14 (Draft v3)</div>
+                    "On the night of March 3, 2023, <em>four men</em> arrived at my home. I recognized two of them from the security forces stationed near my office."
+                  </div>
+                  <div class="evidence-block">
+                    <div class="source">CFI Transcript · p.7, line 23</div>
+                    "Q: How many men came to your house? A: <em>Three men</em>, I think. Maybe four. It was dark."
+                  </div>
+                </div>
+                <div class="resolution">
+                  <strong>Suggested resolution.</strong> Likely translation artifact — Tigrinya does not distinguish 3/4 in casual speech without a separate counter. Confirm with client in next meeting. Revise declaration to reflect client's best recollection, or address directly: "At the time of my interview I was uncertain whether there were three or four men..."
+                </div>
+              </div>
+
+              <div class="finding moderate">
+                <div class="finding-head">
+                  <span class="finding-num">F-02</span>
+                  <span class="finding-severity moderate">Moderate</span>
+                  <div class="finding-action">
+                    <a href="#">Verify against Tab F →</a>
+                  </div>
+                </div>
+                <h4>Date of departure from Eritrea differs by 2 days between I-589 Part B Q1 and Declaration ¶22.</h4>
+                <div class="finding-evidence">
+                  <div class="evidence-block">
+                    <div class="source">I-589 · Part B, Q1</div>
+                    Date last departed home country: <em>April 14, 2023</em>
+                  </div>
+                  <div class="evidence-block">
+                    <div class="source">Declaration · ¶22</div>
+                    "On <em>April 16, 2023</em>, I crossed the border into Sudan on foot..."
+                  </div>
+                </div>
+                <div class="resolution">
+                  <strong>Suggested resolution.</strong> Cross-check against passport entry stamp (Tab F-2) and Sudanese border record if available. The two-day difference may reflect departure from home village (Apr 14) vs. border crossing (Apr 16). Clarify in declaration ¶22 and on I-589.
+                </div>
+              </div>
+
+              <div class="finding moderate">
+                <div class="finding-head">
+                  <span class="finding-num">F-03</span>
+                  <span class="finding-severity moderate">Moderate</span>
+                  <div class="finding-action">
+                    <a href="#">Address in brief →</a>
+                  </div>
+                </div>
+                <h4>Country conditions memo cites limited evidence of internal relocation infeasibility specific to journalists.</h4>
+                <div class="finding-evidence">
+                  <div class="evidence-block">
+                    <div class="source">Country Conditions · §4</div>
+                    "Eritrea's small geographic size and pervasive surveillance apparatus..."
+                  </div>
+                  <div class="evidence-block">
+                    <div class="source">Newark AO recent decisions</div>
+                    AO has questioned internal relocation in 3 of last 5 Eritrean cases. Pattern of probing this element.
+                  </div>
+                </div>
+                <div class="resolution">
+                  <strong>Suggested resolution.</strong> Strengthen §4 of country conditions memo with specific evidence: 2025 HRW report §VI on identity card requirements for inter-regional travel; CPJ 2025 report on monitoring of returned journalists. Consider expert declaration from refugee studies academic if budget permits.
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- Case spine -->
+      <aside class="case-spine">
+
+        <div class="spine-card">
+          <div class="spine-card-head">
+            <h5>Case status</h5>
+            <div class="status-dot amber"></div>
+          </div>
+          <div class="deadline">
+            <div class="deadline-num">21d</div>
+            <div>
+              <strong>Filing deadline</strong><br>
+              <span style="font-size: 11px;">Jun 1, 2026 · One-year bar</span>
+            </div>
+          </div>
+          <ul class="spine-list" style="padding: 0 16px 12px;">
+            <li><div class="check done"></div> Intake complete</li>
+            <li><div class="check done"></div> Country conditions memo</li>
+            <li><div class="check done"></div> Declaration draft v3</li>
+            <li><div class="check warn"></div> Evidence packet · 2 translations pending</li>
+            <li><div class="check warn"></div> Credibility audit · 3 to resolve</li>
+            <li class="muted"><div class="check"></div> I-589 final review</li>
+            <li class="muted"><div class="check"></div> Client signature</li>
+            <li class="muted"><div class="check"></div> File with USCIS</li>
+          </ul>
+        </div>
+
+        <div class="spine-card">
+          <div class="spine-card-head">
+            <h5>Case file</h5>
+          </div>
+          <div class="spine-card-body">
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              <div style="display: flex; justify-content: space-between;">
+                <span style="color: var(--muted);">Client</span>
+                <span>M.A.</span>
+              </div>
+              <div style="display: flex; justify-content: space-between;">
+                <span style="color: var(--muted);">Country of origin</span>
+                <span>Eritrea</span>
+              </div>
+              <div style="display: flex; justify-content: space-between;">
+                <span style="color: var(--muted);">Basis</span>
+                <span style="text-align: right;">Political opinion;<br>PSG (journalists)</span>
+              </div>
+              <div style="display: flex; justify-content: space-between;">
+                <span style="color: var(--muted);">Languages</span>
+                <span>Tigrinya, English</span>
+              </div>
+              <div style="display: flex; justify-content: space-between;">
+                <span style="color: var(--muted);">Asylum office</span>
+                <span>Newark</span>
+              </div>
+              <div style="display: flex; justify-content: space-between;">
+                <span style="color: var(--muted);">Attorney</span>
+                <span>D. Kim</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="spine-card">
+          <div class="spine-card-head">
+            <h5>Exhibits</h5>
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted);">17 indexed</span>
+          </div>
+          <div class="spine-card-body" style="padding: 0;">
+            <ul class="spine-list" style="padding: 0 16px;">
+              <li><span style="font-family: monospace; font-size: 11px; color: var(--muted);">A</span> Birth certificate</li>
+              <li><span style="font-family: monospace; font-size: 11px; color: var(--muted);">B</span> Press credentials</li>
+              <li><span style="font-family: monospace; font-size: 11px; color: var(--muted);">C</span> Hospital admission record</li>
+              <li><span style="font-family: monospace; font-size: 11px; color: var(--muted);">D</span> WhatsApp threats (translated)</li>
+              <li><span style="font-family: monospace; font-size: 11px; color: var(--muted);">E</span> USCIRF 2025 §3a</li>
+              <li class="muted"><span style="font-family: monospace; font-size: 11px;">+12</span> additional exhibits</li>
+            </ul>
+          </div>
+        </div>
+
+      </aside>
+
+    </div>
+  </main>
+
+</div>
+
+</body>
+</html>

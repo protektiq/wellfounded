@@ -1,0 +1,107 @@
+```markdown
+# Wellfounded — Project Rules
+
+## What this is
+Wellfounded is a vertical AI workbench for US affirmative asylum practice (I-589 filings).
+The MVP scope is exactly three product surfaces: country conditions memo generation,
+declaration drafting from interview audio, and the case-file primitive that holds them.
+Evidence packet assembly and credibility auditing are explicitly OUT OF SCOPE for the
+MVP. Do not implement them. Do not propose them. They ship in v1.1 and v1.2 respectively.
+
+## Stack — non-negotiable
+- Backend: Python 3.12, FastAPI, SQLAlchemy 2.x (async), Alembic, Pydantic v2.
+- Orchestration: LangChain + LangGraph. Use LangGraph for any multi-step flow with
+  human-in-the-loop checkpoints (country conditions verification, declaration drafting).
+- Database: PostgreSQL 16 with pgvector extension. No other databases.
+- Frontend: Next.js 15 (app router), TypeScript strict mode, React Server Components
+  where they fit, Tailwind CSS, shadcn/ui for primitives.
+- Models:
+  - Drafting and reasoning: Anthropic Claude via the official SDK. Default model
+    string `claude-opus-4-7`. Do not change without explicit instruction.
+  - Embeddings: OpenAI `text-embedding-3-large`.
+  - Transcription: Whisper-large-v3 via `faster-whisper` self-hosted in MVP.
+  - Translation: per-language NMT (start with NLLB-200) plus an LLM review pass.
+- Storage: S3-compatible (MinIO for local dev, S3 in prod). Per-tenant envelope
+  encryption with AWS KMS-issued data keys.
+- Auth: passwordless magic links + WebAuthn second factor for admin roles. Use
+  `lucia-auth` or a hand-rolled equivalent. Do not bring in Auth0 / Clerk.
+
+## Architecture rules
+- The system is multi-tenant from day one. Tenancy is the Organization. Cross-tenant
+  data access is a P0 bug. Every query that touches a tenant-scoped table MUST filter
+  by organization_id. Add this to every repository method without exception.
+- The system is pseudonymous by design. No client legal name fields exist. Use a
+  pseudonymous identifier ("M.A. — Eritrea"). If you find yourself about to add a
+  `client_name` column, STOP and ask.
+- Every state-changing API endpoint writes an entry to the audit log table. No
+  exceptions. The audit log is append-only.
+- Citation faithfulness is a P0 quality property. Every retrieval-grounded model
+  output must use structured generation that emits citation tokens inline, and must
+  pass a verification step before being returned to the user. Hallucinated citations
+  are treated as P0 incidents.
+- Model API calls go through a single typed wrapper (`apps/api/llm/client.py`).
+  Do not call SDKs directly from feature code.
+
+## Engineering conventions
+- Type strictness: `mypy --strict` for Python, `tsc --strict --noUncheckedIndexedAccess`
+  for TypeScript. New code must pass with zero errors.
+- Tests: pytest for backend, vitest + Playwright for frontend. Every new endpoint
+  ships with at least one integration test. Every new prompt ships with at least one
+  eval case.
+- Migrations: every schema change ships with a forward and backward Alembic migration.
+- Secrets: never commit. Use `.env.local` for dev (gitignored), AWS Secrets Manager
+  in prod.
+- Logging: structured JSON via `structlog`. Every log line includes `request_id`,
+  `organization_id`, `user_id` where applicable.
+- No emoji in code, comments, commits, or UI text. The product tone is editorial,
+  not chatty.
+
+## What NOT to do
+- Do not add features that are not in the MVP PRD section 3 (User stories).
+- Do not add a `client_name`, `client_email`, or `client_phone` field anywhere.
+- Do not store model API keys in the database. Environment only.
+- Do not add a chatbot for clients. Out of scope.
+- Do not call OpenAI / Anthropic / any model API from the frontend. Backend only.
+- Do not introduce a new dependency without justification in a code comment.
+- Do not generate or display emoji in any user-facing surface.
+- Do not silence flagged content in declaration output. Flags are P0 product behavior.
+
+## File layout (canonical)
+```
+apps/
+  api/                    FastAPI backend
+    main.py
+    config.py
+    db/                   SQLAlchemy models, session, migrations
+    auth/                 Magic-link + WebAuthn
+    orgs/                 Organization, user, role models
+    cases/                Case file, intake, versioning
+    country_conditions/   CC memo generation flow
+    declarations/         Declaration drafting flow
+    llm/                  Model client wrappers and prompt assets
+    retrieval/            Source library, embeddings, pgvector
+    transcription/        Whisper pipeline
+    translation/          NMT + LLM review pipeline
+    docx/                 DOCX template rendering
+    audit/                Audit log writers and queries
+    evals/                Eval harness
+  web/                    Next.js frontend
+    app/
+    components/
+    lib/
+packages/
+  shared/                 TS types matching backend Pydantic models
+infra/
+  local/                  docker-compose for postgres + minio + worker
+docs/
+  prd.md                  Copy of the MVP PRD for in-repo reference
+  decisions/              ADRs
+evals/
+  fixtures/               Golden-set inputs
+  results/                Versioned eval run outputs
+```
+```
+
+Commit this file as the first commit on the repository: `chore: initial cursorrules`.
+
+---
