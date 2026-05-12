@@ -1,0 +1,76 @@
+name: evals
+
+# Runs the citation_faithfulness eval category on every PR that touches the
+# country_conditions feature, the LLM gateway, the eval harness itself, or the
+# corresponding fixtures. We deliberately keep this workflow scoped to a single
+# deterministic category for now so it can run with zero secrets and no
+# Postgres service; later feature tasks that ship rubric fixtures will extend
+# this workflow with the necessary environment.
+
+on:
+  pull_request:
+    paths:
+      - "apps/api/country_conditions/**"
+      - "apps/api/llm/**"
+      - "apps/api/evals/**"
+      - "evals/fixtures/citation_faithfulness/**"
+      - ".github/workflows/evals.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: evals-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  citation_faithfulness:
+    name: citation_faithfulness
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: apps/api
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Poetry
+        run: pipx install poetry==1.8.3
+
+      - name: Cache Poetry virtualenv
+        uses: actions/cache@v4
+        with:
+          path: apps/api/.venv
+          key: poetry-${{ runner.os }}-py3.12-${{ hashFiles('apps/api/poetry.lock') }}
+
+      - name: Configure Poetry to use in-project venv
+        run: poetry config virtualenvs.in-project true
+
+      - name: Install dependencies
+        run: poetry install --no-interaction --no-root
+
+      - name: Run citation_faithfulness eval
+        env:
+          GIT_SHA: ${{ github.sha }}
+        run: |
+          mkdir -p ../../evals/results
+          poetry run python -m evals.runner \
+            --category citation_faithfulness \
+            --output "../../evals/results/pr-${GIT_SHA}.json"
+
+      - name: Upload result manifest
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: eval-citation-faithfulness
+          path: evals/results/pr-*.json
+          if-no-files-found: warn
+          retention-days: 30
