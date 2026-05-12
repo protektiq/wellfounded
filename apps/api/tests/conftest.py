@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import os
 from collections.abc import AsyncIterator, Iterator
 from pathlib import Path
@@ -15,6 +16,23 @@ from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 _API_ROOT = Path(__file__).resolve().parents[1]
+
+
+@pytest.fixture(autouse=True)
+def _preserve_event_loop() -> Iterator[None]:
+    """Prevent sync tests that call asyncio.run() from clearing the session loop.
+
+    asyncio.run() calls asyncio.set_event_loop(None) on exit, which wipes the
+    loop that pytest-asyncio set up for the session. Saving and restoring it
+    here ensures async tests that follow any sync test continue to work.
+    """
+    try:
+        saved = asyncio.get_event_loop()
+    except RuntimeError:
+        saved = None
+    yield
+    if saved is not None and not saved.is_closed():
+        asyncio.set_event_loop(saved)
 
 
 def pytest_configure() -> None:
