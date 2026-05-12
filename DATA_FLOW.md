@@ -87,6 +87,36 @@ flowchart LR
   ing --> pg
 ```
 
+**Eval harness.** Practitioner-curated fixtures live at repo root under `evals/fixtures/<category>/*.json` (categories: `citation_faithfulness`, `declaration_quality`, `transcription_wer`, `translation_quality`). The harness code itself lives at `apps/api/evals/` so the rubric LLM judge can route through the same `LLMClient` gateway as production code; no model SDK is imported outside `apps/api/llm/`. Operators run `make eval-run category=<category>` (or `poetry run python -m evals.runner --category <category>` from `apps/api`). The runner discovers fixture JSON files, validates each one against `Fixture` (Pydantic v2, `extra="forbid"` + length caps), and dispatches to a `Scorer` from `SCORER_REGISTRY` (`exact_citation_match`, `wer`, or `rubric_llm_judge`). Deterministic scorers never open a database session; the rubric judge does, and every judge invocation persists an `LLMCallRecord` row exactly as production calls do. Each run writes one versioned `RunManifest` JSON file to `evals/results/<git-sha>-<category>-<ts>.json` (git-ignored). `make eval-view a=<a.json> b=<b.json>` boots a localhost-only stdlib HTTP viewer that renders a side-by-side score diff. A path-filtered GitHub Actions workflow (`.github/workflows/evals.yml`) runs the `citation_faithfulness` category on every PR that touches `apps/api/country_conditions/`, `apps/api/llm/`, `apps/api/evals/`, or the corresponding fixture folder, and uploads the manifest as an artifact.
+
+```mermaid
+flowchart LR
+  cli[python_m_evals_runner]
+  disc[discover_fixture_paths]
+  fx[(evals_fixtures_category)]
+  val[Fixture_pydantic_validate]
+  reg[SCORER_REGISTRY]
+  det[deterministic_scorers]
+  jud[rubric_llm_judge]
+  rub[(evals_rubrics)]
+  llc[LLMClient]
+  rec[(llm_call_records)]
+  out[(evals_results_json)]
+  view[python_m_evals_view]
+  cli --> disc
+  disc --> fx
+  disc --> val
+  val --> reg
+  reg --> det
+  reg --> jud
+  jud --> rub
+  jud --> llc
+  llc --> rec
+  det --> out
+  jud --> out
+  out --> view
+```
+
 **WebAuthn admin MFA.** Admin users enroll passkeys via `POST /auth/webauthn/register/begin` and `POST /auth/webauthn/register/finish` (challenge rows in `webauthn_challenges`, credentials in `webauthn_credentials`, Alembic `h2b3c4d5e6f7`). Each ceremony row is scoped by `organization_id` and `session_id`. Successful registration or authentication sets `sessions.mfa_verified_at`. `GET /auth/me` returns `mfa_verified` and `webauthn_credential_count` so the Next.js app can route admins to register or authenticate before calling admin APIs. `POST /auth/webauthn/authenticate/begin` and `.../finish` assert the user already has at least one stored credential. `require_mfa` returns 403 for admin sessions with a null `mfa_verified_at`. `auth.webauthn.register_finish` and `auth.webauthn.authenticate_finish` are written to the audit log. The API enables `CORSMiddleware` with `allow_credentials=True` and origins derived from `public_app_url` (plus common localhost variants) so `@simplewebauthn/browser` calls from the web app can send the session cookie cross-origin in local dev.
 
 ```mermaid

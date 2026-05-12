@@ -1,0 +1,6 @@
+# Result manifests are versioned per-run and uploaded as CI artifacts;
+# we deliberately do not check them into git. Keep the directory tracked
+# via the README below so `evals/results/` always exists for the runner.
+*.json
+!.gitignore
+!README.md

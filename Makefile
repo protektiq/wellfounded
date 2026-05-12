@@ -1,6 +1,6 @@
 COMPOSE := docker-compose -f infra/local/docker-compose.yml
 
-.PHONY: up down db-migrate db-revision api web test lint ingest
+.PHONY: up down db-migrate db-revision api web test lint ingest eval-run eval-view
 
 up:
 	$(COMPOSE) up -d
@@ -30,3 +30,9 @@ test:
 lint:
 	cd apps/api && poetry run ruff check .
 	cd apps/api && poetry run mypy --strict .
+
+eval-run:
+	cd apps/api && poetry run python -m evals.runner --category $(category)
+
+eval-view:
+	cd apps/api && poetry run python -m evals.view $(a) $(b)
