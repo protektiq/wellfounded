@@ -1,6 +1,6 @@
 COMPOSE := docker-compose -f infra/local/docker-compose.yml
 
-.PHONY: up down db-migrate db-revision api web test lint
+.PHONY: up down db-migrate db-revision api web test lint ingest
 
 up:
 	$(COMPOSE) up -d
@@ -13,6 +13,9 @@ db-migrate:
 
 db-revision:
 	cd apps/api && poetry run alembic revision -m "$(msg)"
+
+ingest:
+	cd apps/api && poetry run python -m scripts.ingest $(ARGS)
 
 api:
 	cd apps/api && poetry run uvicorn main:app --reload --host 0.0.0.0 --port 8000

@@ -4,7 +4,9 @@ from __future__ import annotations
 
 import asyncio
 import uuid
+from collections.abc import Coroutine
 from pathlib import Path
+from typing import TypeVar
 
 import pytest
 from alembic import command
@@ -16,6 +18,8 @@ from orgs.models import UserRole, UserStatus
 from orgs.repository import OrgRepository
 
 _API_ROOT = Path(__file__).resolve().parents[1]
+
+_T = TypeVar("_T")
 
 
 @pytest.mark.asyncio(loop_scope="session")
@@ -115,11 +119,19 @@ def test_alembic_downgrade_removes_org_tables() -> None:
     async def has_org() -> bool:
         return await has_organizations_table(url)
 
-    before = asyncio.run(has_org())
+    def _run_one(coro: Coroutine[None, None, _T]) -> _T:
+        """Use a fresh loop; avoid asyncio.run() on the pytest-asyncio thread."""
+        loop = asyncio.new_event_loop()
+        try:
+            return loop.run_until_complete(coro)
+        finally:
+            loop.close()
+
+    before = _run_one(has_org())
     command.downgrade(cfg, "cc18cd30d200")
-    after_down = asyncio.run(has_org())
+    after_down = _run_one(has_org())
     command.upgrade(cfg, "head")
-    after_up = asyncio.run(has_org())
+    after_up = _run_one(has_org())
     assert before is True
     assert after_down is False
     assert after_up is True

@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 from functools import lru_cache
+from typing import Literal
+from urllib.parse import urlparse
 
 from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -43,6 +45,49 @@ class Settings(BaseSettings):
     anthropic_api_key: str | None = Field(default=None)
     openai_api_key: str | None = Field(default=None)
 
+    public_app_url: str = Field(
+        default="http://127.0.0.1:3000",
+        max_length=512,
+        description="Browser app base URL for post-login redirect",
+    )
+    api_public_url: str = Field(
+        default="http://127.0.0.1:8000",
+        max_length=512,
+        description="Public base URL of this API (magic-link callback host)",
+    )
+    magic_link_ttl_seconds: int = Field(
+        default=900,
+        ge=60,
+        le=86400,
+        description="Magic-link token lifetime in seconds",
+    )
+    email_backend: Literal["console", "ses"] = Field(
+        default="console",
+        description="Email transport: console (dev) or ses (stub)",
+    )
+
+    webauthn_rp_id: str = Field(
+        default="",
+        max_length=253,
+        description="WebAuthn RP ID; empty uses hostname of public_app_url",
+    )
+    webauthn_rp_name: str = Field(
+        default="Wellfounded",
+        min_length=1,
+        max_length=64,
+        description="Human-readable relying party name shown by authenticators",
+    )
+
+    @field_validator("public_app_url", "api_public_url")
+    @classmethod
+    def http_base_url(cls, value: str) -> str:
+        stripped = value.strip().rstrip("/")
+        if not stripped.startswith(("http://", "https://")):
+            raise ValueError("URL must start with http:// or https://")
+        if len(stripped) > 512:
+            raise ValueError("URL exceeds maximum length")
+        return stripped
+
     @field_validator("log_level")
     @classmethod
     def log_level_upper(cls, value: str) -> str:
@@ -51,6 +96,30 @@ class Settings(BaseSettings):
         if upper not in allowed:
             raise ValueError(f"log_level must be one of {sorted(allowed)}")
         return upper
+
+    def resolved_webauthn_rp_id(self) -> str:
+        stripped = self.webauthn_rp_id.strip()
+        if stripped:
+            if len(stripped) > 253:
+                raise ValueError("webauthn_rp_id exceeds maximum length")
+            return stripped
+        parsed = urlparse(self.public_app_url)
+        host = parsed.hostname
+        if host is None or host == "":
+            raise ValueError(
+                "public_app_url must include a hostname for WebAuthn RP ID",
+            )
+        if len(host) > 253:
+            raise ValueError("derived WebAuthn RP ID exceeds maximum length")
+        return host
+
+    def resolved_webauthn_expected_origins(self) -> list[str]:
+        parsed = urlparse(self.public_app_url)
+        netloc = parsed.netloc
+        if not netloc:
+            raise ValueError("public_app_url must include a host for WebAuthn origins")
+        origin = f"{parsed.scheme}://{netloc}"
+        return [origin]
 
 
 @lru_cache
