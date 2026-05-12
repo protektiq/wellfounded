@@ -66,6 +66,7 @@ app.include_router(auth_router)
 # Register ORM models with SQLAlchemy metadata.
 import audit.models  # noqa: E402, F401
 import auth.models  # noqa: E402, F401
+import llm.models  # noqa: E402, F401
 import orgs.models  # noqa: E402, F401
 
 

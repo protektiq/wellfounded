@@ -45,9 +45,12 @@ async def test_upsert_twice_no_duplicate_rows(
 
     async def _fake_embed_texts(
         texts: list[str],
+        session: AsyncSession,
         *,
-        api_key: str | None = None,
+        organization_id: object | None = None,
+        user_id: object | None = None,
     ) -> list[list[float]]:
+        _ = session
         calls.append(len(texts))
         return [
             [0.002 * float((i + j) % 17) for j in range(3072)]
@@ -71,7 +74,7 @@ async def test_upsert_twice_no_duplicate_rows(
     for _ in range(2):
         raw = await ingester.fetch(ref)
         passages = ingester.parse(raw)
-        await ingester.embed(passages)
+        await ingester.embed(db_session, passages)
         await ingester.upsert(db_session, ref, raw, passages)
         await db_session.commit()
 
@@ -91,9 +94,12 @@ async def test_similarity_query_and_hnsw_index(
 ) -> None:
     async def _fake_embed_texts(
         texts: list[str],
+        session: AsyncSession,
         *,
-        api_key: str | None = None,
+        organization_id: object | None = None,
+        user_id: object | None = None,
     ) -> list[list[float]]:
+        _ = session
         out: list[list[float]] = []
         for i, _ in enumerate(texts):
             row = [0.0] * 3072
@@ -116,7 +122,7 @@ async def test_similarity_query_and_hnsw_index(
     ingester = StateDeptIngester(year=2024, countries=["ER"], fixture_html=eritrea_html)
     raw = await ingester.fetch(ref)
     passages = ingester.parse(raw)
-    await ingester.embed(passages)
+    await ingester.embed(db_session, passages)
     await ingester.upsert(db_session, ref, raw, passages)
     await db_session.commit()
 
