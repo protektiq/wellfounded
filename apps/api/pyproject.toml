@@ -37,6 +37,14 @@ ruff = "0.8.4"
 # Pydantic EmailStr (auth request bodies) pulls this in at import time.
 email-validator = "^2.2.0"
 webauthn = "2.2.0"
+# Tolerant HTML parsing for State.gov and other source sites with irregular markup.
+beautifulsoup4 = "^4.12.0"
+
+[tool.poetry.group.dev.dependencies]
+types-beautifulsoup4 = "^4.12.0"
+
+[tool.poetry.scripts]
+ingest = "scripts.ingest:main"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

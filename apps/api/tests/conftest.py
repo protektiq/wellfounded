@@ -43,6 +43,7 @@ async def db_session(_alembic_upgrade_head: None) -> AsyncIterator[AsyncSession]
 
     factory = get_async_session_maker()
     async with factory() as session:
+        await session.execute(text("TRUNCATE TABLE source_documents CASCADE"))
         await session.execute(text("TRUNCATE TABLE organizations CASCADE"))
         await session.commit()
         try:

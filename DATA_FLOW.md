@@ -66,6 +66,19 @@ flowchart LR
 
 Redis is started for future queue work and is not used by the API in this milestone.
 
+**Source library ingestion (retrieval milestone).** Global reference tables `source_documents` and `source_passages` (Alembic `i1j2k3l4m5n6`) store State Department human rights report HTML and chunked passages with `vector(3072)` embeddings from OpenAI `text-embedding-3-large`. Operators run `make ingest` or `poetry run python -m scripts.ingest` from `apps/api` with `--source state_dept`, `--year 2024`, and `--country` in `ER`, `HN`, or `VE`; optional `--fixture-path` reads local HTML instead of HTTP. The `StateDeptIngester` pipeline discovers URLs, fetches HTML, parses H2 or H3 sections into passages, calls `retrieval.embed.embed_texts` with batching and backoff, and upserts rows keyed by `(source_family, content_hash)` so re-runs are idempotent. Similarity search uses pgvector distance on `embedding::halfvec(3072)` with an HNSW index on that expression (pgvector dimension limits for plain `vector`).
+
+```mermaid
+flowchart LR
+  cli[scripts_ingest_CLI]
+  ing[StateDeptIngester]
+  emb[retrieval_embed]
+  pg[(Postgres_pgvector)]
+  cli --> ing
+  ing --> emb
+  emb --> pg
+```
+
 **WebAuthn admin MFA.** Admin users enroll passkeys via `POST /auth/webauthn/register/begin` and `POST /auth/webauthn/register/finish` (challenge rows in `webauthn_challenges`, credentials in `webauthn_credentials`, Alembic `h2b3c4d5e6f7`). Each ceremony row is scoped by `organization_id` and `session_id`. Successful registration or authentication sets `sessions.mfa_verified_at`. `GET /auth/me` returns `mfa_verified` and `webauthn_credential_count` so the Next.js app can route admins to register or authenticate before calling admin APIs. `POST /auth/webauthn/authenticate/begin` and `.../finish` assert the user already has at least one stored credential. `require_mfa` returns 403 for admin sessions with a null `mfa_verified_at`. `auth.webauthn.register_finish` and `auth.webauthn.authenticate_finish` are written to the audit log. The API enables `CORSMiddleware` with `allow_credentials=True` and origins derived from `public_app_url` (plus common localhost variants) so `@simplewebauthn/browser` calls from the web app can send the session cookie cross-origin in local dev.
 
 ```mermaid
