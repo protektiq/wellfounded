@@ -12,6 +12,7 @@ from starlette.middleware.cors import CORSMiddleware
 
 from audit.middleware import RequestContextMiddleware
 from auth.routes import router as auth_router
+from cases.router import router as cases_router
 from config import Settings, get_settings
 from orgs.router import router as orgs_router
 
@@ -61,11 +62,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 app.include_router(orgs_router)
+app.include_router(cases_router)
 app.include_router(auth_router)
 
 # Register ORM models with SQLAlchemy metadata.
 import audit.models  # noqa: E402, F401
 import auth.models  # noqa: E402, F401
+import cases.models  # noqa: E402, F401
 import llm.models  # noqa: E402, F401
 import orgs.models  # noqa: E402, F401
 

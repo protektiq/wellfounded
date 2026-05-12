@@ -456,7 +456,7 @@ Read `.cursorrules` and `docs/prd.md` section 4.1 ("Generation flow") first. Tas
 
 1. `apps/api/retrieval/search.py`:
    - `search(query: str, *, country_codes: list[str], date_after: date | None, source_families: list[str] | None, top_k: int = 20) -> list[RetrievedPassage]`
-   - Implementation: embed query via `LLMClient.embed`, run pgvector cosine similarity query with the filters above. Return passages with full source metadata.
+   - Implementation: embed query via `LLMClient.embed`, run pgvector cosine similarity query with the filters above. Return passages with full source metadata. **The HNSW index on `source_passages` is built on `(embedding::halfvec(3072))` — queries must use the same cast: `(embedding::halfvec(3072)) <=> ($1::halfvec(3072))`. A plain `vector` operator expression will bypass the index and full-scan the table.**
 2. `RetrievedPassage` dataclass: passage_id, document_id, source_family, document_title, publication_date, url, section_anchor, text, similarity_score.
 3. A reranking step (`apps/api/retrieval/rerank.py`) using a cross-encoder reranker — `BAAI/bge-reranker-large` self-hosted, or as a stub, an LLM-based rerank for MVP. Configurable via env. Default to LLM rerank in MVP to avoid GPU dependency in early dev.
 4. Caching: Redis cache of (query_hash, filters) -> result_ids with 24h TTL. Cache hit must not skip rerank.
@@ -529,7 +529,7 @@ Read `.cursorrules` and `docs/prd.md` section 5.3 first. Task 2.3 and Task 1.8 m
 2. The fixtures cover at least Eritrea, Honduras, Venezuela, Afghanistan, and Iran across the five claim bases.
 3. The `exact_citation_match` scorer is updated to also check the verification step's classification matches the fixture's expected classification.
 4. Running `python -m evals.runner --category citation_faithfulness` against the current `claude-opus-4-7` produces a baseline result file committed at `evals/results/baseline-claude-opus-4-7.json`.
-5. CI gate: a PR touching `country_conditions/`, `llm/`, or `retrieval/` runs this eval. If overall support score drops more than 2 points vs. baseline, the PR is blocked.
+5. CI gate: `.github/workflows/evals.yml` already exists and triggers on `country_conditions/`, `llm/`, `evals/`, and `evals/fixtures/citation_faithfulness/` path changes — do not replace it. Extend it to add a baseline comparison step: download the committed `evals/results/baseline-claude-opus-4-7.json` artifact and fail the workflow if the overall support score drops more than 2 points vs. baseline.
 
 **Acceptance criteria.**
 - Baseline eval shows ≥99% citation support on the supportive fixtures.
@@ -557,7 +557,7 @@ Read `.cursorrules` and `docs/prd.md` section 4.1 ("Source library at launch") f
    - `cpj.py` — country pages and topical reports
    - `euaa_coi.py` — EUAA Country of Origin Information reports
 2. For each, fixture-based tests confirming parsing extracts intended passages from real saved pages.
-3. A `Makefile` target `make ingest-all` that runs all ingesters in dependency order.
+3. A `make ingest-all` target added to the **repo-root `Makefile`** (alongside `make api`, `make web`, etc.) that runs all ingesters in dependency order. The existing `make ingest` target accepts a single `--source` flag; `ingest-all` calls it once per source family.
 4. The full launch library is sized at ~3,000 documents and ~150,000 passages — confirm the pgvector hnsw index continues to perform within SLO at this scale; if not, switch to ivfflat with appropriate lists parameter and document the decision in `docs/decisions/ADR-001-pgvector-index.md`.
 5. A scheduled task (cron or simple async loop) that re-runs ingestion for living-document source families (state dept, USCIRF, freedom house) every 30 days and records the last_verified_at update.
 
@@ -602,6 +602,8 @@ Read `.cursorrules` and `docs/prd.md` section 4.1 ("Output format") first.
 ---PROMPT START---
 
 Read `.cursorrules` and the design notes in `02_landing_page.html` for visual reference (warm cream paper background, Fraunces display, Public Sans body, oxblood accents).
+
+**Before you start.** `shadcn/ui` is not yet installed in `apps/web`. Run `npx shadcn@latest init` from `apps/web` and accept the defaults (TypeScript, Tailwind CSS, app router, no `src/` dir). Do this before writing any component code.
 
 **Objective.** Build the country conditions surface in the Next.js workbench.
 
@@ -756,6 +758,8 @@ Read `.cursorrules` and `docs/prd.md` section 4.2 ("Output format") first. Task 
 
 Read `.cursorrules` first. Task 3.2 and 3.3 must be complete.
 
+**Before you start.** Confirm `shadcn/ui` is installed in `apps/web` (installed during Task 2.7). If for any reason it is absent, run `npx shadcn@latest init` from `apps/web` before writing component code.
+
 **Objective.** Build the declaration surface in the Next.js workbench.
 
 **What to build.**
@@ -838,6 +842,8 @@ Read `.cursorrules` and `docs/prd.md` section 9.3 ("Decision points") first.
 
 Read `.cursorrules` and reference `03_platform_page.html` for the exact visual treatment.
 
+**Before you start.** Confirm `shadcn/ui` is installed in `apps/web` (installed during Task 2.7). If for any reason it is absent, run `npx shadcn@latest init` from `apps/web` before writing component code.
+
 **Objective.** Build the global workbench shell: left rail, case list sidebar, main content area. This replaces the per-feature pages from Phase 2 and 3 with the consolidated workbench.
 
 **What to build.**
@@ -888,12 +894,18 @@ Read `.cursorrules` first.
 
 **Objective.** Build the admin surface for provisioning users and managing org settings. Required because we have no self-service signup.
 
+**Before you start.** Several stubs already exist from Phase 1 — read them before writing anything new:
+- `apps/api/orgs/router.py` — `GET /orgs/admin/users` stub, already gated by `require_role(UserRole.admin)` and `require_mfa`.
+- `apps/web/app/orgs/admin/users/page.tsx` — functional admin page stub: role check, MFA redirect, stub user list rendered from the API.
+- `apps/web/app/auth/webauthn/register/page.tsx` and `authenticate/page.tsx` — WebAuthn ceremony pages.
+Extend these files in-place. Do not create new routes at the same paths.
+
 **What to build.**
 
 1. `/admin/users` — list users in the org with role, status, last login. Admin can invite new users (sends magic link), suspend users, change roles.
 2. `/admin/org` — org settings: display name, data residency region (us-east-1 only at launch but show the field), KMS data key rotation button.
 3. `/admin/audit` — org-wide audit log view.
-4. All admin pages require `mfa_verified` session per Task 1.5.
+4. All admin pages require `mfa_verified` session per Task 1.5 — this gate is already enforced in the existing backend stub and frontend redirect; do not remove or weaken it.
 
 **Acceptance criteria.**
 - Inviting a user sends a magic link (verify by intercepting the email send in test).

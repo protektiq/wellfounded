@@ -374,8 +374,9 @@ class LLMClient:
             parsed_msg = completion.choices[0].message
             parsed_obj = parsed_msg.parsed
             if parsed_obj is None:
-                msg = "OpenAI structured completion returned no parsed object"
-                raise RuntimeError(msg)
+                raise RuntimeError(
+                    "OpenAI structured completion returned no parsed object"
+                )
             u = completion.usage
             usage = TokenUsage(
                 prompt_tokens=u.prompt_tokens if u else None,
