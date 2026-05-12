@@ -36,14 +36,23 @@ class SourceIngester(ABC):
     def parse(self, raw: str) -> list[Passage]:
         """Split raw content into passages (no network)."""
 
-    async def embed(self, passages: Sequence[Passage]) -> None:
+    async def embed(
+        self,
+        session: AsyncSession,
+        passages: Sequence[Passage],
+    ) -> None:
         """Fill ``embedding`` on each passage."""
         if not passages:
             return
         from retrieval.embed import embed_texts as _embed_texts
 
         texts = [p.text for p in passages]
-        vectors = await _embed_texts(texts)
+        vectors = await _embed_texts(
+            texts,
+            session,
+            organization_id=None,
+            user_id=None,
+        )
         for passage, vector in zip(passages, vectors, strict=True):
             passage.embedding = vector
 
@@ -67,6 +76,6 @@ class SourceIngester(ABC):
         for ref in refs:
             raw = await self.fetch(ref)
             passages = self.parse(raw)
-            await self.embed(passages)
+            await self.embed(session, passages)
             await self.upsert(session, ref, raw, passages)
             await session.commit()
