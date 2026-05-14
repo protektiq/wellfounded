@@ -1,0 +1,23 @@
+{
+  "id": "ve-live-adversarial-01",
+  "category": "citation_faithfulness_live",
+  "scorer": "country_conditions_draft",
+  "tags": ["adversarial", "ve", "political_opinion", "thin_context"],
+  "input": {
+    "section_id": "internal_relocation",
+    "section_query": "Is internal relocation a viable option for Venezuelan political dissidents?",
+    "passage_items": [
+      {
+        "passage_id": "b5000001-0000-4000-8000-000000000001",
+        "text": "Venezuela's security and intelligence services, including the Bolivarian Intelligence Service (SEBIN) and the Directorate General of Military Counterintelligence (DGCIM), operate nationwide and maintain surveillance networks across the country. Individuals perceived as political opponents of the Maduro government face risk of arrest and detention regardless of where they are located within Venezuela. The colectivos, pro-government armed groups, have a presence in many urban areas and have been documented targeting opposition supporters.",
+        "source_family": "state_dept_human_rights",
+        "document_title": "2024 Country Reports on Human Rights Practices: Venezuela",
+        "publication_date": "2024-12-31",
+        "url": "https://www.state.gov/reports/2024-country-reports-on-human-rights-practices/venezuela/",
+        "section_anchor": "Section 2d. Freedom of Movement and the Right to Leave the Country",
+        "similarity_score": 0.85
+      }
+    ]
+  },
+  "expected": {}
+}

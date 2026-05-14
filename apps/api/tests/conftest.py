@@ -61,6 +61,15 @@ async def db_session(_alembic_upgrade_head: None) -> AsyncIterator[AsyncSession]
 
     factory = get_async_session_maker()
     async with factory() as session:
+        await session.execute(
+            text(
+                "DO $lg$ BEGIN "
+                "IF to_regclass('public.checkpoint_writes') IS NOT NULL THEN "
+                "TRUNCATE TABLE checkpoint_writes, checkpoint_blobs, checkpoints, "
+                "checkpoint_migrations RESTART IDENTITY; "
+                "END IF; END $lg$;",
+            ),
+        )
         await session.execute(text("TRUNCATE TABLE source_documents CASCADE"))
         await session.execute(text("TRUNCATE TABLE organizations CASCADE"))
         await session.commit()

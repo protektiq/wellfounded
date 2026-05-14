@@ -175,9 +175,7 @@ def render_diff(left: RunManifest, right: RunManifest) -> str:
         "<th>Fixture</th><th>Scorer</th><th>Score A</th><th>Score B</th>"
         "<th>Δ</th><th>Passed A</th><th>Passed B</th>"
         "</tr></thead>"
-        "<tbody>"
-        + "".join(rows)
-        + "</tbody></table>"
+        "<tbody>" + "".join(rows) + "</tbody></table>"
     )
 
     if not rows:

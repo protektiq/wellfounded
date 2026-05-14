@@ -1,0 +1,35 @@
+{
+  "id": "er-adversarial-01",
+  "category": "citation_faithfulness",
+  "scorer": "exact_citation_match",
+  "tags": [
+    "adversarial",
+    "er",
+    "political_opinion"
+  ],
+  "input": {
+    "country_code": "ER",
+    "basis": "political_opinion",
+    "section_id": "general_conditions",
+    "retrieval_context_ids": [
+      "0000000b-0000-4000-8000-000000000001"
+    ],
+    "cited_source_ids": [
+      "0000000b-0000-4000-8000-000000000001"
+    ],
+    "verification_claims": [
+      {
+        "claim_text": "The single retrieved passage supports only a narrow factual predicate about detention conditions.",
+        "support": "supported"
+      }
+    ]
+  },
+  "expected": {
+    "verification_claims": [
+      {
+        "claim_text": "The single retrieved passage supports only a narrow factual predicate about detention conditions.",
+        "support": "supported"
+      }
+    ]
+  }
+}

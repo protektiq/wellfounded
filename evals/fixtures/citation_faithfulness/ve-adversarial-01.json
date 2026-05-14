@@ -1,0 +1,36 @@
+{
+  "id": "ve-adversarial-01",
+  "category": "citation_faithfulness",
+  "scorer": "exact_citation_match",
+  "tags": [
+    "adversarial",
+    "ve",
+    "particular_social_group"
+  ],
+  "input": {
+    "country_code": "VE",
+    "basis": "particular_social_group",
+    "section_id": "general_conditions",
+    "retrieval_context_ids": [
+      "0000000d-0000-4000-8000-000000000001",
+      "0000000d-0000-4000-8000-000000000002"
+    ],
+    "cited_source_ids": [
+      "0000000d-0000-4000-8000-000000000001"
+    ],
+    "verification_claims": [
+      {
+        "claim_text": "Verification retained only claims directly tied to the on-point passage.",
+        "support": "supported"
+      }
+    ]
+  },
+  "expected": {
+    "verification_claims": [
+      {
+        "claim_text": "Verification retained only claims directly tied to the on-point passage.",
+        "support": "supported"
+      }
+    ]
+  }
+}

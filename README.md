@@ -110,8 +110,18 @@ export GIT_SHA=dev
 | `make web`    | Run Next.js dev server on port 3000 |
 | `make test`   | Run `pytest` and `npm test` (Vitest) |
 | `make lint`   | Run Ruff and mypy (`--strict`) on `apps/api` |
+| `make ingest` | Run `python -m scripts.ingest` in `apps/api` (pass `ARGS="--source ..."`) |
+| `make ingest-all` | Full launch-catalog ingestion (sequential subprocesses) |
+| `make refresh-living-sources` | Re-ingest State Dept, USCIRF, and Freedom House (for cron) |
+| `make benchmark-retrieval` | Latency stats for `retrieval.passage_search.search` (pass `ARGS`) |
 
-## Stop services
+Example single-country ingest with a saved HTML fixture (no network):
+
+```bash
+make ingest ARGS='--source state_dept --year-from 2024 --year-to 2024 --countries ER --fixture-path tests/fixtures/state_dept_eritrea_2024.html'
+```
+
+Schedule `make refresh-living-sources` approximately every 30 days (for example monthly cron: `0 3 1 * * cd /path/to/wellfounded && make refresh-living-sources`).
 
 ```bash
 make down

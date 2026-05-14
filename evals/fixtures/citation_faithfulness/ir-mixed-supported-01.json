@@ -1,0 +1,36 @@
+{
+  "id": "ir-mixed-supported-01",
+  "category": "citation_faithfulness",
+  "scorer": "exact_citation_match",
+  "tags": [
+    "supportive",
+    "ir",
+    "mixed"
+  ],
+  "input": {
+    "country_code": "IR",
+    "basis": "mixed",
+    "section_id": "internal_relocation",
+    "retrieval_context_ids": [
+      "00000009-0000-4000-8000-000000000001",
+      "00000009-0000-4000-8000-000000000002"
+    ],
+    "cited_source_ids": [
+      "00000009-0000-4000-8000-000000000002"
+    ],
+    "verification_claims": [
+      {
+        "claim_text": "Analysts assess relocation risk as varying sharply by province and profile.",
+        "support": "supported"
+      }
+    ]
+  },
+  "expected": {
+    "verification_claims": [
+      {
+        "claim_text": "Analysts assess relocation risk as varying sharply by province and profile.",
+        "support": "supported"
+      }
+    ]
+  }
+}

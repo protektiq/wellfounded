@@ -15,6 +15,15 @@ _engine: AsyncEngine | None = None
 _session_maker: async_sessionmaker[AsyncSession] | None = None
 
 
+async def dispose_async_engine() -> None:
+    """Close all pooled connections and drop cached factory (tests, Alembic churn)."""
+    global _engine, _session_maker
+    if _engine is not None:
+        await _engine.dispose()
+    _engine = None
+    _session_maker = None
+
+
 def get_async_session_maker() -> async_sessionmaker[AsyncSession]:
     """Return the async session factory, creating the engine on first use."""
     global _engine, _session_maker

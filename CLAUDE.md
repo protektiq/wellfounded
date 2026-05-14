@@ -19,7 +19,10 @@ make api             # FastAPI with hot reload on port 8000
 make web             # Next.js dev server on port 3000
 make test            # Run pytest (API) + vitest (web)
 make lint            # Run ruff + mypy --strict on apps/api
-make ingest ARGS="--source state_dept --year 2024 --country ER"  # Ingest source documents
+make ingest ARGS="--source state_dept --year-from 2024 --year-to 2024 --countries ER"  # Ingest sources
+make ingest-all      # Full launch-catalog ingestion (sequential)
+make refresh-living-sources  # State Dept + USCIRF + Freedom House (cron)
+make benchmark-retrieval ARGS="--iterations 30 --disable-cache"  # After library load
 make eval-run category=citation_faithfulness   # Run eval harness for a category
 make eval-view a=<a.json> b=<b.json>           # Side-by-side eval result diff
 ```

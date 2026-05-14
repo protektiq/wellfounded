@@ -1,0 +1,33 @@
+{
+  "id": "ir-live-supported-01",
+  "category": "citation_faithfulness_live",
+  "scorer": "country_conditions_draft",
+  "tags": ["supported", "ir", "political_opinion", "multi_source"],
+  "input": {
+    "section_id": "treatment_of_group",
+    "section_query": "How does the Iranian government treat individuals with perceived opposition political opinions?",
+    "passage_items": [
+      {
+        "passage_id": "b4000001-0000-4000-8000-000000000001",
+        "text": "Iranian authorities have intensified crackdowns on political dissent following the 2022 protests. Security forces detained tens of thousands of protesters, journalists, lawyers, and human rights defenders. Defendants in political cases are routinely denied access to counsel of their choice and face trials before Revolutionary Courts that do not meet international fair trial standards. Sentences include lengthy prison terms, flogging, and execution for offenses that amount to the peaceful exercise of rights such as freedom of expression and assembly.",
+        "source_family": "state_dept_human_rights",
+        "document_title": "2024 Country Reports on Human Rights Practices: Iran",
+        "publication_date": "2024-12-31",
+        "url": "https://www.state.gov/reports/2024-country-reports-on-human-rights-practices/iran/",
+        "section_anchor": "Section 1e. Denial of Fair Public Trial",
+        "similarity_score": 0.93
+      },
+      {
+        "passage_id": "b4000001-0000-4000-8000-000000000002",
+        "text": "Iran executed hundreds of individuals in 2023 and 2024, including at least some who were convicted for offenses related to participation in protests. The use of the death penalty against protesters drew international condemnation. Authorities also targeted family members of dissidents abroad, including through harassment and threats against relatives inside Iran as leverage to silence critics living overseas.",
+        "source_family": "hrw",
+        "document_title": "World Report 2024: Iran",
+        "publication_date": "2024-01-15",
+        "url": "https://www.hrw.org/world-report/2024/country-chapters/iran",
+        "section_anchor": "Death Penalty",
+        "similarity_score": 0.90
+      }
+    ]
+  },
+  "expected": {}
+}

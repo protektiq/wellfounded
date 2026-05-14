@@ -1,0 +1,36 @@
+{
+  "id": "ve-race-supported-01",
+  "category": "citation_faithfulness",
+  "scorer": "exact_citation_match",
+  "tags": [
+    "supportive",
+    "ve",
+    "race"
+  ],
+  "input": {
+    "country_code": "VE",
+    "basis": "race",
+    "section_id": "general_conditions",
+    "retrieval_context_ids": [
+      "00000006-0000-4000-8000-000000000001",
+      "00000006-0000-4000-8000-000000000002"
+    ],
+    "cited_source_ids": [
+      "00000006-0000-4000-8000-000000000001"
+    ],
+    "verification_claims": [
+      {
+        "claim_text": "State reports reference discriminatory treatment in public services.",
+        "support": "partially_supported"
+      }
+    ]
+  },
+  "expected": {
+    "verification_claims": [
+      {
+        "claim_text": "State reports reference discriminatory treatment in public services.",
+        "support": "partially_supported"
+      }
+    ]
+  }
+}

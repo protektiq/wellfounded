@@ -4,3 +4,4 @@
 *.json
 !.gitignore
 !README.md
+!baseline-claude-opus-4-7.json

@@ -28,3 +28,4 @@ apps/web/out/
 # Eval result manifests are per-run; see evals/results/.gitignore for the
 # directory-local rule. This catches any stray copies elsewhere in the tree.
 evals/results/*.json
+!evals/results/baseline-claude-opus-4-7.json

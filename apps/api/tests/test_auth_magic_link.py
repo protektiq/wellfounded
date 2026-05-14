@@ -327,9 +327,7 @@ async def test_token_table_stores_hash_not_raw_secret(
     assert m is not None
     raw_token = m.group(1)
 
-    row = (
-        await db_session.execute(select(MagicLinkToken).limit(1))
-    ).scalar_one()
+    row = (await db_session.execute(select(MagicLinkToken).limit(1))).scalar_one()
     assert len(row.token_hash) == 32
     assert row.token_hash != raw_token.encode("utf-8")
     assert raw_token.encode("utf-8") not in (row.token_hash,)

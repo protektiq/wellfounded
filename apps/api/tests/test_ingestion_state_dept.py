@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import json
 from pathlib import Path
 
@@ -14,7 +15,7 @@ from retrieval.ingestion.state_dept import (
     StateDeptIngester,
     parse_state_dept_html,
 )
-from retrieval.models import SourceDocument, SourcePassage
+from retrieval.models import SourceDocument, SourceFamily, SourcePassage
 
 _FIXTURE = Path(__file__).resolve().parent / "fixtures" / "state_dept_eritrea_2024.html"
 
@@ -69,7 +70,12 @@ async def test_upsert_twice_no_duplicate_rows(
         slug="eritrea",
         url=_er_url,
     )
-    ingester = StateDeptIngester(year=2024, countries=["ER"], fixture_html=eritrea_html)
+    ingester = StateDeptIngester(
+        year_from=2024,
+        year_to=2024,
+        countries=["ER"],
+        fixture_html=eritrea_html,
+    )
 
     for _ in range(2):
         raw = await ingester.fetch(ref)
@@ -84,6 +90,68 @@ async def test_upsert_twice_no_duplicate_rows(
     assert n_pass == len(parse_state_dept_html(eritrea_html))
     assert all(p.embedding is not None for p in passages)
     assert calls == [len(passages), len(passages)]
+
+
+@pytest.mark.asyncio(loop_scope="session")
+async def test_last_verified_at_advances_on_second_upsert_same_hash(
+    db_session: AsyncSession,
+    eritrea_html: str,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    async def _fake_embed_texts(
+        texts: list[str],
+        session: AsyncSession,
+        *,
+        organization_id: object | None = None,
+        user_id: object | None = None,
+    ) -> list[list[float]]:
+        _ = session
+        return [
+            [0.001 * float((i + j) % 11) for j in range(3072)]
+            for i in range(len(texts))
+        ]
+
+    monkeypatch.setattr("retrieval.embed.embed_texts", _fake_embed_texts)
+
+    ref = StateDeptDocumentRef(
+        year=2024,
+        country_iso2="ER",
+        slug="eritrea",
+        url=(
+            "https://www.state.gov/reports/"
+            "2024-country-reports-on-human-rights-practices/eritrea/"
+        ),
+    )
+    ingester = StateDeptIngester(
+        year_from=2024,
+        year_to=2024,
+        countries=["ER"],
+        fixture_html=eritrea_html,
+    )
+
+    async def _run_once() -> None:
+        raw = await ingester.fetch(ref)
+        passages = ingester.parse(raw)
+        await ingester.embed(db_session, passages)
+        await ingester.upsert(db_session, ref, raw, passages)
+        await db_session.commit()
+
+    await _run_once()
+    first = await db_session.scalar(
+        select(SourceDocument.last_verified_at).where(
+            SourceDocument.source_family == SourceFamily.state_dept_human_rights,
+        ),
+    )
+    assert first is not None
+    await asyncio.sleep(0.05)
+    await _run_once()
+    second = await db_session.scalar(
+        select(SourceDocument.last_verified_at).where(
+            SourceDocument.source_family == SourceFamily.state_dept_human_rights,
+        ),
+    )
+    assert second is not None
+    assert second > first
 
 
 @pytest.mark.asyncio(loop_scope="session")
@@ -119,7 +187,12 @@ async def test_similarity_query_and_hnsw_index(
         slug="eritrea",
         url=_er_url,
     )
-    ingester = StateDeptIngester(year=2024, countries=["ER"], fixture_html=eritrea_html)
+    ingester = StateDeptIngester(
+        year_from=2024,
+        year_to=2024,
+        countries=["ER"],
+        fixture_html=eritrea_html,
+    )
     raw = await ingester.fetch(ref)
     passages = ingester.parse(raw)
     await ingester.embed(db_session, passages)

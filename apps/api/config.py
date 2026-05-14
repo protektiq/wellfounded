@@ -23,6 +23,15 @@ class Settings(BaseSettings):
         description="Async SQLAlchemy database URL",
     )
 
+    checkpoint_database_url: str | None = Field(
+        default=None,
+        max_length=1024,
+        description=(
+            "Optional psycopg connection URI for LangGraph checkpoints; "
+            "defaults to database_url with asyncpg driver stripped"
+        ),
+    )
+
     s3_endpoint_url: str = Field(
         default="http://127.0.0.1:9000",
         description="S3-compatible endpoint (MinIO locally)",
@@ -34,7 +43,37 @@ class Settings(BaseSettings):
 
     redis_url: str = Field(
         default="redis://127.0.0.1:16379/0",
-        description="Redis URL for future queue work",
+        description="Redis URL for retrieval cache and future queue work",
+    )
+
+    retrieval_cache_enabled: bool = Field(
+        default=True,
+        description="When false, skip Redis for retrieval vector candidate cache",
+    )
+
+    retrieval_rerank_backend: Literal["llm", "cross_encoder"] = Field(
+        default="llm",
+        description="Reranker: LLM structured (default) or local cross-encoder",
+    )
+
+    retrieval_cross_encoder_model: str = Field(
+        default="BAAI/bge-reranker-large",
+        max_length=256,
+        description="HuggingFace id when retrieval_rerank_backend is cross_encoder",
+    )
+
+    retrieval_vector_candidate_multiplier: int = Field(
+        default=8,
+        ge=1,
+        le=50,
+        description="ANN candidate pool size is min(max, top_k * multiplier)",
+    )
+
+    retrieval_vector_max_candidates: int = Field(
+        default=200,
+        ge=20,
+        le=500,
+        description="Upper cap on ANN candidates before reranking",
     )
 
     git_sha: str | None = Field(
@@ -120,6 +159,26 @@ class Settings(BaseSettings):
             raise ValueError("public_app_url must include a host for WebAuthn origins")
         origin = f"{parsed.scheme}://{netloc}"
         return [origin]
+
+    def resolved_checkpoint_database_url(self) -> str:
+        """URI for psycopg (LangGraph AsyncPostgresSaver); not asyncpg."""
+        if self.checkpoint_database_url is not None:
+            raw = self.checkpoint_database_url.strip()
+            if not raw:
+                raise ValueError("checkpoint_database_url must be non-empty when set")
+            if len(raw) > 1024:
+                raise ValueError("checkpoint_database_url exceeds maximum length")
+            return raw
+        url = self.database_url.strip()
+        for prefix in (
+            "postgresql+asyncpg://",
+            "postgres+asyncpg://",
+        ):
+            if url.startswith(prefix):
+                return "postgresql://" + url[len(prefix) :]
+        if url.startswith("postgresql://") or url.startswith("postgres://"):
+            return url
+        raise ValueError("database_url must be a recognized PostgreSQL URL")
 
 
 @lru_cache

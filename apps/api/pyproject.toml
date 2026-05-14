@@ -39,6 +39,17 @@ email-validator = "^2.2.0"
 webauthn = "2.2.0"
 # Tolerant HTML parsing for State.gov and other source sites with irregular markup.
 beautifulsoup4 = "^4.12.0"
+# PDF text extraction for USCIRF annual reports, UNHCR data-portal downloads, and EUAA COI PDFs.
+pypdf = "5.1.0"
+redis = "^5.2.1"
+# LangGraph durable checkpoints for resumable country-conditions memo generation (psycopg driver).
+# checkpoint-postgres 3.x ships a version-check that warns when langgraph <1.0 is installed.
+# Upgrading langgraph to 1.x requires upgrading the full langchain ecosystem (langchain,
+# langchain-core, langchain-anthropic, langchain-openai, langchain-community, langchain-postgres)
+# because langchain 0.3.x hard-caps langchain-core<0.4.0 and langgraph 1.x needs >=0.4.0.
+# That ecosystem upgrade is deferred to a dedicated task. The warning is suppressed below.
+langgraph-checkpoint-postgres = ">=3.0.0,<4.0.0"
+psycopg = { version = ">=3.2.0", extras = ["pool"] }
 
 [tool.poetry.group.dev.dependencies]
 types-beautifulsoup4 = "^4.12.0"
@@ -76,8 +87,17 @@ ignore_missing_imports = true
 module = "webauthn.*"
 ignore_missing_imports = true
 
+[[tool.mypy.overrides]]
+module = "sentence_transformers.*"
+ignore_missing_imports = true
+
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 # One event loop for the session so the lazily created async engine pool stays valid.
+# Suppress the DeprecationWarning from langgraph-checkpoint-postgres 3.x that fires when langgraph
+# is on 0.x. The warning is accurate but the fix (langchain ecosystem upgrade) is deferred.
 asyncio_default_fixture_loop_scope = "session"
 testpaths = ["tests"]
+filterwarnings = [
+    "ignore::DeprecationWarning:langgraph.checkpoint.postgres",
+]

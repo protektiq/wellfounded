@@ -1,0 +1,36 @@
+{
+  "id": "er-political-supported-01",
+  "category": "citation_faithfulness",
+  "scorer": "exact_citation_match",
+  "tags": [
+    "supportive",
+    "er",
+    "political_opinion"
+  ],
+  "input": {
+    "country_code": "ER",
+    "basis": "political_opinion",
+    "section_id": "general_conditions",
+    "retrieval_context_ids": [
+      "00000001-0000-4000-8000-000000000001",
+      "00000001-0000-4000-8000-000000000002"
+    ],
+    "cited_source_ids": [
+      "00000001-0000-4000-8000-000000000001"
+    ],
+    "verification_claims": [
+      {
+        "claim_text": "Reports describe monitoring of opposition-linked activity.",
+        "support": "supported"
+      }
+    ]
+  },
+  "expected": {
+    "verification_claims": [
+      {
+        "claim_text": "Reports describe monitoring of opposition-linked activity.",
+        "support": "supported"
+      }
+    ]
+  }
+}

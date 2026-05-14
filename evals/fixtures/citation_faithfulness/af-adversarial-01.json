@@ -1,0 +1,35 @@
+{
+  "id": "af-adversarial-01",
+  "category": "citation_faithfulness",
+  "scorer": "exact_citation_match",
+  "tags": [
+    "adversarial",
+    "af",
+    "gender_based"
+  ],
+  "input": {
+    "country_code": "AF",
+    "basis": "gender_based",
+    "section_id": "general_conditions",
+    "retrieval_context_ids": [
+      "0000000e-0000-4000-8000-000000000001"
+    ],
+    "cited_source_ids": [
+      "0000000e-0000-4000-8000-000000000001"
+    ],
+    "verification_claims": [
+      {
+        "claim_text": "With thin retrieval, the verified output states only what the passage text supports.",
+        "support": "supported"
+      }
+    ]
+  },
+  "expected": {
+    "verification_claims": [
+      {
+        "claim_text": "With thin retrieval, the verified output states only what the passage text supports.",
+        "support": "supported"
+      }
+    ]
+  }
+}

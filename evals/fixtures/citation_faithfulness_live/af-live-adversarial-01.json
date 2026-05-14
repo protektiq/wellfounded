@@ -1,0 +1,23 @@
+{
+  "id": "af-live-adversarial-01",
+  "category": "citation_faithfulness_live",
+  "scorer": "country_conditions_draft",
+  "tags": ["adversarial", "af", "political_opinion", "thin_context"],
+  "input": {
+    "section_id": "state_actor_involvement",
+    "section_query": "Is the Afghan government (Taliban) responsible for persecution of political opponents?",
+    "passage_items": [
+      {
+        "passage_id": "b3000001-0000-4000-8000-000000000001",
+        "text": "Since the Taliban takeover of Afghanistan in August 2021, the de facto authorities have carried out summary executions of former government officials and security personnel, contrary to announced amnesty declarations. Taliban forces have conducted house-to-house searches targeting former members of the Afghan National Defense and Security Forces, government employees, and individuals associated with the previous administration. Documented cases include extrajudicial killings, enforced disappearances, and arbitrary detention of perceived political opponents.",
+        "source_family": "amnesty",
+        "document_title": "Afghanistan: Human Rights in Crisis",
+        "publication_date": "2024-06-01",
+        "url": "https://www.amnesty.org/en/location/asia-and-pacific/afghanistan/",
+        "section_anchor": "Extrajudicial Killings and Enforced Disappearances",
+        "similarity_score": 0.89
+      }
+    ]
+  },
+  "expected": {}
+}
