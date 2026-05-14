@@ -135,3 +135,10 @@ def test_alembic_downgrade_removes_org_tables() -> None:
     assert before is True
     assert after_down is False
     assert after_up is True
+
+    async def _dispose_engine() -> None:
+        from db.session import dispose_async_engine
+
+        await dispose_async_engine()
+
+    _run_one(_dispose_engine())

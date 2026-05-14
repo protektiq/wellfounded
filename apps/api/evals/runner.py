@@ -382,7 +382,9 @@ def main(argv: Iterable[str] | None = None) -> int:
         return 2
 
     output_path = args.output or _default_output_path(
-        results_root, args.category, manifest.git_sha,
+        results_root,
+        args.category,
+        manifest.git_sha,
     )
     _write_manifest(manifest, output_path)
     print(str(output_path))

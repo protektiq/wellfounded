@@ -13,8 +13,10 @@ from typing import Any, Literal
 from pydantic import BaseModel, ConfigDict, Field
 
 # Categories mirror the four eval areas in PRD section 5.3.
+# citation_faithfulness_live calls the model; the others are deterministic.
 Category = Literal[
     "citation_faithfulness",
+    "citation_faithfulness_live",
     "declaration_quality",
     "transcription_wer",
     "translation_quality",
@@ -22,6 +24,7 @@ Category = Literal[
 
 CATEGORIES: tuple[Category, ...] = (
     "citation_faithfulness",
+    "citation_faithfulness_live",
     "declaration_quality",
     "transcription_wer",
     "translation_quality",

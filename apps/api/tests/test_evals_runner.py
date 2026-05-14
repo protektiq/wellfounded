@@ -80,7 +80,131 @@ async def test_exact_citation_match_pass(
     assert run.result.score == 1.0
     assert run.result.passed is True
     assert run.result.details["orphans"] == []
+    assert run.result.details["citation_score"] == 1.0
     assert run.result.error is None
+
+
+@pytest.mark.asyncio(loop_scope="session")
+async def test_exact_citation_match_verification_pass(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("GIT_SHA", "abc1234")
+    fixtures, _results, rubrics = _make_dirs(tmp_path)
+    claims = [
+        {"claim_text": "Alpha.", "support": "supported"},
+        {"claim_text": "Beta.", "support": "partially_supported"},
+    ]
+    _write_fixture(
+        fixtures / "citation_faithfulness",
+        "verify_ok",
+        {
+            "id": "verify-ok",
+            "category": "citation_faithfulness",
+            "scorer": "exact_citation_match",
+            "input": {
+                "retrieval_context_ids": ["p1"],
+                "cited_source_ids": ["p1"],
+                "verification_claims": list(claims),
+            },
+            "expected": {"verification_claims": list(claims)},
+        },
+    )
+
+    manifest = await run_category(
+        category="citation_faithfulness",
+        fixtures_root=fixtures,
+        rubrics_root=rubrics,
+    )
+
+    run = manifest.fixtures[0]
+    assert run.result.score == 1.0
+    assert run.result.passed is True
+    assert run.result.details["citation_score"] == 1.0
+    assert run.result.details["verification_score"] == 1.0
+    assert run.result.details["verification_mismatches"] == []
+    assert run.result.error is None
+
+
+@pytest.mark.asyncio(loop_scope="session")
+async def test_exact_citation_match_verification_fail_on_support(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("GIT_SHA", "abc1234")
+    fixtures, _results, rubrics = _make_dirs(tmp_path)
+    _write_fixture(
+        fixtures / "citation_faithfulness",
+        "verify_bad_support",
+        {
+            "id": "verify-bad-support",
+            "category": "citation_faithfulness",
+            "scorer": "exact_citation_match",
+            "input": {
+                "retrieval_context_ids": ["p1"],
+                "cited_source_ids": ["p1"],
+                "verification_claims": [
+                    {"claim_text": "Same claim.", "support": "unsupported"},
+                ],
+            },
+            "expected": {
+                "verification_claims": [
+                    {"claim_text": "Same claim.", "support": "supported"},
+                ],
+            },
+        },
+    )
+
+    manifest = await run_category(
+        category="citation_faithfulness",
+        fixtures_root=fixtures,
+        rubrics_root=rubrics,
+    )
+
+    run = manifest.fixtures[0]
+    assert run.result.score == 0.0
+    assert run.result.passed is False
+    assert run.result.details["verification_score"] == 0.0
+    assert run.result.details["verification_mismatches"]
+    assert run.result.error is None
+
+
+@pytest.mark.asyncio(loop_scope="session")
+async def test_exact_citation_match_verification_requires_input_claims(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("GIT_SHA", "abc1234")
+    fixtures, _results, rubrics = _make_dirs(tmp_path)
+    _write_fixture(
+        fixtures / "citation_faithfulness",
+        "verify_missing_input",
+        {
+            "id": "verify-missing-input",
+            "category": "citation_faithfulness",
+            "scorer": "exact_citation_match",
+            "input": {
+                "retrieval_context_ids": ["p1"],
+                "cited_source_ids": ["p1"],
+            },
+            "expected": {
+                "verification_claims": [
+                    {"claim_text": "Only expected.", "support": "supported"},
+                ],
+            },
+        },
+    )
+
+    manifest = await run_category(
+        category="citation_faithfulness",
+        fixtures_root=fixtures,
+        rubrics_root=rubrics,
+    )
+
+    run = manifest.fixtures[0]
+    assert run.result.error is not None
+    assert "input.verification_claims" in (run.result.error or "")
+    assert run.result.score is None
 
 
 @pytest.mark.asyncio(loop_scope="session")
@@ -219,11 +343,16 @@ def test_main_writes_manifest_for_empty_category(
 
     rc = main(
         [
-            "--category", "citation_faithfulness",
-            "--fixtures-root", str(fixtures),
-            "--results-root", str(results),
-            "--rubrics-root", str(rubrics),
-            "--output", str(output),
+            "--category",
+            "citation_faithfulness",
+            "--fixtures-root",
+            str(fixtures),
+            "--results-root",
+            str(results),
+            "--rubrics-root",
+            str(rubrics),
+            "--output",
+            str(output),
         ],
     )
 
@@ -255,10 +384,14 @@ def test_main_returns_nonzero_on_unknown_scorer(
 
     rc = main(
         [
-            "--category", "citation_faithfulness",
-            "--fixtures-root", str(fixtures),
-            "--results-root", str(results),
-            "--rubrics-root", str(rubrics),
+            "--category",
+            "citation_faithfulness",
+            "--fixtures-root",
+            str(fixtures),
+            "--results-root",
+            str(results),
+            "--rubrics-root",
+            str(rubrics),
         ],
     )
 
@@ -276,10 +409,14 @@ def test_main_rejects_unknown_category(
     with pytest.raises(SystemExit) as excinfo:
         main(
             [
-                "--category", "bogus_category",
-                "--fixtures-root", str(fixtures),
-                "--results-root", str(results),
-                "--rubrics-root", str(rubrics),
+                "--category",
+                "bogus_category",
+                "--fixtures-root",
+                str(fixtures),
+                "--results-root",
+                str(results),
+                "--rubrics-root",
+                str(rubrics),
             ],
         )
     assert excinfo.value.code == 2

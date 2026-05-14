@@ -1,0 +1,36 @@
+{
+  "id": "ir-political-supported-01",
+  "category": "citation_faithfulness",
+  "scorer": "exact_citation_match",
+  "tags": [
+    "supportive",
+    "ir",
+    "political_opinion"
+  ],
+  "input": {
+    "country_code": "IR",
+    "basis": "political_opinion",
+    "section_id": "recent_trends",
+    "retrieval_context_ids": [
+      "0000000a-0000-4000-8000-000000000001",
+      "0000000a-0000-4000-8000-000000000002"
+    ],
+    "cited_source_ids": [
+      "0000000a-0000-4000-8000-000000000001"
+    ],
+    "verification_claims": [
+      {
+        "claim_text": "Annual human rights surveys cite sustained pressure on dissenting speech.",
+        "support": "supported"
+      }
+    ]
+  },
+  "expected": {
+    "verification_claims": [
+      {
+        "claim_text": "Annual human rights surveys cite sustained pressure on dissenting speech.",
+        "support": "supported"
+      }
+    ]
+  }
+}

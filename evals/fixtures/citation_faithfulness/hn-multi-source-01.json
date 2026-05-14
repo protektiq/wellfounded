@@ -1,0 +1,37 @@
+{
+  "id": "hn-multi-source-01",
+  "category": "citation_faithfulness",
+  "scorer": "exact_citation_match",
+  "tags": [
+    "multi_source",
+    "hn",
+    "religion"
+  ],
+  "input": {
+    "country_code": "HN",
+    "basis": "religion",
+    "section_id": "treatment_of_group",
+    "retrieval_context_ids": [
+      "00000011-0000-4000-8000-000000000001",
+      "00000011-0000-4000-8000-000000000002"
+    ],
+    "cited_source_ids": [
+      "00000011-0000-4000-8000-000000000001",
+      "00000011-0000-4000-8000-000000000002"
+    ],
+    "verification_claims": [
+      {
+        "claim_text": "Two sources corroborate restrictions on religious assembly in the same region.",
+        "support": "supported"
+      }
+    ]
+  },
+  "expected": {
+    "verification_claims": [
+      {
+        "claim_text": "Two sources corroborate restrictions on religious assembly in the same region.",
+        "support": "supported"
+      }
+    ]
+  }
+}

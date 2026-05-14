@@ -96,8 +96,8 @@ class CaseRepository:
             country_code=country_code,
             basis=basis,
             group_description=group_description,
-        filing_deadline=filing_deadline,
-        asylum_office=asylum_office,
+            filing_deadline=filing_deadline,
+            asylum_office=asylum_office,
             intake_notes=intake_notes,
             created_by_user_id=created_by_user_id,
         )
@@ -152,9 +152,7 @@ class CaseRepository:
             out: list[tuple[Case, Literal["full", "read_only"]]] = []
             for c in cases:
                 assigned = any(a.user_id == viewer.id for a in c.assignments)
-                mode: Literal["full", "read_only"] = (
-                    "full" if assigned else "read_only"
-                )
+                mode: Literal["full", "read_only"] = "full" if assigned else "read_only"
                 out.append((c, mode))
             return out
 

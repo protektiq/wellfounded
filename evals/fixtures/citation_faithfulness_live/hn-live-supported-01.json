@@ -1,0 +1,33 @@
+{
+  "id": "hn-live-supported-01",
+  "category": "citation_faithfulness_live",
+  "scorer": "country_conditions_draft",
+  "tags": ["supported", "hn", "political_opinion", "multi_source"],
+  "input": {
+    "section_id": "treatment_of_group",
+    "section_query": "How does the Honduran government treat individuals with perceived opposition political opinions?",
+    "passage_items": [
+      {
+        "passage_id": "b2000001-0000-4000-8000-000000000001",
+        "text": "Human rights defenders, journalists, and political opposition members in Honduras face significant threats and violence. The government has been documented targeting critics through harassment, arbitrary detention, and legal persecution. Activists who speak out against government policies, particularly those related to land rights and extractive industries, are especially vulnerable. Several high-profile defenders were killed in the reporting period, with investigations rarely leading to convictions.",
+        "source_family": "hrw",
+        "document_title": "World Report 2024: Honduras",
+        "publication_date": "2024-01-15",
+        "url": "https://www.hrw.org/world-report/2024/country-chapters/honduras",
+        "section_anchor": "Human Rights Defenders",
+        "similarity_score": 0.91
+      },
+      {
+        "passage_id": "b2000001-0000-4000-8000-000000000002",
+        "text": "Opposition political figures in Honduras have reported systematic harassment by government-aligned actors. Members of parties opposing the ruling National Party have documented threats, surveillance, and intimidation campaigns. Several opposition legislators reported receiving death threats following public criticism of government policies. The climate of fear has led some politicians to self-censor or withdraw from public life.",
+        "source_family": "state_dept_human_rights",
+        "document_title": "2024 Country Reports on Human Rights Practices: Honduras",
+        "publication_date": "2024-12-31",
+        "url": "https://www.state.gov/reports/2024-country-reports-on-human-rights-practices/honduras/",
+        "section_anchor": "Section 3. Freedom to Participate in the Political Process",
+        "similarity_score": 0.88
+      }
+    ]
+  },
+  "expected": {}
+}

@@ -5,7 +5,7 @@ from __future__ import annotations
 import uuid
 from typing import Annotated, Literal
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from audit.deps import get_audit_writer
@@ -20,6 +20,19 @@ from cases.schemas import (
     CaseDetail,
     CaseListItem,
     CaseUpdate,
+)
+from country_conditions.models import CountryConditionsMemoStatus
+from country_conditions.repository import CountryConditionsRepository
+from country_conditions.schemas import (
+    CountryConditionsGenerateRequest,
+    CountryConditionsGenerateResponse,
+    CountryConditionsInputs,
+    CountryConditionsMemoDetail,
+    CountryConditionsMemoSummary,
+)
+from country_conditions.service import (
+    CountryConditionsService,
+    get_country_conditions_service,
 )
 from db.session import get_db_session
 from orgs.models import User, UserRole
@@ -442,3 +455,116 @@ async def restore_case(
     )
     await db.commit()
     return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@router.post(
+    "/{case_id}/country-conditions",
+    response_model=CountryConditionsGenerateResponse,
+    status_code=status.HTTP_202_ACCEPTED,
+)
+async def request_country_conditions_memo(
+    case_id: uuid.UUID,
+    body: CountryConditionsGenerateRequest,
+    request: Request,
+    auth: Annotated[RequestAuth, Depends(get_request_auth)],
+    db: Annotated[AsyncSession, Depends(get_db_session)],
+    audit: Annotated[AuditWriter, Depends(get_audit_writer)],
+    svc: Annotated[CountryConditionsService, Depends(get_country_conditions_service)],
+) -> CountryConditionsGenerateResponse:
+    user = auth.user
+    org_id = auth.organization.id
+    repo = CaseRepository(db)
+    case = await repo.get_case_for_org(org_id, case_id)
+    if case is None or not _can_get_case(user, case):
+        raise _case_not_found()
+    if not _can_edit_case(user, case):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Insufficient permissions",
+        )
+    rid = getattr(request.state, "request_id", None)
+    if not isinstance(rid, uuid.UUID):
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Request context was not initialized (missing request_id).",
+        )
+    memo_id, version = await svc.generate(
+        organization_id=org_id,
+        case_id=case_id,
+        inputs=body.to_inputs(),
+        requested_by_user_id=user.id,
+        correlation_request_id=rid,
+        session=db,
+        audit=audit,
+    )
+    await db.commit()
+    return CountryConditionsGenerateResponse(
+        memo_id=memo_id,
+        version=version,
+        status=CountryConditionsMemoStatus.pending,
+    )
+
+
+@router.get(
+    "/{case_id}/country-conditions",
+    response_model=list[CountryConditionsMemoSummary],
+)
+async def list_country_conditions_memos(
+    case_id: uuid.UUID,
+    auth: Annotated[RequestAuth, Depends(get_request_auth)],
+    db: Annotated[AsyncSession, Depends(get_db_session)],
+) -> list[CountryConditionsMemoSummary]:
+    user = auth.user
+    org_id = auth.organization.id
+    case_repo = CaseRepository(db)
+    case = await case_repo.get_case_for_org(org_id, case_id)
+    if case is None or not _can_get_case(user, case):
+        raise _case_not_found()
+    cc_repo = CountryConditionsRepository(db)
+    rows = await cc_repo.list_memos_for_case(org_id, case_id)
+    return [
+        CountryConditionsMemoSummary(
+            id=m.id,
+            case_id=m.case_id,
+            version=m.version,
+            status=m.status,
+            generated_at=m.generated_at,
+        )
+        for m in rows
+    ]
+
+
+@router.get(
+    "/{case_id}/country-conditions/{memo_id}",
+    response_model=CountryConditionsMemoDetail,
+)
+async def get_country_conditions_memo(
+    case_id: uuid.UUID,
+    memo_id: uuid.UUID,
+    auth: Annotated[RequestAuth, Depends(get_request_auth)],
+    db: Annotated[AsyncSession, Depends(get_db_session)],
+) -> CountryConditionsMemoDetail:
+    user = auth.user
+    org_id = auth.organization.id
+    case_repo = CaseRepository(db)
+    case = await case_repo.get_case_for_org(org_id, case_id)
+    if case is None or not _can_get_case(user, case):
+        raise _case_not_found()
+    cc_repo = CountryConditionsRepository(db)
+    memo = await cc_repo.get_memo(org_id, memo_id)
+    if memo is None or memo.case_id != case_id:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Memo not found",
+        )
+    return CountryConditionsMemoDetail(
+        id=memo.id,
+        case_id=memo.case_id,
+        version=memo.version,
+        status=memo.status,
+        inputs=CountryConditionsInputs.model_validate(memo.inputs),
+        output=memo.output,
+        model_versions=dict(memo.model_versions),
+        error_message=memo.error_message,
+        generated_at=memo.generated_at,
+    )

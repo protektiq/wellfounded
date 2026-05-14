@@ -69,6 +69,7 @@ app.include_router(auth_router)
 import audit.models  # noqa: E402, F401
 import auth.models  # noqa: E402, F401
 import cases.models  # noqa: E402, F401
+import country_conditions.models  # noqa: E402, F401
 import llm.models  # noqa: E402, F401
 import orgs.models  # noqa: E402, F401
 

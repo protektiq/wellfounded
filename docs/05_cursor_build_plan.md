@@ -641,15 +641,21 @@ Read `.cursorrules` and `docs/prd.md` section 9.3 ("Decision points") first.
 
 **What to do.**
 
-1. Run the citation faithfulness eval on the latest `main`. Compare to baseline.
+1. Run both citation faithfulness eval categories on the latest `main`:
+   - `make eval-collect-baseline` first to refresh `evals/results/baseline-live-claude-opus-4-7.json`
+     (requires `make up && make db-migrate` and `ANTHROPIC_API_KEY` set).
+   - `make eval-run category=citation_faithfulness` — deterministic structural check; should be 1.0.
+   - `make eval-run category=citation_faithfulness_live` — live model check; this is the signal that counts.
+   - Compare the live result against the committed baseline using `make eval-view`.
+   - The GO/NO-GO threshold applies to `citation_faithfulness_live` mean score only.
 2. Have the practitioner-in-residence review 5 freshly generated memos against their own work product. Capture qualitative notes.
 3. Check that all P0 properties hold:
    - No memo has been produced with a hallucinated citation in any of the last 200 internal runs.
    - Every memo generation produces a complete audit trail.
    - Cross-tenant isolation tests still pass.
 4. Make the go/no-go call on starting Phase 3:
-   - GO if citation faithfulness ≥99% and practitioner review is positive.
-   - NO-GO if citation faithfulness <99%; spend an additional week tightening retrieval and verification before starting declarations.
+   - GO if `citation_faithfulness_live` mean score ≥99% and practitioner review is positive.
+   - NO-GO if `citation_faithfulness_live` mean score <99%; spend an additional week tightening retrieval and verification before starting declarations.
 
 **Output.** A written checkpoint memo at `docs/checkpoints/week-5.md` documenting the decision and the data behind it.
 

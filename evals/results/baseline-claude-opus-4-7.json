@@ -1,0 +1,411 @@
+{
+  "category": "citation_faithfulness",
+  "finished_at": "2026-05-14T03:28:04+00:00",
+  "fixtures": [
+    {
+      "fixture_id": "af-adversarial-01",
+      "fixture_path": "citation_faithfulness/af-adversarial-01.json",
+      "latency_ms": 0,
+      "model_id": null,
+      "result": {
+        "details": {
+          "citation_score": 1.0,
+          "cited_count": 1,
+          "context_count": 1,
+          "orphans": [],
+          "verification_mismatches": [],
+          "verification_score": 1.0
+        },
+        "error": null,
+        "passed": true,
+        "score": 1.0
+      },
+      "scorer": "exact_citation_match"
+    },
+    {
+      "fixture_id": "af-gender-supported-01",
+      "fixture_path": "citation_faithfulness/af-gender-supported-01.json",
+      "latency_ms": 0,
+      "model_id": null,
+      "result": {
+        "details": {
+          "citation_score": 1.0,
+          "cited_count": 1,
+          "context_count": 2,
+          "orphans": [],
+          "verification_mismatches": [],
+          "verification_score": 1.0
+        },
+        "error": null,
+        "passed": true,
+        "score": 1.0
+      },
+      "scorer": "exact_citation_match"
+    },
+    {
+      "fixture_id": "af-multi-source-01",
+      "fixture_path": "citation_faithfulness/af-multi-source-01.json",
+      "latency_ms": 0,
+      "model_id": null,
+      "result": {
+        "details": {
+          "citation_score": 1.0,
+          "cited_count": 2,
+          "context_count": 2,
+          "orphans": [],
+          "verification_mismatches": [],
+          "verification_score": 1.0
+        },
+        "error": null,
+        "passed": true,
+        "score": 1.0
+      },
+      "scorer": "exact_citation_match"
+    },
+    {
+      "fixture_id": "af-nationality-supported-01",
+      "fixture_path": "citation_faithfulness/af-nationality-supported-01.json",
+      "latency_ms": 0,
+      "model_id": null,
+      "result": {
+        "details": {
+          "citation_score": 1.0,
+          "cited_count": 1,
+          "context_count": 2,
+          "orphans": [],
+          "verification_mismatches": [],
+          "verification_score": 1.0
+        },
+        "error": null,
+        "passed": true,
+        "score": 1.0
+      },
+      "scorer": "exact_citation_match"
+    },
+    {
+      "fixture_id": "er-adversarial-01",
+      "fixture_path": "citation_faithfulness/er-adversarial-01.json",
+      "latency_ms": 0,
+      "model_id": null,
+      "result": {
+        "details": {
+          "citation_score": 1.0,
+          "cited_count": 1,
+          "context_count": 1,
+          "orphans": [],
+          "verification_mismatches": [],
+          "verification_score": 1.0
+        },
+        "error": null,
+        "passed": true,
+        "score": 1.0
+      },
+      "scorer": "exact_citation_match"
+    },
+    {
+      "fixture_id": "er-multi-source-01",
+      "fixture_path": "citation_faithfulness/er-multi-source-01.json",
+      "latency_ms": 0,
+      "model_id": null,
+      "result": {
+        "details": {
+          "citation_score": 1.0,
+          "cited_count": 2,
+          "context_count": 3,
+          "orphans": [],
+          "verification_mismatches": [],
+          "verification_score": 1.0
+        },
+        "error": null,
+        "passed": true,
+        "score": 1.0
+      },
+      "scorer": "exact_citation_match"
+    },
+    {
+      "fixture_id": "er-political-supported-01",
+      "fixture_path": "citation_faithfulness/er-political-supported-01.json",
+      "latency_ms": 0,
+      "model_id": null,
+      "result": {
+        "details": {
+          "citation_score": 1.0,
+          "cited_count": 1,
+          "context_count": 2,
+          "orphans": [],
+          "verification_mismatches": [],
+          "verification_score": 1.0
+        },
+        "error": null,
+        "passed": true,
+        "score": 1.0
+      },
+      "scorer": "exact_citation_match"
+    },
+    {
+      "fixture_id": "er-political-supported-02",
+      "fixture_path": "citation_faithfulness/er-political-supported-02.json",
+      "latency_ms": 0,
+      "model_id": null,
+      "result": {
+        "details": {
+          "citation_score": 1.0,
+          "cited_count": 2,
+          "context_count": 3,
+          "orphans": [],
+          "verification_mismatches": [],
+          "verification_score": 1.0
+        },
+        "error": null,
+        "passed": true,
+        "score": 1.0
+      },
+      "scorer": "exact_citation_match"
+    },
+    {
+      "fixture_id": "hn-adversarial-01",
+      "fixture_path": "citation_faithfulness/hn-adversarial-01.json",
+      "latency_ms": 0,
+      "model_id": null,
+      "result": {
+        "details": {
+          "citation_score": 1.0,
+          "cited_count": 1,
+          "context_count": 1,
+          "orphans": [],
+          "verification_mismatches": [],
+          "verification_score": 1.0
+        },
+        "error": null,
+        "passed": true,
+        "score": 1.0
+      },
+      "scorer": "exact_citation_match"
+    },
+    {
+      "fixture_id": "hn-multi-source-01",
+      "fixture_path": "citation_faithfulness/hn-multi-source-01.json",
+      "latency_ms": 0,
+      "model_id": null,
+      "result": {
+        "details": {
+          "citation_score": 1.0,
+          "cited_count": 2,
+          "context_count": 2,
+          "orphans": [],
+          "verification_mismatches": [],
+          "verification_score": 1.0
+        },
+        "error": null,
+        "passed": true,
+        "score": 1.0
+      },
+      "scorer": "exact_citation_match"
+    },
+    {
+      "fixture_id": "hn-religion-supported-01",
+      "fixture_path": "citation_faithfulness/hn-religion-supported-01.json",
+      "latency_ms": 0,
+      "model_id": null,
+      "result": {
+        "details": {
+          "citation_score": 1.0,
+          "cited_count": 1,
+          "context_count": 2,
+          "orphans": [],
+          "verification_mismatches": [],
+          "verification_score": 1.0
+        },
+        "error": null,
+        "passed": true,
+        "score": 1.0
+      },
+      "scorer": "exact_citation_match"
+    },
+    {
+      "fixture_id": "hn-religion-supported-02",
+      "fixture_path": "citation_faithfulness/hn-religion-supported-02.json",
+      "latency_ms": 0,
+      "model_id": null,
+      "result": {
+        "details": {
+          "citation_score": 1.0,
+          "cited_count": 1,
+          "context_count": 2,
+          "orphans": [],
+          "verification_mismatches": [],
+          "verification_score": 1.0
+        },
+        "error": null,
+        "passed": true,
+        "score": 1.0
+      },
+      "scorer": "exact_citation_match"
+    },
+    {
+      "fixture_id": "ir-adversarial-01",
+      "fixture_path": "citation_faithfulness/ir-adversarial-01.json",
+      "latency_ms": 0,
+      "model_id": null,
+      "result": {
+        "details": {
+          "citation_score": 1.0,
+          "cited_count": 1,
+          "context_count": 1,
+          "orphans": [],
+          "verification_mismatches": [],
+          "verification_score": 1.0
+        },
+        "error": null,
+        "passed": true,
+        "score": 1.0
+      },
+      "scorer": "exact_citation_match"
+    },
+    {
+      "fixture_id": "ir-mixed-supported-01",
+      "fixture_path": "citation_faithfulness/ir-mixed-supported-01.json",
+      "latency_ms": 0,
+      "model_id": null,
+      "result": {
+        "details": {
+          "citation_score": 1.0,
+          "cited_count": 1,
+          "context_count": 2,
+          "orphans": [],
+          "verification_mismatches": [],
+          "verification_score": 1.0
+        },
+        "error": null,
+        "passed": true,
+        "score": 1.0
+      },
+      "scorer": "exact_citation_match"
+    },
+    {
+      "fixture_id": "ir-multi-source-01",
+      "fixture_path": "citation_faithfulness/ir-multi-source-01.json",
+      "latency_ms": 0,
+      "model_id": null,
+      "result": {
+        "details": {
+          "citation_score": 1.0,
+          "cited_count": 2,
+          "context_count": 2,
+          "orphans": [],
+          "verification_mismatches": [],
+          "verification_score": 1.0
+        },
+        "error": null,
+        "passed": true,
+        "score": 1.0
+      },
+      "scorer": "exact_citation_match"
+    },
+    {
+      "fixture_id": "ir-political-supported-01",
+      "fixture_path": "citation_faithfulness/ir-political-supported-01.json",
+      "latency_ms": 0,
+      "model_id": null,
+      "result": {
+        "details": {
+          "citation_score": 1.0,
+          "cited_count": 1,
+          "context_count": 2,
+          "orphans": [],
+          "verification_mismatches": [],
+          "verification_score": 1.0
+        },
+        "error": null,
+        "passed": true,
+        "score": 1.0
+      },
+      "scorer": "exact_citation_match"
+    },
+    {
+      "fixture_id": "ve-adversarial-01",
+      "fixture_path": "citation_faithfulness/ve-adversarial-01.json",
+      "latency_ms": 0,
+      "model_id": null,
+      "result": {
+        "details": {
+          "citation_score": 1.0,
+          "cited_count": 1,
+          "context_count": 2,
+          "orphans": [],
+          "verification_mismatches": [],
+          "verification_score": 1.0
+        },
+        "error": null,
+        "passed": true,
+        "score": 1.0
+      },
+      "scorer": "exact_citation_match"
+    },
+    {
+      "fixture_id": "ve-multi-source-01",
+      "fixture_path": "citation_faithfulness/ve-multi-source-01.json",
+      "latency_ms": 0,
+      "model_id": null,
+      "result": {
+        "details": {
+          "citation_score": 1.0,
+          "cited_count": 2,
+          "context_count": 3,
+          "orphans": [],
+          "verification_mismatches": [],
+          "verification_score": 1.0
+        },
+        "error": null,
+        "passed": true,
+        "score": 1.0
+      },
+      "scorer": "exact_citation_match"
+    },
+    {
+      "fixture_id": "ve-psg-supported-01",
+      "fixture_path": "citation_faithfulness/ve-psg-supported-01.json",
+      "latency_ms": 0,
+      "model_id": null,
+      "result": {
+        "details": {
+          "citation_score": 1.0,
+          "cited_count": 1,
+          "context_count": 2,
+          "orphans": [],
+          "verification_mismatches": [],
+          "verification_score": 1.0
+        },
+        "error": null,
+        "passed": true,
+        "score": 1.0
+      },
+      "scorer": "exact_citation_match"
+    },
+    {
+      "fixture_id": "ve-race-supported-01",
+      "fixture_path": "citation_faithfulness/ve-race-supported-01.json",
+      "latency_ms": 0,
+      "model_id": null,
+      "result": {
+        "details": {
+          "citation_score": 1.0,
+          "cited_count": 1,
+          "context_count": 2,
+          "orphans": [],
+          "verification_mismatches": [],
+          "verification_score": 1.0
+        },
+        "error": null,
+        "passed": true,
+        "score": 1.0
+      },
+      "scorer": "exact_citation_match"
+    }
+  ],
+  "fixtures_root": "/home/carlos/wellfounded/evals/fixtures",
+  "git_sha": "92fd128",
+  "run_id": "2f4f0692135b424a",
+  "runner_version": 1,
+  "started_at": "2026-05-14T03:28:04+00:00"
+}

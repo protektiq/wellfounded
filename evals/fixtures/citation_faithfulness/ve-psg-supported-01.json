@@ -1,0 +1,36 @@
+{
+  "id": "ve-psg-supported-01",
+  "category": "citation_faithfulness",
+  "scorer": "exact_citation_match",
+  "tags": [
+    "supportive",
+    "ve",
+    "particular_social_group"
+  ],
+  "input": {
+    "country_code": "VE",
+    "basis": "particular_social_group",
+    "section_id": "recent_trends",
+    "retrieval_context_ids": [
+      "00000005-0000-4000-8000-000000000001",
+      "00000005-0000-4000-8000-000000000002"
+    ],
+    "cited_source_ids": [
+      "00000005-0000-4000-8000-000000000001"
+    ],
+    "verification_claims": [
+      {
+        "claim_text": "Independent monitors describe violence targeting identified social groups.",
+        "support": "supported"
+      }
+    ]
+  },
+  "expected": {
+    "verification_claims": [
+      {
+        "claim_text": "Independent monitors describe violence targeting identified social groups.",
+        "support": "supported"
+      }
+    ]
+  }
+}

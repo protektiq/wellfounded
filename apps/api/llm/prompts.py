@@ -100,3 +100,23 @@ EXAMPLE_PING_PROMPT = Prompt(
     default_max_tokens=64,
     default_temperature=0.0,
 )
+
+# Reranks retrieval passages by relevance to the user query (structured tool output).
+RETRIEVAL_RERANK_PROMPT = Prompt(
+    id="retrieval.rerank.order_passages",
+    system=(
+        "You rank source passages for a legal country-conditions research query. "
+        "Given the query and a list of passages (each with passage_id and short "
+        "text), emit ordered_passage_ids: every passage_id exactly once, "
+        "most relevant first. Use only the provided passage_id values; do not "
+        "invent ids."
+    ),
+    user_template=(
+        "Query:\n{query}\n\n"
+        "Passages (JSON array of objects with passage_id and text_snippet):\n"
+        "{passages_json}\n"
+    ),
+    variables=(("query", ""), ("passages_json", "")),
+    default_max_tokens=4096,
+    default_temperature=0.0,
+)

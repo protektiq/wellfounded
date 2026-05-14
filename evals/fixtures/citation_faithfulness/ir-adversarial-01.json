@@ -1,0 +1,35 @@
+{
+  "id": "ir-adversarial-01",
+  "category": "citation_faithfulness",
+  "scorer": "exact_citation_match",
+  "tags": [
+    "adversarial",
+    "ir",
+    "race"
+  ],
+  "input": {
+    "country_code": "IR",
+    "basis": "race",
+    "section_id": "general_conditions",
+    "retrieval_context_ids": [
+      "0000000f-0000-4000-8000-000000000001"
+    ],
+    "cited_source_ids": [
+      "0000000f-0000-4000-8000-000000000001"
+    ],
+    "verification_claims": [
+      {
+        "claim_text": "Unsupported inferences were dropped; remaining sentence aligns with the cited excerpt.",
+        "support": "supported"
+      }
+    ]
+  },
+  "expected": {
+    "verification_claims": [
+      {
+        "claim_text": "Unsupported inferences were dropped; remaining sentence aligns with the cited excerpt.",
+        "support": "supported"
+      }
+    ]
+  }
+}

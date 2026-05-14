@@ -1,0 +1,23 @@
+{
+  "id": "er-live-adversarial-01",
+  "category": "citation_faithfulness_live",
+  "scorer": "country_conditions_draft",
+  "tags": ["adversarial", "er", "political_opinion", "thin_context"],
+  "input": {
+    "section_id": "general_conditions",
+    "section_query": "What are general human rights conditions in Eritrea for perceived political dissidents?",
+    "passage_items": [
+      {
+        "passage_id": "b1000001-0000-4000-8000-000000000001",
+        "text": "The Eritrean government holds political prisoners and detainees in harsh conditions. Authorities routinely detain individuals without charge or trial, sometimes for years, and deny them access to legal representation or family contact. Security forces have carried out arbitrary arrests of individuals perceived as political opponents, including former government officials, journalists, and members of certain religious groups.",
+        "source_family": "state_dept_human_rights",
+        "document_title": "2024 Country Reports on Human Rights Practices: Eritrea",
+        "publication_date": "2024-12-31",
+        "url": "https://www.state.gov/reports/2024-country-reports-on-human-rights-practices/eritrea/",
+        "section_anchor": "Section 1d. Arbitrary Arrest or Detention",
+        "similarity_score": 0.87
+      }
+    ]
+  },
+  "expected": {}
+}

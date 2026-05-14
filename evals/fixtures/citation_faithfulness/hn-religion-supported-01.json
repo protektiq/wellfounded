@@ -1,0 +1,36 @@
+{
+  "id": "hn-religion-supported-01",
+  "category": "citation_faithfulness",
+  "scorer": "exact_citation_match",
+  "tags": [
+    "supportive",
+    "hn",
+    "religion"
+  ],
+  "input": {
+    "country_code": "HN",
+    "basis": "religion",
+    "section_id": "state_actor_involvement",
+    "retrieval_context_ids": [
+      "00000003-0000-4000-8000-000000000001",
+      "00000003-0000-4000-8000-000000000002"
+    ],
+    "cited_source_ids": [
+      "00000003-0000-4000-8000-000000000001"
+    ],
+    "verification_claims": [
+      {
+        "claim_text": "Human rights bodies document threats against religious leaders.",
+        "support": "supported"
+      }
+    ]
+  },
+  "expected": {
+    "verification_claims": [
+      {
+        "claim_text": "Human rights bodies document threats against religious leaders.",
+        "support": "supported"
+      }
+    ]
+  }
+}

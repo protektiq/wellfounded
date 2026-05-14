@@ -1,11 +1,14 @@
 name: evals
 
-# Runs the citation_faithfulness eval category on every PR that touches the
-# country_conditions feature, the LLM gateway, the eval harness itself, or the
-# corresponding fixtures. We deliberately keep this workflow scoped to a single
-# deterministic category for now so it can run with zero secrets and no
-# Postgres service; later feature tasks that ship rubric fixtures will extend
-# this workflow with the necessary environment.
+# citation_faithfulness: deterministic scorer, no secrets, no Postgres.
+#   Runs on every PR touching country_conditions, the LLM gateway, evals, or fixtures.
+#   Gate: mean score must not drop more than 2 pp vs. committed baseline.
+#
+# citation_faithfulness_live: calls claude-opus-4-7 with embedded fixture passages,
+#   verifying the model only cites passage IDs it was given (no hallucinated citations).
+#   Requires ANTHROPIC_API_KEY secret and Postgres for LLMClient call-record persistence.
+#   Gate: mean score must not drop more than 10 pp vs. committed live baseline.
+#   Run `make eval-collect-baseline` after any prompt change to refresh the baseline.
 
 on:
   pull_request:
@@ -14,6 +17,9 @@ on:
       - "apps/api/llm/**"
       - "apps/api/evals/**"
       - "evals/fixtures/citation_faithfulness/**"
+      - "evals/fixtures/citation_faithfulness_live/**"
+      - "evals/results/baseline-claude-opus-4-7.json"
+      - "evals/results/baseline-live-claude-opus-4-7.json"
       - ".github/workflows/evals.yml"
 
 permissions:
@@ -66,11 +72,100 @@ jobs:
             --category citation_faithfulness \
             --output "../../evals/results/pr-${GIT_SHA}.json"
 
+      - name: Compare mean score to committed baseline
+        run: |
+          poetry run python -m evals.baseline_compare \
+            ../../evals/results/baseline-claude-opus-4-7.json \
+            "../../evals/results/pr-${GITHUB_SHA}.json" \
+            --max-drop 0.02
+
       - name: Upload result manifest
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: eval-citation-faithfulness
           path: evals/results/pr-*.json
+          if-no-files-found: warn
+          retention-days: 30
+
+  citation_faithfulness_live:
+    name: citation_faithfulness_live
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    if: ${{ secrets.ANTHROPIC_API_KEY != '' }}
+    defaults:
+      run:
+        working-directory: apps/api
+
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_DB: wf_eval
+          POSTGRES_USER: wf_eval
+          POSTGRES_PASSWORD: wf_eval
+        ports:
+          - 15432:5432
+        options: >-
+          --health-cmd "pg_isready -U wf_eval"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Poetry
+        run: pipx install poetry==1.8.3
+
+      - name: Cache Poetry virtualenv
+        uses: actions/cache@v4
+        with:
+          path: apps/api/.venv
+          key: poetry-${{ runner.os }}-py3.12-${{ hashFiles('apps/api/poetry.lock') }}
+
+      - name: Configure Poetry to use in-project venv
+        run: poetry config virtualenvs.in-project true
+
+      - name: Install dependencies
+        run: poetry install --no-interaction --no-root
+
+      - name: Run database migrations
+        env:
+          DATABASE_URL: postgresql+asyncpg://wf_eval:wf_eval@localhost:15432/wf_eval
+        run: poetry run alembic upgrade head
+
+      - name: Run citation_faithfulness_live eval
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          DATABASE_URL: postgresql+asyncpg://wf_eval:wf_eval@localhost:15432/wf_eval
+          GIT_SHA: ${{ github.sha }}
+        run: |
+          mkdir -p ../../evals/results
+          poetry run python -m evals.runner \
+            --category citation_faithfulness_live \
+            --output "../../evals/results/live-pr-${GIT_SHA}.json"
+
+      - name: Compare mean score to committed live baseline
+        run: |
+          poetry run python -m evals.baseline_compare \
+            ../../evals/results/baseline-live-claude-opus-4-7.json \
+            "../../evals/results/live-pr-${GITHUB_SHA}.json" \
+            --max-drop 0.10
+
+      - name: Upload live result manifest
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: eval-citation-faithfulness-live
+          path: evals/results/live-pr-*.json
           if-no-files-found: warn
           retention-days: 30

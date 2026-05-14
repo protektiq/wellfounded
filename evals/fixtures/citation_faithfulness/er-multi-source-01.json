@@ -1,0 +1,38 @@
+{
+  "id": "er-multi-source-01",
+  "category": "citation_faithfulness",
+  "scorer": "exact_citation_match",
+  "tags": [
+    "multi_source",
+    "er",
+    "political_opinion"
+  ],
+  "input": {
+    "country_code": "ER",
+    "basis": "political_opinion",
+    "section_id": "treatment_of_group",
+    "retrieval_context_ids": [
+      "00000010-0000-4000-8000-000000000001",
+      "00000010-0000-4000-8000-000000000002",
+      "00000010-0000-4000-8000-000000000003"
+    ],
+    "cited_source_ids": [
+      "00000010-0000-4000-8000-000000000001",
+      "00000010-0000-4000-8000-000000000002"
+    ],
+    "verification_claims": [
+      {
+        "claim_text": "Both passages describe the same documented pattern of surveillance.",
+        "support": "supported"
+      }
+    ]
+  },
+  "expected": {
+    "verification_claims": [
+      {
+        "claim_text": "Both passages describe the same documented pattern of surveillance.",
+        "support": "supported"
+      }
+    ]
+  }
+}

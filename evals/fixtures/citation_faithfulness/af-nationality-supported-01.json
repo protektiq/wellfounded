@@ -1,0 +1,36 @@
+{
+  "id": "af-nationality-supported-01",
+  "category": "citation_faithfulness",
+  "scorer": "exact_citation_match",
+  "tags": [
+    "supportive",
+    "af",
+    "nationality"
+  ],
+  "input": {
+    "country_code": "AF",
+    "basis": "nationality",
+    "section_id": "state_actor_involvement",
+    "retrieval_context_ids": [
+      "00000008-0000-4000-8000-000000000001",
+      "00000008-0000-4000-8000-000000000002"
+    ],
+    "cited_source_ids": [
+      "00000008-0000-4000-8000-000000000001"
+    ],
+    "verification_claims": [
+      {
+        "claim_text": "Official statements reference enforcement actions affecting minority communities.",
+        "support": "supported"
+      }
+    ]
+  },
+  "expected": {
+    "verification_claims": [
+      {
+        "claim_text": "Official statements reference enforcement actions affecting minority communities.",
+        "support": "supported"
+      }
+    ]
+  }
+}

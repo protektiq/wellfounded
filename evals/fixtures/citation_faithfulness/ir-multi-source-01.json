@@ -1,0 +1,37 @@
+{
+  "id": "ir-multi-source-01",
+  "category": "citation_faithfulness",
+  "scorer": "exact_citation_match",
+  "tags": [
+    "multi_source",
+    "ir",
+    "gender_based"
+  ],
+  "input": {
+    "country_code": "IR",
+    "basis": "gender_based",
+    "section_id": "treatment_of_group",
+    "retrieval_context_ids": [
+      "00000014-0000-4000-8000-000000000001",
+      "00000014-0000-4000-8000-000000000002"
+    ],
+    "cited_source_ids": [
+      "00000014-0000-4000-8000-000000000001",
+      "00000014-0000-4000-8000-000000000002"
+    ],
+    "verification_claims": [
+      {
+        "claim_text": "Two passages jointly substantiate the described risk profile.",
+        "support": "supported"
+      }
+    ]
+  },
+  "expected": {
+    "verification_claims": [
+      {
+        "claim_text": "Two passages jointly substantiate the described risk profile.",
+        "support": "supported"
+      }
+    ]
+  }
+}
