@@ -25,6 +25,7 @@ _MAX_GROUP = 16_384
 _MAX_QUERY = 8_192
 _MAX_OUTLINE = 32_768
 _MAX_PROSE = 120_000
+_MAX_CITED_PASSAGE_TEXT = 120_000
 _CITE_TAG_RE = re.compile(
     r'<cite\s+passage_id="([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-'
     r'[0-9a-fA-F]{4}-[0-9a-fA-F]{12})"\s*/>',
@@ -105,6 +106,20 @@ class CountryConditionsMemoSummary(BaseModel):
     generated_at: datetime | None = None
 
 
+class CitedPassagePayload(BaseModel):
+    """Full passage text and metadata for memo citation UI (memo detail only)."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    passage_id: uuid.UUID
+    source_family: Annotated[str, Field(min_length=1, max_length=64)]
+    document_title: Annotated[str, Field(min_length=1, max_length=512)]
+    publication_date: date
+    url: Annotated[str, Field(min_length=1, max_length=4096)]
+    section_anchor: Annotated[str, Field(min_length=1, max_length=1024)]
+    text: Annotated[str, Field(min_length=1, max_length=_MAX_CITED_PASSAGE_TEXT)]
+
+
 class CountryConditionsMemoDetail(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -117,6 +132,7 @@ class CountryConditionsMemoDetail(BaseModel):
     model_versions: dict[str, object]
     error_message: str | None
     generated_at: datetime | None = None
+    cited_passages: list[CitedPassagePayload] = Field(default_factory=list)
 
 
 class CountryConditionsGenerateResponse(BaseModel):

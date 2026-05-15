@@ -3,9 +3,12 @@
 from __future__ import annotations
 
 import uuid
+from io import BytesIO
 from typing import Annotated, Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response, status
+from fastapi.responses import StreamingResponse
+from pydantic import ValidationError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from audit.deps import get_audit_writer
@@ -21,14 +24,21 @@ from cases.schemas import (
     CaseListItem,
     CaseUpdate,
 )
+from country_conditions.docx_memo import (
+    build_country_conditions_docx_bytes,
+    cited_passage_ids_ordered,
+    export_docx_filename,
+)
 from country_conditions.models import CountryConditionsMemoStatus
 from country_conditions.repository import CountryConditionsRepository
 from country_conditions.schemas import (
+    CitedPassagePayload,
     CountryConditionsGenerateRequest,
     CountryConditionsGenerateResponse,
     CountryConditionsInputs,
     CountryConditionsMemoDetail,
     CountryConditionsMemoSummary,
+    FinalMemoStructured,
 )
 from country_conditions.service import (
     CountryConditionsService,
@@ -36,6 +46,10 @@ from country_conditions.service import (
 )
 from db.session import get_db_session
 from orgs.models import User, UserRole
+from retrieval.passage_search import (
+    fetch_passages_by_ordered_ids,
+    fetch_passages_export_meta,
+)
 
 router = APIRouter(prefix="/cases", tags=["cases"])
 
@@ -557,6 +571,31 @@ async def get_country_conditions_memo(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Memo not found",
         )
+    cited_passages: list[CitedPassagePayload] = []
+    if (
+        memo.status is CountryConditionsMemoStatus.complete
+        and memo.output is not None
+    ):
+        try:
+            final = FinalMemoStructured.model_validate(memo.output)
+        except ValidationError:
+            final = None
+        if final is not None:
+            ordered_ids = cited_passage_ids_ordered(final)
+            loaded = await fetch_passages_by_ordered_ids(db, ordered_ids)
+            if loaded is not None:
+                cited_passages = [
+                    CitedPassagePayload(
+                        passage_id=p.passage_id,
+                        source_family=p.source_family,
+                        document_title=p.document_title,
+                        publication_date=p.publication_date,
+                        url=p.url,
+                        section_anchor=p.section_anchor,
+                        text=p.text,
+                    )
+                    for p in loaded
+                ]
     return CountryConditionsMemoDetail(
         id=memo.id,
         case_id=memo.case_id,
@@ -567,4 +606,80 @@ async def get_country_conditions_memo(
         model_versions=dict(memo.model_versions),
         error_message=memo.error_message,
         generated_at=memo.generated_at,
+        cited_passages=cited_passages,
+    )
+
+
+@router.get("/{case_id}/country-conditions/{memo_id}/export.docx")
+async def export_country_conditions_memo_docx(
+    case_id: uuid.UUID,
+    memo_id: uuid.UUID,
+    request: Request,
+    auth: Annotated[RequestAuth, Depends(get_request_auth)],
+    db: Annotated[AsyncSession, Depends(get_db_session)],
+    audit: Annotated[AuditWriter, Depends(get_audit_writer)],
+) -> StreamingResponse:
+    user = auth.user
+    org_id = auth.organization.id
+    rid = getattr(request.state, "request_id", None)
+    if not isinstance(rid, uuid.UUID):
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Request context was not initialized (missing request_id).",
+        )
+    case_repo = CaseRepository(db)
+    case = await case_repo.get_case_for_org(org_id, case_id)
+    if case is None or not _can_get_case(user, case):
+        raise _case_not_found()
+    cc_repo = CountryConditionsRepository(db)
+    memo = await cc_repo.get_memo(org_id, memo_id)
+    if memo is None or memo.case_id != case_id:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Memo not found",
+        )
+    if memo.status is not CountryConditionsMemoStatus.complete or memo.output is None:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Memo is not ready for export",
+        )
+    try:
+        final = FinalMemoStructured.model_validate(memo.output)
+    except ValidationError:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Memo output is invalid for export",
+        ) from None
+    passage_ids = cited_passage_ids_ordered(final)
+    try:
+        export_meta = await fetch_passages_export_meta(db, passage_ids)
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Could not load source metadata for citations",
+        ) from exc
+    inputs = CountryConditionsInputs.model_validate(memo.inputs)
+    docx_bytes = build_country_conditions_docx_bytes(
+        final=final,
+        inputs=inputs,
+        case_pseudonym=case.pseudonym,
+        export_meta=export_meta,
+        memo_generated_at=memo.generated_at,
+    )
+    filename = export_docx_filename(case.pseudonym, memo.version)
+    await audit.record(
+        "country_conditions.memo.export.docx",
+        org_id,
+        user.id,
+        "country_conditions_memo",
+        memo_id,
+        metadata={"case_id": str(case_id), "memo_version": memo.version},
+    )
+    await db.commit()
+    return StreamingResponse(
+        BytesIO(docx_bytes),
+        media_type=(
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        ),
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
     )

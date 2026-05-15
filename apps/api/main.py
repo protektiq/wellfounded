@@ -40,7 +40,12 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     yield
 
 
-app = FastAPI(title="Wellfounded API", version="0.1.0", lifespan=lifespan)
+app = FastAPI(
+    title="Wellfounded API",
+    version="0.1.0",
+    lifespan=lifespan,
+    servers=[{"url": "http://localhost:8000", "description": "Local dev"}],
+)
 app.add_middleware(RequestContextMiddleware)
 
 
