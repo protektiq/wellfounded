@@ -18,6 +18,7 @@ make db-revision msg="your message"  # Create a new Alembic revision
 make api             # FastAPI with hot reload on port 8000
 make web             # Next.js dev server on port 3000
 make test            # Run pytest (API) + vitest (web)
+make test-e2e        # Playwright E2E (installs Chromium); see E2E env vars below
 make lint            # Run ruff + mypy --strict on apps/api
 make ingest ARGS="--source state_dept --year-from 2024 --year-to 2024 --countries ER"  # Ingest sources
 make ingest-all      # Full launch-catalog ingestion (sequential)
@@ -36,6 +37,14 @@ Run a single web test:
 ```bash
 cd apps/web && npm test -- smoke
 ```
+
+**Country conditions Playwright E2E** (requires Postgres migrated, API and web running on defaults):
+
+Set on the **API** (for example `.env.local`): `ENVIRONMENT=local`, `E2E_MAGIC_LINK_REVEAL_ENABLED=true`, `E2E_MAGIC_LINK_SECRET=<long random>`, `COUNTRY_CONDITIONS_E2E_STUB=true`.
+
+Set in the shell running Playwright: `export WF_E2E_MAGIC_LINK_SECRET=<same value as E2E_MAGIC_LINK_SECRET>`.
+
+Then in separate terminals: `make api`, `make web`, and `make test-e2e` (or `cd apps/web && npm run test:e2e`). Optional: `PLAYWRIGHT_API_URL`, `PLAYWRIGHT_BASE_URL` if not using `127.0.0.1:8000` / `:3000`.
 
 ## Architecture
 

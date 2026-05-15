@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import uuid
-from datetime import date
+from datetime import date, datetime
 from decimal import Decimal
 
 import structlog
@@ -20,7 +20,7 @@ from retrieval.cache import (
 )
 from retrieval.models import SourceFamily
 from retrieval.rerank import rerank_passages
-from retrieval.schemas import RetrievedPassage
+from retrieval.schemas import PassageExportMeta, RetrievedPassage
 
 log = structlog.get_logger()
 
@@ -156,6 +156,83 @@ def _row_to_passage(
     )
 
 
+def _row_to_passage_export_meta(row: dict[str, object]) -> PassageExportMeta:
+    sid = row["passage_id"]
+    if not isinstance(sid, uuid.UUID):
+        raise TypeError("passage_id must be UUID")
+    pub = row["publication_date"]
+    if not isinstance(pub, date):
+        raise TypeError("publication_date must be date")
+    title = row["document_title"]
+    url = row["url"]
+    anchor = row["section_anchor"]
+    fam = row["source_family"]
+    lva = row["last_verified_at"]
+    if not isinstance(title, str):
+        raise TypeError("document_title must be str")
+    if not isinstance(url, str):
+        raise TypeError("url must be str")
+    if not isinstance(anchor, str):
+        raise TypeError("section_anchor must be str")
+    if not isinstance(fam, str):
+        raise TypeError("source_family must be str")
+    if not isinstance(lva, datetime):
+        raise TypeError("last_verified_at must be datetime")
+    return PassageExportMeta(
+        passage_id=sid,
+        source_family=fam,
+        document_title=title,
+        publication_date=pub,
+        url=url,
+        section_anchor=anchor,
+        last_verified_at=lva,
+    )
+
+
+async def fetch_passages_export_meta(
+    session: AsyncSession,
+    passage_ids: list[uuid.UUID],
+) -> dict[uuid.UUID, PassageExportMeta]:
+    """Load passage rows joined to documents for DOCX bibliography (not org-scoped)."""
+    if not passage_ids:
+        return {}
+    unique: list[uuid.UUID] = []
+    seen: set[uuid.UUID] = set()
+    for pid in passage_ids:
+        if pid not in seen:
+            seen.add(pid)
+            unique.append(pid)
+    in_list = _sql_uuid_in_list(unique)
+    sql = text(
+        f"""
+        SELECT
+            sp.id AS passage_id,
+            sd.source_family::text AS source_family,
+            sd.title AS document_title,
+            sd.publication_date AS publication_date,
+            sd.url AS url,
+            sp.section_anchor AS section_anchor,
+            sd.last_verified_at AS last_verified_at
+        FROM source_passages sp
+        INNER JOIN source_documents sd ON sd.id = sp.source_document_id
+        WHERE sd.deleted_at IS NULL
+          AND sp.id IN ({in_list})
+        """,
+    )
+    result = await session.execute(sql)
+    by_id: dict[uuid.UUID, PassageExportMeta] = {}
+    for r in result.mappings().all():
+        meta = _row_to_passage_export_meta(dict(r))
+        by_id[meta.passage_id] = meta
+    missing = [pid for pid in unique if pid not in by_id]
+    if missing:
+        raise ValueError(
+            "missing or deleted source rows for passage_ids: "
+            + ", ".join(str(x) for x in missing),
+        )
+    return by_id
+
+
 async def _vector_ann_search(
     session: AsyncSession,
     *,
@@ -208,7 +285,7 @@ async def _vector_ann_search(
     return [_row_to_passage(dict(r)) for r in rows]
 
 
-async def _fetch_passages_by_ordered_ids(
+async def fetch_passages_by_ordered_ids(
     session: AsyncSession,
     ordered_ids: list[uuid.UUID],
 ) -> list[RetrievedPassage] | None:
@@ -300,7 +377,7 @@ async def search(
     if s.retrieval_cache_enabled:
         cached_ids = await cache_backend.get_candidate_ids(cache_key)
         if cached_ids and len(cached_ids) > 0:
-            loaded = await _fetch_passages_by_ordered_ids(session, cached_ids)
+            loaded = await fetch_passages_by_ordered_ids(session, cached_ids)
             if loaded is not None and len(loaded) == len(cached_ids):
                 candidates = loaded
                 cache_hit = True

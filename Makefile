@@ -1,6 +1,6 @@
 COMPOSE := docker-compose -f infra/local/docker-compose.yml
 
-.PHONY: up down db-migrate db-revision api web test lint ingest ingest-all refresh-living-sources benchmark-retrieval eval-run eval-view eval-collect-baseline
+.PHONY: up down db-migrate db-revision api web test test-e2e lint ingest ingest-all refresh-living-sources benchmark-retrieval eval-run eval-view eval-collect-baseline
 
 up:
 	$(COMPOSE) up -d
@@ -45,6 +45,8 @@ test:
 	cd apps/api && poetry run pytest
 	cd apps/web && npm test
 
+test-e2e:
+	cd apps/web && npx playwright install chromium && npm run test:e2e
 lint:
 	cd apps/api && poetry run ruff check .
 	cd apps/api && poetry run mypy --strict .

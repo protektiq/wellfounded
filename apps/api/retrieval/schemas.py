@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import date
+from datetime import date, datetime
 from uuid import UUID
 
 
@@ -18,3 +18,16 @@ class RetrievedPassage:
     section_anchor: str
     text: str
     similarity_score: float
+
+
+@dataclass(frozen=True)
+class PassageExportMeta:
+    """Bibliography fields for DOCX export (global source library)."""
+
+    passage_id: UUID
+    source_family: str
+    document_title: str
+    publication_date: date
+    url: str
+    section_anchor: str
+    last_verified_at: datetime

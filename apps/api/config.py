@@ -105,6 +105,25 @@ class Settings(BaseSettings):
         description="Email transport: console (dev) or ses (stub)",
     )
 
+    e2e_magic_link_reveal_enabled: bool = Field(
+        default=False,
+        description=(
+            "When true (local only), magic-link POST may return the callback URL"
+        ),
+    )
+    e2e_magic_link_secret: str | None = Field(
+        default=None,
+        max_length=256,
+        description="Shared secret for X-E2E-Secret header when reveal is enabled",
+    )
+
+    country_conditions_e2e_stub: bool = Field(
+        default=False,
+        description=(
+            "When true (local only), country conditions generation uses a fixture memo"
+        ),
+    )
+
     webauthn_rp_id: str = Field(
         default="",
         max_length=253,

@@ -8,7 +8,7 @@ from typing import Annotated
 
 import structlog
 from fastapi import APIRouter, Depends, Request, Response, status
-from fastapi.responses import RedirectResponse
+from fastapi.responses import JSONResponse, RedirectResponse
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -43,6 +43,20 @@ def _session_cookie_secure(settings: Settings) -> bool:
 _SESSION_MAX_AGE_SECONDS = 30 * 24 * 3600
 
 
+def _e2e_magic_link_reveal_ok(settings: Settings, request: Request) -> bool:
+    if settings.environment.strip().lower() != "local":
+        return False
+    if not settings.e2e_magic_link_reveal_enabled:
+        return False
+    secret = settings.e2e_magic_link_secret
+    if secret is None or secret.strip() == "":
+        return False
+    header = request.headers.get("x-e2e-secret")
+    if header is None or len(header) > 256:
+        return False
+    return header == secret
+
+
 def _redirect_with_error(settings: Settings, error_code: str) -> RedirectResponse:
     base = settings.public_app_url
     sep = "&" if "?" in base else "?"
@@ -50,8 +64,9 @@ def _redirect_with_error(settings: Settings, error_code: str) -> RedirectRespons
     return RedirectResponse(url=url, status_code=status.HTTP_302_FOUND)
 
 
-@router.post("/magic-link", status_code=status.HTTP_204_NO_CONTENT)
+@router.post("/magic-link")
 async def request_magic_link(
+    request: Request,
     body: MagicLinkRequest,
     db: AsyncSession = Depends(get_db_session),
     audit: AuditWriter = Depends(get_audit_writer),
@@ -101,6 +116,12 @@ async def request_magic_link(
         )
         await auth_repo.insert_magic_link_token(token_row)
         callback = f"{settings.api_public_url}/auth/callback?token={raw}"
+        if _e2e_magic_link_reveal_ok(settings, request):
+            await db.commit()
+            return JSONResponse(
+                status_code=status.HTTP_200_OK,
+                content={"magic_link_url": callback},
+            )
         await sender.send_magic_link(
             to_email=user.email,
             magic_link_url=callback,
@@ -108,7 +129,7 @@ async def request_magic_link(
         )
 
     await db.commit()
-    return Response(status_code=status.HTTP_204_NO_CONTENT)
+    return Response(status_code=status.HTTP_204_NO_CONTENT, content=None)
 
 
 @router.get("/callback", status_code=status.HTTP_302_FOUND)

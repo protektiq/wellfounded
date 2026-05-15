@@ -6,7 +6,7 @@ import asyncio
 import json
 import re
 import uuid
-from datetime import date
+from datetime import UTC, date, datetime
 from typing import Any
 
 import pytest
@@ -46,6 +46,7 @@ from country_conditions.schemas import (
 from llm.client import LLMClient
 from orgs.models import UserRole, UserStatus
 from orgs.repository import OrgRepository
+from retrieval.models import SourceDocument, SourceFamily, SourcePassage
 
 
 def _plan_fixture() -> PlanOutput:
@@ -164,6 +165,41 @@ async def test_country_conditions_happy_path_mocked_llm(
 
     fake_rows = _fake_search_rows()
 
+    def _ortho_vec(dim_index: int) -> list[float]:
+        v = [0.0] * 3072
+        v[dim_index % 3072] = 1.0
+        return v
+
+    vidx = 0
+    for sid in CC_SECTION_IDS:
+        p = fake_rows[sid][0]
+        doc_id = uuid.UUID(str(p["document_id"]))
+        pid = uuid.UUID(str(p["passage_id"]))
+        doc = SourceDocument(
+            id=doc_id,
+            source_family=SourceFamily.state_dept_human_rights,
+            title=str(p["document_title"])[:512],
+            publication_date=date.fromisoformat(str(p["publication_date"])),
+            country_codes=["ER"],
+            url=str(p["url"])[:2048],
+            last_verified_at=datetime.now(UTC),
+            content_hash=uuid.uuid4().hex + uuid.uuid4().hex,
+        )
+        db_session.add(doc)
+        await db_session.flush()
+        db_session.add(
+            SourcePassage(
+                id=pid,
+                source_document_id=doc_id,
+                section_anchor=str(p["section_anchor"])[:1024],
+                text=str(p["text"]),
+                embedding=_ortho_vec(vidx),
+                token_count=max(1, len(str(p["text"])) // 4),
+            ),
+        )
+        vidx += 1
+    await db_session.commit()
+
     async def _fake_search(
         session: AsyncSession,
         query: str,
@@ -268,7 +304,7 @@ async def test_country_conditions_happy_path_mocked_llm(
     assert r_post.status_code == 202, r_post.text
     memo_id = uuid.UUID(r_post.json()["memo_id"])
 
-    for _ in range(80):
+    for _ in range(120):
         await asyncio.sleep(0.05)
         r_get = await api_client.get(f"/cases/{case_id}/country-conditions/{memo_id}")
         if r_get.status_code != 200:
@@ -285,6 +321,16 @@ async def test_country_conditions_happy_path_mocked_llm(
     assert r_get.status_code == 200
     body = r_get.json()
     assert body["status"] == CountryConditionsMemoStatus.complete.value
+    expected_ids = {
+        uuid.UUID(fake_rows[s][0]["passage_id"]) for s in CC_SECTION_IDS
+    }
+    cited = body.get("cited_passages")
+    assert isinstance(cited, list)
+    assert len(cited) == len(expected_ids)
+    assert {uuid.UUID(c["passage_id"]) for c in cited} == expected_ids
+    for c in cited:
+        assert isinstance(c["text"], str)
+        assert len(c["text"]) > 0
     out = body["output"]
     assert out is not None
     assert len(out["sections"]) == 5

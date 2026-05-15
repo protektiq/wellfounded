@@ -106,6 +106,10 @@ class CountryConditionsService:
         settings = get_settings()
         uri = settings.resolved_checkpoint_database_url()
         maker = self._maker()
+        stub_local = (
+            settings.country_conditions_e2e_stub
+            and settings.environment.strip().lower() == "local"
+        )
         structlog.contextvars.bind_contextvars(
             organization_id=str(organization_id),
             user_id=str(user_id),
@@ -121,6 +125,26 @@ class CountryConditionsService:
                         CountryConditionsMemoStatus.generating,
                     )
                     await session.flush()
+
+                    if stub_local:
+                        from country_conditions.e2e_stub import e2e_stub_final_memo_dict
+
+                        await repo.update_memo_complete(
+                            organization_id,
+                            memo_id,
+                            output=e2e_stub_final_memo_dict(),
+                            model_versions={"e2e": "fixture"},
+                        )
+                        await audit.record(
+                            "country_conditions.generate.complete",
+                            organization_id,
+                            user_id,
+                            "country_conditions_memo",
+                            memo_id,
+                            metadata={"case_id": str(case_id), "e2e_stub": True},
+                        )
+                        await session.commit()
+                        return
 
                     async with AsyncPostgresSaver.from_conn_string(uri) as checkpointer:
                         await checkpointer.setup()
