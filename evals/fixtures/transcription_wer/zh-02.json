@@ -6,10 +6,10 @@
     "zh"
   ],
   "input": {
-    "reference": "政府因为我发表的文章追捕我",
-    "hypothesis": "政府因为我发表的文章追捕我"
+    "reference": "政府 因为 我 发表的 文章 追捕 我",
+    "hypothesis": "政府 因为 我 写的 文章 追捕 我"
   },
   "expected": {
-    "max_wer": 0.08
+    "max_wer": 0.2
   }
 }

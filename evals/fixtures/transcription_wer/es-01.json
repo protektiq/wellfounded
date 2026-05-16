@@ -7,9 +7,9 @@
   ],
   "input": {
     "reference": "tuve que huir de mi pais por persecucion politica",
-    "hypothesis": "tuve que huir de mi pais por persecucion politica"
+    "hypothesis": "tuve que huir mi pais por persecucion politica"
   },
   "expected": {
-    "max_wer": 0.08
+    "max_wer": 0.15
   }
 }

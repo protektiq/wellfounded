@@ -6,8 +6,8 @@
     "zh"
   ],
   "input": {
-    "reference": "我在美国寻求庇护",
-    "hypothesis": "我在美国寻求庇护"
+    "reference": "我 在 美国 寻求 庇护",
+    "hypothesis": "我 在 美国 寻求 庇护"
   },
   "expected": {
     "max_wer": 0.08

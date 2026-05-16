@@ -901,6 +901,26 @@ async def create_transcript(
     return TranscriptOut.model_validate(row)
 
 
+@router.get(
+    "/{case_id}/prior-statements",
+    response_model=list[PriorStatementOut],
+)
+async def list_prior_statements(
+    case_id: uuid.UUID,
+    auth: Annotated[RequestAuth, Depends(get_request_auth)],
+    db: Annotated[AsyncSession, Depends(get_db_session)],
+) -> list[PriorStatementOut]:
+    user = auth.user
+    org_id = auth.organization.id
+    case_repo = CaseRepository(db)
+    case = await case_repo.get_case_for_org(org_id, case_id)
+    if case is None or not _can_get_case(user, case):
+        raise _case_not_found()
+    decl_repo = DeclarationsRepository(db)
+    rows = await decl_repo.list_all_prior_statements(org_id, case_id)
+    return [PriorStatementOut.model_validate(r) for r in rows]
+
+
 @router.post(
     "/{case_id}/prior-statements",
     response_model=PriorStatementOut,

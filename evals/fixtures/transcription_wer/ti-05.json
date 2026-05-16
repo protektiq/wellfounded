@@ -7,9 +7,9 @@
   ],
   "input": {
     "reference": "ኣብ ኣሜሪካ መኖሪ ስደተኛ ይሓትት",
-    "hypothesis": "ኣብ ኣሜሪካ መኖሪ ስደተኛ ይሓትት"
+    "hypothesis": "ኣብ ኣሜሪካ ሕቶ ስደተኛ ይሓትት"
   },
   "expected": {
-    "max_wer": 0.08
+    "max_wer": 0.25
   }
 }

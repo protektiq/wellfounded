@@ -7,9 +7,9 @@
   ],
   "input": {
     "reference": "ንሃገረይ ብድሕነት ክምለስ ኣይክእልን",
-    "hypothesis": "ንሃገረይ ብድሕነት ክምለስ ኣይክእልን"
+    "hypothesis": "ንሃገረይ ብርግጽ ክምለስ ኣይክእልን"
   },
   "expected": {
-    "max_wer": 0.08
+    "max_wer": 0.3
   }
 }

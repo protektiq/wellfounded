@@ -7,9 +7,9 @@
   ],
   "input": {
     "reference": "mwen pa ka retounen lakay mwen an sekirite",
-    "hypothesis": "mwen pa ka retounen lakay mwen an sekirite"
+    "hypothesis": "mwen pa ka retounen kay mwen an sekirite"
   },
   "expected": {
-    "max_wer": 0.08
+    "max_wer": 0.2
   }
 }

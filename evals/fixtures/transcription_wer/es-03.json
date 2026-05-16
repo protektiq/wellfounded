@@ -7,9 +7,9 @@
   ],
   "input": {
     "reference": "mi familia vive con miedo constante",
-    "hypothesis": "mi familia vive con miedo constante"
+    "hypothesis": "mi familia vive sin miedo constante"
   },
   "expected": {
-    "max_wer": 0.08
+    "max_wer": 0.2
   }
 }

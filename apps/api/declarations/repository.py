@@ -125,6 +125,22 @@ class DeclarationsRepository:
         result = await self._session.execute(stmt)
         return result.scalar_one_or_none()
 
+    async def list_all_prior_statements(
+        self,
+        organization_id: uuid.UUID,
+        case_id: uuid.UUID,
+    ) -> list[PriorStatement]:
+        stmt = (
+            select(PriorStatement)
+            .where(
+                PriorStatement.organization_id == organization_id,
+                PriorStatement.case_id == case_id,
+            )
+            .order_by(PriorStatement.uploaded_at.asc())
+        )
+        result = await self._session.execute(stmt)
+        return list(result.scalars().all())
+
     async def list_prior_statements_for_case(
         self,
         organization_id: uuid.UUID,

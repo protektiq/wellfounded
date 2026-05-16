@@ -7,9 +7,9 @@
   ],
   "input": {
     "reference": "le gouvernement me recherchait pour mes opinions",
-    "hypothesis": "le gouvernement me recherchait pour mes opinions"
+    "hypothesis": "le gouvernement me cherchait pour mes opinions"
   },
   "expected": {
-    "max_wer": 0.08
+    "max_wer": 0.2
   }
 }

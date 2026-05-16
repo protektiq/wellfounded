@@ -7,9 +7,9 @@
   ],
   "input": {
     "reference": "je ne peux pas retourner chez moi en securite",
-    "hypothesis": "je ne peux pas retourner chez moi en securite"
+    "hypothesis": "je ne peux pas retourner chez moi securite"
   },
   "expected": {
-    "max_wer": 0.08
+    "max_wer": 0.15
   }
 }

@@ -331,3 +331,21 @@ def test_encryption_round_trip() -> None:
     packed, _kid = encrypt_audio_for_storage(crypto, org, plain)
     out = decrypt_audio_from_storage(crypto, org, packed, is_revoked=False)
     assert out == plain
+
+
+def test_encryption_revoked_blocks_decrypt() -> None:
+    import uuid as _uuid
+
+    from encryption.service import (
+        DataKeyRevokedError,
+        LocalEnvelopeCrypto,
+        decrypt_audio_from_storage,
+        encrypt_audio_for_storage,
+    )
+
+    crypto = LocalEnvelopeCrypto(b"1" * 32)
+    org = _uuid.uuid4()
+    plain = b"RIFF....test audio content"
+    packed, _kid = encrypt_audio_for_storage(crypto, org, plain)
+    with pytest.raises(DataKeyRevokedError):
+        decrypt_audio_from_storage(crypto, org, packed, is_revoked=True)

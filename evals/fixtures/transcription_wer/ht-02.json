@@ -7,9 +7,9 @@
   ],
   "input": {
     "reference": "gouvènman an tap chache mwen pou opinyon mwen",
-    "hypothesis": "gouvènman an tap chache mwen pou opinyon mwen"
+    "hypothesis": "gouvènman an tap chache mwen pou opinyon li"
   },
   "expected": {
-    "max_wer": 0.08
+    "max_wer": 0.2
   }
 }

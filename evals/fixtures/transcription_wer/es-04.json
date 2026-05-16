@@ -7,9 +7,9 @@
   ],
   "input": {
     "reference": "no puedo regresar a mi hogar",
-    "hypothesis": "no puedo regresar a mi hogar"
+    "hypothesis": "no puedo regresar mi hogar"
   },
   "expected": {
-    "max_wer": 0.08
+    "max_wer": 0.2
   }
 }

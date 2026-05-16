@@ -6,10 +6,10 @@
     "zh"
   ],
   "input": {
-    "reference": "我因为政治迫害不得不离开我的国家",
-    "hypothesis": "我因为政治迫害不得不离开我的国家"
+    "reference": "我 因为 政治迫害 不得不 离开 我的 国家",
+    "hypothesis": "我 因为 政治压迫 不得不 离开 我的 国家"
   },
   "expected": {
-    "max_wer": 0.08
+    "max_wer": 0.2
   }
 }

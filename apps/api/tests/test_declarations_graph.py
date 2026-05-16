@@ -559,7 +559,7 @@ async def test_audit_on_generate_and_revise(
     result = await db_session.execute(stmt)
     actions = {row[0] for row in result.all()}
     assert "declaration.generate.start" in actions
-    assert "declaration.generate.complete" in actions or "declaration.extract.complete" in actions
+    assert "declaration.generate.complete" in actions
 
     r_rev = await api_client.post(
         f"/cases/{case_id}/declarations/{draft_id}/revise",
