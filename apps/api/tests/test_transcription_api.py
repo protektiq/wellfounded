@@ -211,6 +211,46 @@ async def test_interview_upload_202_and_poll_complete(
 
 
 @pytest.mark.asyncio(loop_scope="session")
+async def test_interview_audio_stream(
+    api_client: AsyncClient,
+    db_session: AsyncSession,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    slug = f"tx-stream-{uuid.uuid4().hex[:8]}"
+    user_id = await _magic_login(
+        api_client=api_client,
+        db_session=db_session,
+        slug=slug,
+        email=f"{slug}@example.com",
+        role=UserRole.attorney,
+        capsys=capsys,
+    )
+    case_id = await _create_case(api_client, lead_user_id=user_id)
+    wav_path = _API_FIXTURES / "audio" / "stream.wav"
+    _make_test_wav(wav_path, duration_seconds=0.5)
+
+    with wav_path.open("rb") as f:
+        r = await api_client.post(
+            f"/cases/{case_id}/interviews",
+            data={"source_language": "es"},
+            files={"file": ("stream.wav", f, "audio/wav")},
+        )
+    assert r.status_code == 202
+    audio_id = r.json()["interview_audio_id"]
+
+    for _ in range(80):
+        r_poll = await api_client.get(f"/cases/{case_id}/interviews/{audio_id}")
+        if r_poll.status_code == 200 and r_poll.json()["transcription_status"] == "complete":
+            break
+        await asyncio.sleep(0.05)
+
+    r_audio = await api_client.get(f"/cases/{case_id}/interviews/{audio_id}/audio")
+    assert r_audio.status_code == 200, r_audio.text
+    assert r_audio.headers.get("content-type", "").startswith("audio/")
+    assert len(r_audio.content) > 44
+
+
+@pytest.mark.asyncio(loop_scope="session")
 @pytest.mark.parametrize("lang", ["es", "zh", "fr", "ht", "ti", "prs"])
 async def test_transcription_stub_six_languages(
     api_client: AsyncClient,

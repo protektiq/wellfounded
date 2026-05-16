@@ -33,6 +33,19 @@ class InterviewAudioOut(BaseModel):
     transcript_id: uuid.UUID | None = None
 
 
+class InterviewAudioSummary(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    case_id: uuid.UUID
+    source_filename: str
+    source_language: SourceLanguage
+    duration_seconds: float
+    transcription_status: TranscriptionStatus
+    uploaded_at: datetime
+    transcript_id: uuid.UUID | None = None
+
+
 class TranscriptStatusEnum(str, Enum):
     pending = "pending"
     processing = "processing"

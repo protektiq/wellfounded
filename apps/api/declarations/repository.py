@@ -317,6 +317,25 @@ class DeclarationsRepository:
         )
         await self._session.execute(stmt)
 
+    async def update_draft_content_and_flags(
+        self,
+        organization_id: uuid.UUID,
+        draft_id: uuid.UUID,
+        *,
+        draft: dict[str, Any],
+        flags: list[dict[str, Any]],
+        status: DeclarationDraftStatus,
+    ) -> None:
+        stmt = (
+            update(DeclarationDraft)
+            .where(
+                DeclarationDraft.organization_id == organization_id,
+                DeclarationDraft.id == draft_id,
+            )
+            .values(draft=draft, flags=flags, status=status)
+        )
+        await self._session.execute(stmt)
+
     async def _lock_case(
         self,
         organization_id: uuid.UUID,

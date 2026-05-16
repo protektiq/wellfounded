@@ -349,6 +349,13 @@ class FlagResolveRequest(BaseModel):
     resolution_note: Annotated[str | None, Field(default=None, max_length=16_384)] = None
 
 
+class FlagApplyRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    resolution_text: Annotated[str, Field(min_length=1, max_length=16_384)]
+    status: Literal["resolved", "deferred"] = "resolved"
+
+
 class CleanExportBlockedResponse(BaseModel):
     model_config = ConfigDict(extra="forbid")
 

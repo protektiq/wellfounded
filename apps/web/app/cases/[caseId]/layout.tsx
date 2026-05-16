@@ -1,7 +1,7 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { z } from "zod";
 
+import { CaseNav } from "@/components/cases/case-nav";
 import { parseCaseDetail } from "@/lib/cc-schemas";
 import { serverFetchJsonOrRedirect } from "@/lib/server-api";
 
@@ -69,14 +69,7 @@ export default async function CaseWorkbenchLayout({
                 <p>{basis}</p>
               </div>
             </div>
-            <nav aria-label="Case sections" className="flex gap-6 border-t border-border/60 pt-3">
-              <Link
-                href={`/cases/${caseId}/country-conditions`}
-                className="border-b-2 border-[var(--oxblood)] pb-2 text-sm font-medium text-[var(--oxblood)]"
-              >
-                Country conditions
-              </Link>
-            </nav>
+            <CaseNav caseId={caseId} />
           </div>
         </header>
         <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">{children}</main>
