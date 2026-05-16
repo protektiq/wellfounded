@@ -67,6 +67,11 @@ def _truncate_error(msg: str) -> str:
     return msg[: _MAX_ERROR_MSG - 3] + "..."
 
 
+def _anthropic_omit_temperature(model_id: str) -> bool:
+    """Anthropic Opus 4.x rejects the temperature parameter (deprecated)."""
+    return model_id.startswith("claude-opus-4")
+
+
 def _validate_embed_texts(texts: list[str]) -> list[str]:
     if not texts:
         raise ValueError("texts must be non-empty")
@@ -185,15 +190,17 @@ class LLMClient:
         }
         try:
             if prompt.provider == "anthropic":
+                create_kw: dict[str, Any] = {
+                    "model": prompt.model_id,
+                    "max_tokens": mt,
+                    "system": system,
+                    "messages": [{"role": "user", "content": user}],
+                }
+                if not _anthropic_omit_temperature(prompt.model_id):
+                    create_kw["temperature"] = temp
                 msg = await async_retry_llm_call(
                     op_name="anthropic.messages.create",
-                    factory=lambda: self._anthropic().messages.create(
-                        model=prompt.model_id,
-                        max_tokens=mt,
-                        temperature=temp,
-                        system=system,
-                        messages=[{"role": "user", "content": user}],
-                    ),
+                    factory=lambda: self._anthropic().messages.create(**create_kw),
                     log=log,
                     extra=extra_log,
                 )
@@ -324,16 +331,20 @@ class LLMClient:
                     "type": "tool",
                     "name": _STRUCTURED_TOOL_NAME,
                 }
+                structured_kw: dict[str, Any] = {
+                    "model": prompt.model_id,
+                    "max_tokens": mt,
+                    "system": system,
+                    "messages": [{"role": "user", "content": user}],
+                    "tools": [tool],
+                    "tool_choice": tool_choice,
+                }
+                if not _anthropic_omit_temperature(prompt.model_id):
+                    structured_kw["temperature"] = temp
                 msg = await async_retry_llm_call(
                     op_name="anthropic.messages.create_structured",
                     factory=lambda: self._anthropic().messages.create(
-                        model=prompt.model_id,
-                        max_tokens=mt,
-                        temperature=temp,
-                        system=system,
-                        messages=[{"role": "user", "content": user}],
-                        tools=[tool],
-                        tool_choice=tool_choice,
+                        **structured_kw
                     ),
                     log=log,
                     extra=extra_log,
