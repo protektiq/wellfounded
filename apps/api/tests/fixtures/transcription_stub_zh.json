@@ -1,0 +1,12 @@
+{
+  "model_version": "transcription-stub@1",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 3.0,
+      "speaker": "Speaker 1",
+      "source_text": "我因为政治迫害不得不离开我的国家。",
+      "english_text": "I had to leave my country because of political persecution."
+    }
+  ]
+}

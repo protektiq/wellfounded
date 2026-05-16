@@ -1,0 +1,15 @@
+{
+  "id": "ht-01",
+  "category": "transcription_wer",
+  "scorer": "wer",
+  "tags": [
+    "ht"
+  ],
+  "input": {
+    "reference": "mwen te oblije kouri kite peyi m akoz persekisyon politik",
+    "hypothesis": "mwen te oblije kouri kite peyi m pou persekisyon politik"
+  },
+  "expected": {
+    "max_wer": 0.15
+  }
+}

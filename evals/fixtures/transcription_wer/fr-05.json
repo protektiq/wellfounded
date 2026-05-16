@@ -1,0 +1,15 @@
+{
+  "id": "fr-05",
+  "category": "transcription_wer",
+  "scorer": "wer",
+  "tags": [
+    "fr"
+  ],
+  "input": {
+    "reference": "je demande l asile aux etats unis",
+    "hypothesis": "je demande l asile aux etats unis"
+  },
+  "expected": {
+    "max_wer": 0.08
+  }
+}

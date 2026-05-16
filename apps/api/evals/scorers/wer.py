@@ -20,7 +20,11 @@ from evals.fixtures import Fixture, ScoreResult
 from evals.scorers.base import ScorerContext, register
 
 _MAX_TEXT_CHARS = 100_000
-_TOKEN_RE = re.compile(r"[A-Za-z0-9']+")
+# Match any non-whitespace run so accented Latin, Ge'ez, Arabic, CJK, and
+# space-tokenised Chinese all work correctly. The old ASCII-only pattern
+# would split on accented characters (e.g. è → "gouv" + "rnman") and
+# produce zero tokens for non-Latin scripts, making WER always 0.
+_TOKEN_RE = re.compile(r"[^\s]+")
 
 
 def _validate_text(value: Any, field: str) -> str:

@@ -1,0 +1,15 @@
+{
+  "id": "zh-05",
+  "category": "transcription_wer",
+  "scorer": "wer",
+  "tags": [
+    "zh"
+  ],
+  "input": {
+    "reference": "我 在 美国 寻求 庇护",
+    "hypothesis": "我 在 美国 寻求 庇护"
+  },
+  "expected": {
+    "max_wer": 0.08
+  }
+}

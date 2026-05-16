@@ -1,0 +1,15 @@
+{
+  "id": "ht-02",
+  "category": "transcription_wer",
+  "scorer": "wer",
+  "tags": [
+    "ht"
+  ],
+  "input": {
+    "reference": "gouvènman an tap chache mwen pou opinyon mwen",
+    "hypothesis": "gouvènman an tap chache mwen pou opinyon li"
+  },
+  "expected": {
+    "max_wer": 0.2
+  }
+}

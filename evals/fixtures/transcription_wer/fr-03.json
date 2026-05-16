@@ -1,0 +1,15 @@
+{
+  "id": "fr-03",
+  "category": "transcription_wer",
+  "scorer": "wer",
+  "tags": [
+    "fr"
+  ],
+  "input": {
+    "reference": "ma famille vit dans la peur constante",
+    "hypothesis": "ma famille vit dans la peur constante"
+  },
+  "expected": {
+    "max_wer": 0.08
+  }
+}

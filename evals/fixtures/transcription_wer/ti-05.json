@@ -1,0 +1,15 @@
+{
+  "id": "ti-05",
+  "category": "transcription_wer",
+  "scorer": "wer",
+  "tags": [
+    "ti"
+  ],
+  "input": {
+    "reference": "ኣብ ኣሜሪካ መኖሪ ስደተኛ ይሓትት",
+    "hypothesis": "ኣብ ኣሜሪካ ሕቶ ስደተኛ ይሓትት"
+  },
+  "expected": {
+    "max_wer": 0.25
+  }
+}

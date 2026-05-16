@@ -1,0 +1,15 @@
+{
+  "id": "es-05",
+  "category": "transcription_wer",
+  "scorer": "wer",
+  "tags": [
+    "es"
+  ],
+  "input": {
+    "reference": "solicito asilo en los estados unidos",
+    "hypothesis": "solicito asilo en los estados unidos"
+  },
+  "expected": {
+    "max_wer": 0.08
+  }
+}

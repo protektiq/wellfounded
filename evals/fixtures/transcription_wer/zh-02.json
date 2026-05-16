@@ -1,0 +1,15 @@
+{
+  "id": "zh-02",
+  "category": "transcription_wer",
+  "scorer": "wer",
+  "tags": [
+    "zh"
+  ],
+  "input": {
+    "reference": "政府 因为 我 发表的 文章 追捕 我",
+    "hypothesis": "政府 因为 我 写的 文章 追捕 我"
+  },
+  "expected": {
+    "max_wer": 0.2
+  }
+}

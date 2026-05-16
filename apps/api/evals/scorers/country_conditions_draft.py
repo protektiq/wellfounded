@@ -36,7 +36,11 @@ import uuid
 from typing import Any
 
 from country_conditions.prompts import CC_DRAFT_PROMPT
-from country_conditions.schemas import CC_SECTION_IDS, SectionDraftOutput, passage_ids_in_prose
+from country_conditions.schemas import (
+    CC_SECTION_IDS,
+    SectionDraftOutput,
+    passage_ids_in_prose,
+)
 from evals.fixtures import Fixture, ScoreResult
 from evals.scorers.base import ScorerContext, register
 from llm.prompts import with_variables

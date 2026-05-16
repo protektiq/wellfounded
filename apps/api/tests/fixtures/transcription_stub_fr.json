@@ -1,0 +1,12 @@
+{
+  "model_version": "transcription-stub@1",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 3.2,
+      "speaker": "Speaker 1",
+      "source_text": "J'ai du fuir mon pays a cause de persecutions politiques.",
+      "english_text": "I had to flee my country because of political persecution."
+    }
+  ]
+}

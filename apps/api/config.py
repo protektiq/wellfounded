@@ -124,6 +124,29 @@ class Settings(BaseSettings):
         ),
     )
 
+    declaration_e2e_stub: bool = Field(
+        default=False,
+        description=(
+            "When true (local only), declaration generation uses a fixture draft"
+        ),
+    )
+
+    transcription_e2e_stub: bool = Field(
+        default=False,
+        description=(
+            "When true (local only), transcription uses fixture segment JSON"
+        ),
+    )
+
+    envelope_master_key_b64: str = Field(
+        default="",
+        max_length=128,
+        validation_alias="ENVELOPE_MASTER_KEY",
+        description=(
+            "Base64-encoded 32-byte AES master key for local envelope encryption"
+        ),
+    )
+
     webauthn_rp_id: str = Field(
         default="",
         max_length=253,

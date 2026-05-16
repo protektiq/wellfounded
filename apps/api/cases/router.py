@@ -6,7 +6,18 @@ import uuid
 from io import BytesIO
 from typing import Annotated, Literal
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response, status
+from fastapi import (
+    APIRouter,
+    Depends,
+    File,
+    Form,
+    HTTPException,
+    Query,
+    Request,
+    Response,
+    UploadFile,
+    status,
+)
 from fastapi.responses import StreamingResponse
 from pydantic import ValidationError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -45,11 +56,40 @@ from country_conditions.service import (
     get_country_conditions_service,
 )
 from db.session import get_db_session
+from declarations.flags import flags_from_dicts as decl_flags_from_dicts
+from declarations.flags import unresolved_required_flag_ids
+from declarations.models import DeclarationDraftStatus
+from declarations.models import PriorStatementType as PriorStatementTypeOrm
+from declarations.models import SourceLanguage as SourceLanguageOrm
+from declarations.repository import DeclarationsRepository
+from declarations.schemas import (
+    CleanExportBlockedResponse,
+    DeclarationDraftDetail,
+    DeclarationDraftSummary,
+    DeclarationGenerateRequest,
+    DeclarationGenerateResponse,
+    DeclarationReviseRequest,
+    DeclarationReviseResponse,
+    FlagResolveRequest,
+    PriorStatementCreate,
+    PriorStatementOut,
+    TranscriptCreate,
+    TranscriptOut,
+)
+from declarations.service import DeclarationsService, get_declarations_service
+from encryption.service import DataKeyRevokedError
 from orgs.models import User, UserRole
 from retrieval.passage_search import (
     fetch_passages_by_ordered_ids,
     fetch_passages_export_meta,
 )
+from transcription.repository import TranscriptionRepository
+from transcription.schemas import (
+    InterviewAudioOut,
+    InterviewUploadResponse,
+    TranscriptDetailOut,
+)
+from transcription.service import TranscriptionService, get_transcription_service
 
 router = APIRouter(prefix="/cases", tags=["cases"])
 
@@ -682,4 +722,527 @@ async def export_country_conditions_memo_docx(
             "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
         ),
         headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
+
+
+@router.post(
+    "/{case_id}/interviews",
+    response_model=InterviewUploadResponse,
+    status_code=status.HTTP_202_ACCEPTED,
+)
+async def upload_interview_audio(
+    case_id: uuid.UUID,
+    request: Request,
+    auth: Annotated[RequestAuth, Depends(get_request_auth)],
+    db: Annotated[AsyncSession, Depends(get_db_session)],
+    audit: Annotated[AuditWriter, Depends(get_audit_writer)],
+    svc: Annotated[TranscriptionService, Depends(get_transcription_service)],
+    file: UploadFile = File(...),
+    source_language: SourceLanguageOrm = Form(...),
+) -> InterviewUploadResponse:
+    user = auth.user
+    org_id = auth.organization.id
+    case_repo = CaseRepository(db)
+    case = await case_repo.get_case_for_org(org_id, case_id)
+    if case is None or not _can_get_case(user, case):
+        raise _case_not_found()
+    if not _can_edit_case(user, case):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Insufficient permissions",
+        )
+    rid = getattr(request.state, "request_id", None)
+    if not isinstance(rid, uuid.UUID):
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Request context was not initialized (missing request_id).",
+        )
+    try:
+        audio_id, transcript_id = await svc.upload_interview(
+            organization_id=org_id,
+            case_id=case_id,
+            source_language=source_language,
+            upload=file,
+            uploaded_by_user_id=user.id,
+            correlation_request_id=rid,
+            session=db,
+            audit=audit,
+        )
+    except DataKeyRevokedError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=str(exc),
+        ) from exc
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(exc),
+        ) from exc
+    from declarations.models import TranscriptionStatus
+
+    return InterviewUploadResponse(
+        interview_audio_id=audio_id,
+        transcript_id=transcript_id,
+        status=TranscriptionStatus.pending,
+    )
+
+
+@router.get(
+    "/{case_id}/interviews/{audio_id}",
+    response_model=InterviewAudioOut,
+)
+async def get_interview_audio(
+    case_id: uuid.UUID,
+    audio_id: uuid.UUID,
+    auth: Annotated[RequestAuth, Depends(get_request_auth)],
+    db: Annotated[AsyncSession, Depends(get_db_session)],
+) -> InterviewAudioOut:
+    user = auth.user
+    org_id = auth.organization.id
+    case_repo = CaseRepository(db)
+    case = await case_repo.get_case_for_org(org_id, case_id)
+    if case is None or not _can_get_case(user, case):
+        raise _case_not_found()
+    repo = TranscriptionRepository(db)
+    audio = await repo.get_interview_audio_for_case(org_id, case_id, audio_id)
+    if audio is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Interview audio not found",
+        )
+    transcript = await repo.get_transcript_for_audio(org_id, audio_id)
+    out = InterviewAudioOut.model_validate(audio)
+    return out.model_copy(
+        update={"transcript_id": transcript.id if transcript is not None else None},
+    )
+
+
+@router.get(
+    "/{case_id}/transcripts/{transcript_id}",
+    response_model=TranscriptDetailOut,
+)
+async def get_transcript_detail(
+    case_id: uuid.UUID,
+    transcript_id: uuid.UUID,
+    auth: Annotated[RequestAuth, Depends(get_request_auth)],
+    db: Annotated[AsyncSession, Depends(get_db_session)],
+) -> TranscriptDetailOut:
+    user = auth.user
+    org_id = auth.organization.id
+    case_repo = CaseRepository(db)
+    case = await case_repo.get_case_for_org(org_id, case_id)
+    if case is None or not _can_get_case(user, case):
+        raise _case_not_found()
+    repo = TranscriptionRepository(db)
+    row = await repo.get_transcript(org_id, transcript_id)
+    if row is None or row.case_id != case_id:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Transcript not found",
+        )
+    return TranscriptDetailOut.model_validate(row)
+
+
+@router.post(
+    "/{case_id}/transcripts",
+    response_model=TranscriptOut,
+    status_code=status.HTTP_201_CREATED,
+)
+async def create_transcript(
+    case_id: uuid.UUID,
+    body: TranscriptCreate,
+    request: Request,
+    auth: Annotated[RequestAuth, Depends(get_request_auth)],
+    db: Annotated[AsyncSession, Depends(get_db_session)],
+    audit: Annotated[AuditWriter, Depends(get_audit_writer)],
+) -> TranscriptOut:
+    user = auth.user
+    org_id = auth.organization.id
+    case_repo = CaseRepository(db)
+    case = await case_repo.get_case_for_org(org_id, case_id)
+    if case is None or not _can_get_case(user, case):
+        raise _case_not_found()
+    if not _can_edit_case(user, case):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Insufficient permissions",
+        )
+    rid = getattr(request.state, "request_id", None)
+    if not isinstance(rid, uuid.UUID):
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Request context was not initialized (missing request_id).",
+        )
+    from datetime import UTC, datetime
+
+    completed = body.completed_at or datetime.now(UTC)
+    decl_repo = DeclarationsRepository(db)
+    row = await decl_repo.create_transcript_with_artifact(
+        org_id,
+        case_id,
+        interview_audio_id=body.interview_audio_id,
+        source_language=SourceLanguageOrm(body.source_language.value),
+        segments=[s.model_dump(mode="json") for s in body.segments],
+        full_source_text=body.full_source_text,
+        full_english_text=body.full_english_text,
+        model_version=body.model_version,
+        completed_at=completed,
+        created_by_user_id=user.id,
+    )
+    await audit.record(
+        "transcript.seed.create",
+        org_id,
+        user.id,
+        "transcript",
+        row.id,
+        metadata={"case_id": str(case_id)},
+    )
+    await db.commit()
+    return TranscriptOut.model_validate(row)
+
+
+@router.get(
+    "/{case_id}/prior-statements",
+    response_model=list[PriorStatementOut],
+)
+async def list_prior_statements(
+    case_id: uuid.UUID,
+    auth: Annotated[RequestAuth, Depends(get_request_auth)],
+    db: Annotated[AsyncSession, Depends(get_db_session)],
+) -> list[PriorStatementOut]:
+    user = auth.user
+    org_id = auth.organization.id
+    case_repo = CaseRepository(db)
+    case = await case_repo.get_case_for_org(org_id, case_id)
+    if case is None or not _can_get_case(user, case):
+        raise _case_not_found()
+    decl_repo = DeclarationsRepository(db)
+    rows = await decl_repo.list_all_prior_statements(org_id, case_id)
+    return [PriorStatementOut.model_validate(r) for r in rows]
+
+
+@router.post(
+    "/{case_id}/prior-statements",
+    response_model=PriorStatementOut,
+    status_code=status.HTTP_201_CREATED,
+)
+async def create_prior_statement(
+    case_id: uuid.UUID,
+    body: PriorStatementCreate,
+    request: Request,
+    auth: Annotated[RequestAuth, Depends(get_request_auth)],
+    db: Annotated[AsyncSession, Depends(get_db_session)],
+    audit: Annotated[AuditWriter, Depends(get_audit_writer)],
+) -> PriorStatementOut:
+    user = auth.user
+    org_id = auth.organization.id
+    case_repo = CaseRepository(db)
+    case = await case_repo.get_case_for_org(org_id, case_id)
+    if case is None or not _can_get_case(user, case):
+        raise _case_not_found()
+    if not _can_edit_case(user, case):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Insufficient permissions",
+        )
+    rid = getattr(request.state, "request_id", None)
+    if not isinstance(rid, uuid.UUID):
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Request context was not initialized (missing request_id).",
+        )
+    decl_repo = DeclarationsRepository(db)
+    row = await decl_repo.create_prior_statement_with_artifact(
+        org_id,
+        case_id,
+        statement_type=PriorStatementTypeOrm(body.statement_type.value),
+        source_text=body.source_text,
+        english_text=body.english_text,
+        source_language=SourceLanguageOrm(body.source_language.value),
+        uploaded_by_user_id=user.id,
+    )
+    await audit.record(
+        "prior_statement.create",
+        org_id,
+        user.id,
+        "prior_statement",
+        row.id,
+        metadata={"case_id": str(case_id)},
+    )
+    await db.commit()
+    return PriorStatementOut.model_validate(row)
+
+
+@router.post(
+    "/{case_id}/declarations",
+    response_model=DeclarationGenerateResponse,
+    status_code=status.HTTP_202_ACCEPTED,
+)
+async def request_declaration_draft(
+    case_id: uuid.UUID,
+    body: DeclarationGenerateRequest,
+    request: Request,
+    auth: Annotated[RequestAuth, Depends(get_request_auth)],
+    db: Annotated[AsyncSession, Depends(get_db_session)],
+    audit: Annotated[AuditWriter, Depends(get_audit_writer)],
+    svc: Annotated[DeclarationsService, Depends(get_declarations_service)],
+) -> DeclarationGenerateResponse:
+    user = auth.user
+    org_id = auth.organization.id
+    case_repo = CaseRepository(db)
+    case = await case_repo.get_case_for_org(org_id, case_id)
+    if case is None or not _can_get_case(user, case):
+        raise _case_not_found()
+    if not _can_edit_case(user, case):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Insufficient permissions",
+        )
+    rid = getattr(request.state, "request_id", None)
+    if not isinstance(rid, uuid.UUID):
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Request context was not initialized (missing request_id).",
+        )
+    try:
+        draft_id, version = await svc.generate(
+            organization_id=org_id,
+            case_id=case_id,
+            transcript_id=body.transcript_id,
+            prior_statement_ids=body.prior_statement_ids,
+            requested_by_user_id=user.id,
+            correlation_request_id=rid,
+            session=db,
+            audit=audit,
+        )
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(exc),
+        ) from exc
+    return DeclarationGenerateResponse(
+        draft_id=draft_id,
+        version=version,
+        status=DeclarationDraftStatus.pending,
+    )
+
+
+@router.get(
+    "/{case_id}/declarations",
+    response_model=list[DeclarationDraftSummary],
+)
+async def list_declaration_drafts(
+    case_id: uuid.UUID,
+    auth: Annotated[RequestAuth, Depends(get_request_auth)],
+    db: Annotated[AsyncSession, Depends(get_db_session)],
+) -> list[DeclarationDraftSummary]:
+    user = auth.user
+    org_id = auth.organization.id
+    case_repo = CaseRepository(db)
+    case = await case_repo.get_case_for_org(org_id, case_id)
+    if case is None or not _can_get_case(user, case):
+        raise _case_not_found()
+    decl_repo = DeclarationsRepository(db)
+    rows = await decl_repo.list_drafts_for_case(org_id, case_id)
+    return [
+        DeclarationDraftSummary(
+            id=r.id,
+            case_id=r.case_id,
+            version=r.version,
+            status=r.status,
+            created_at=r.created_at,
+        )
+        for r in rows
+    ]
+
+
+@router.get(
+    "/{case_id}/declarations/{draft_id}",
+    response_model=DeclarationDraftDetail,
+)
+async def get_declaration_draft(
+    case_id: uuid.UUID,
+    draft_id: uuid.UUID,
+    auth: Annotated[RequestAuth, Depends(get_request_auth)],
+    db: Annotated[AsyncSession, Depends(get_db_session)],
+    svc: Annotated[DeclarationsService, Depends(get_declarations_service)],
+) -> DeclarationDraftDetail:
+    user = auth.user
+    org_id = auth.organization.id
+    case_repo = CaseRepository(db)
+    case = await case_repo.get_case_for_org(org_id, case_id)
+    if case is None or not _can_get_case(user, case):
+        raise _case_not_found()
+    decl_repo = DeclarationsRepository(db)
+    row = await decl_repo.get_draft(org_id, draft_id)
+    if row is None or row.case_id != case_id:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Declaration draft not found",
+        )
+    return svc.draft_to_detail(row)
+
+
+@router.patch(
+    "/{case_id}/declarations/{draft_id}/flags/{flag_id}",
+    response_model=DeclarationDraftDetail,
+)
+async def resolve_declaration_flag(
+    case_id: uuid.UUID,
+    draft_id: uuid.UUID,
+    flag_id: uuid.UUID,
+    body: FlagResolveRequest,
+    request: Request,
+    auth: Annotated[RequestAuth, Depends(get_request_auth)],
+    db: Annotated[AsyncSession, Depends(get_db_session)],
+    audit: Annotated[AuditWriter, Depends(get_audit_writer)],
+    svc: Annotated[DeclarationsService, Depends(get_declarations_service)],
+) -> DeclarationDraftDetail:
+    user = auth.user
+    org_id = auth.organization.id
+    case_repo = CaseRepository(db)
+    case = await case_repo.get_case_for_org(org_id, case_id)
+    if case is None or not _can_get_case(user, case):
+        raise _case_not_found()
+    if not _can_edit_case(user, case):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Insufficient permissions",
+        )
+    rid = getattr(request.state, "request_id", None)
+    if not isinstance(rid, uuid.UUID):
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Request context was not initialized (missing request_id).",
+        )
+    from declarations.schemas import DeclarationFlagStatus
+
+    try:
+        await svc.resolve_flag(
+            organization_id=org_id,
+            draft_id=draft_id,
+            flag_id=flag_id,
+            status=DeclarationFlagStatus(body.status),
+            resolution_note=body.resolution_note,
+            user_id=user.id,
+            session=db,
+            audit=audit,
+        )
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(exc),
+        ) from exc
+    await db.commit()
+    decl_repo = DeclarationsRepository(db)
+    row = await decl_repo.get_draft(org_id, draft_id)
+    assert row is not None
+    return svc.draft_to_detail(row)
+
+
+@router.post(
+    "/{case_id}/declarations/{draft_id}/revise",
+    response_model=DeclarationReviseResponse,
+    status_code=status.HTTP_201_CREATED,
+)
+async def revise_declaration_draft(
+    case_id: uuid.UUID,
+    draft_id: uuid.UUID,
+    body: DeclarationReviseRequest,
+    request: Request,
+    auth: Annotated[RequestAuth, Depends(get_request_auth)],
+    db: Annotated[AsyncSession, Depends(get_db_session)],
+    audit: Annotated[AuditWriter, Depends(get_audit_writer)],
+    svc: Annotated[DeclarationsService, Depends(get_declarations_service)],
+) -> DeclarationReviseResponse:
+    user = auth.user
+    org_id = auth.organization.id
+    case_repo = CaseRepository(db)
+    case = await case_repo.get_case_for_org(org_id, case_id)
+    if case is None or not _can_get_case(user, case):
+        raise _case_not_found()
+    if not _can_edit_case(user, case):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Insufficient permissions",
+        )
+    rid = getattr(request.state, "request_id", None)
+    if not isinstance(rid, uuid.UUID):
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Request context was not initialized (missing request_id).",
+        )
+    try:
+        new_id, version, st = await svc.revise(
+            organization_id=org_id,
+            case_id=case_id,
+            parent_draft_id=draft_id,
+            instruction=body.instruction,
+            scope=body.scope,
+            requested_by_user_id=user.id,
+            correlation_request_id=rid,
+            session=db,
+            audit=audit,
+        )
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(exc),
+        ) from exc
+    await db.commit()
+    return DeclarationReviseResponse(
+        draft_id=new_id,
+        version=version,
+        status=st,
+    )
+
+
+@router.get(
+    "/{case_id}/declarations/{draft_id}/export.docx",
+    responses={
+        409: {"model": CleanExportBlockedResponse},
+        501: {"description": "DOCX rendering ships in Task 3.3"},
+    },
+)
+async def export_declaration_docx(
+    case_id: uuid.UUID,
+    draft_id: uuid.UUID,
+    mode: Annotated[Literal["working", "clean"], Query()],
+    auth: Annotated[RequestAuth, Depends(get_request_auth)],
+    db: Annotated[AsyncSession, Depends(get_db_session)],
+) -> Response:
+    user = auth.user
+    org_id = auth.organization.id
+    case_repo = CaseRepository(db)
+    case = await case_repo.get_case_for_org(org_id, case_id)
+    if case is None or not _can_get_case(user, case):
+        raise _case_not_found()
+    decl_repo = DeclarationsRepository(db)
+    row = await decl_repo.get_draft(org_id, draft_id)
+    if row is None or row.case_id != case_id:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Declaration draft not found",
+        )
+    if row.draft is None:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Declaration draft is not ready for export",
+        )
+    if mode == "clean":
+        flags = decl_flags_from_dicts(list(row.flags))
+        blocked = unresolved_required_flag_ids(flags)
+        if blocked:
+            payload = CleanExportBlockedResponse(unresolved_flag_ids=blocked)
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=payload.model_dump(mode="json"),
+            )
+        raise HTTPException(
+            status_code=status.HTTP_501_NOT_IMPLEMENTED,
+            detail="Clean DOCX export is not yet implemented (Task 3.3)",
+        )
+    raise HTTPException(
+        status_code=status.HTTP_501_NOT_IMPLEMENTED,
+        detail="Working DOCX export is not yet implemented (Task 3.3)",
     )

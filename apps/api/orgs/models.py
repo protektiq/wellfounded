@@ -46,6 +46,10 @@ class Organization(Base):
         nullable=True,
     )
     kms_data_key_arn: Mapped[str | None] = mapped_column(String(512), nullable=True)
+    data_key_revoked_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+    )
 
     users: Mapped[list[User]] = relationship(
         "User",

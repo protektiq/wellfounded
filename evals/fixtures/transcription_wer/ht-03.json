@@ -1,0 +1,15 @@
+{
+  "id": "ht-03",
+  "category": "transcription_wer",
+  "scorer": "wer",
+  "tags": [
+    "ht"
+  ],
+  "input": {
+    "reference": "fanmi m ap viv nan krent pou tout tan",
+    "hypothesis": "fanmi m ap viv nan krent pou tout tan"
+  },
+  "expected": {
+    "max_wer": 0.08
+  }
+}

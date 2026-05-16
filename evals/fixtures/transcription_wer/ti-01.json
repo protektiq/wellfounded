@@ -1,0 +1,15 @@
+{
+  "id": "ti-01",
+  "category": "transcription_wer",
+  "scorer": "wer",
+  "tags": [
+    "ti"
+  ],
+  "input": {
+    "reference": "ብሰንኪ ፖለቲካዊ ምድራሽ ሃገረይ ክሰድድ ኣለኒ",
+    "hypothesis": "ብሰንኪ ፖለቲካዊ ምሽጣር ሃገረይ ክሰድድ ኣለኒ"
+  },
+  "expected": {
+    "max_wer": 0.2
+  }
+}

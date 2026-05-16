@@ -1,0 +1,15 @@
+{
+  "id": "fr-02",
+  "category": "transcription_wer",
+  "scorer": "wer",
+  "tags": [
+    "fr"
+  ],
+  "input": {
+    "reference": "le gouvernement me recherchait pour mes opinions",
+    "hypothesis": "le gouvernement me cherchait pour mes opinions"
+  },
+  "expected": {
+    "max_wer": 0.2
+  }
+}

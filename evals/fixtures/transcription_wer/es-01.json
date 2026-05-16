@@ -1,0 +1,15 @@
+{
+  "id": "es-01",
+  "category": "transcription_wer",
+  "scorer": "wer",
+  "tags": [
+    "es"
+  ],
+  "input": {
+    "reference": "tuve que huir de mi pais por persecucion politica",
+    "hypothesis": "tuve que huir mi pais por persecucion politica"
+  },
+  "expected": {
+    "max_wer": 0.15
+  }
+}

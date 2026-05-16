@@ -1,0 +1,15 @@
+{
+  "id": "ti-02",
+  "category": "transcription_wer",
+  "scorer": "wer",
+  "tags": [
+    "ti"
+  ],
+  "input": {
+    "reference": "መንግስቲ ብሰንኪ ርእይቶተይ ይደልየኒ ነበረ",
+    "hypothesis": "መንግስቲ ብሰንኪ ርእይቶይ ይደልየኒ ነበረ"
+  },
+  "expected": {
+    "max_wer": 0.25
+  }
+}

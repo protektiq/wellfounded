@@ -102,6 +102,26 @@ EXAMPLE_PING_PROMPT = Prompt(
 )
 
 # Reranks retrieval passages by relevance to the user query (structured tool output).
+TRANSLATION_REVIEW_PROMPT = Prompt(
+    id="translation.review.segment_batch",
+    system=(
+        "You review machine translations of asylum interview segments for US "
+        "immigration practice. Preserve legal terminology, proper nouns, place "
+        "names, organization names, and dates exactly when correct. Fix only "
+        "clear errors or awkward phrasing. Respond with JSON only: "
+        '{"english_segments": ["...", ...]} with one string per input segment '
+        "in the same order."
+    ),
+    user_template=(
+        "Source language code: {source_language}\n\n"
+        "Segments (JSON array of objects with source_text and nllb_english):\n"
+        "{segments_json}\n"
+    ),
+    variables=(("source_language", ""), ("segments_json", "")),
+    default_max_tokens=8192,
+    default_temperature=0.0,
+)
+
 RETRIEVAL_RERANK_PROMPT = Prompt(
     id="retrieval.rerank.order_passages",
     system=(
