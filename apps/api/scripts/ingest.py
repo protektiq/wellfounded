@@ -20,6 +20,16 @@ import sys
 from pathlib import Path
 
 from db.session import get_async_session_maker
+
+# Register ORM tables before LLMClient persists llm_call_records during embed.
+import audit.models  # noqa: E402, F401
+import auth.models  # noqa: E402, F401
+import cases.models  # noqa: E402, F401
+import country_conditions.models  # noqa: E402, F401
+import llm.models  # noqa: E402, F401
+import orgs.models  # noqa: E402, F401
+import retrieval.models  # noqa: E402, F401
+
 from retrieval.ingestion import launch_catalog
 from retrieval.ingestion.amnesty import AmnestyDocumentRef, AmnestyIngester
 from retrieval.ingestion.base import SourceIngester
