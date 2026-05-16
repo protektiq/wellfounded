@@ -1,12 +1,18 @@
 COMPOSE := docker-compose -f infra/local/docker-compose.yml
 
-.PHONY: up down db-migrate db-revision api web test test-e2e test-transcription lint ingest ingest-all refresh-living-sources benchmark-retrieval eval-run eval-view eval-collect-baseline
+.PHONY: up up-fresh down db-migrate db-revision api web test test-e2e test-transcription lint ingest ingest-all refresh-living-sources benchmark-retrieval eval-run eval-view eval-collect-baseline
 
 up:
 	$(COMPOSE) up -d
 
+# Use when `make up` fails with "Network local_default needs to be recreated".
+# Do not run `docker network rm` while containers are still running.
+up-fresh:
+	$(COMPOSE) down --remove-orphans
+	$(COMPOSE) up -d
+
 down:
-	$(COMPOSE) down
+	$(COMPOSE) down --remove-orphans
 
 db-migrate:
 	cd apps/api && poetry run alembic upgrade head

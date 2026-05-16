@@ -78,13 +78,6 @@ from declarations.schemas import (
     TranscriptSegment,
 )
 from declarations.service import DeclarationsService, get_declarations_service
-from wf_docx.declaration import (
-    CleanExportBlockedError,
-    DeclarationRenderInput,
-    export_declaration_docx_filename,
-    render_clean_copy,
-    render_working_copy,
-)
 from encryption.service import DataKeyRevokedError
 from orgs.models import User, UserRole
 from retrieval.passage_search import (
@@ -98,6 +91,13 @@ from transcription.schemas import (
     TranscriptDetailOut,
 )
 from transcription.service import TranscriptionService, get_transcription_service
+from wf_docx.declaration import (
+    CleanExportBlockedError,
+    DeclarationRenderInput,
+    export_declaration_docx_filename,
+    render_clean_copy,
+    render_working_copy,
+)
 
 router = APIRouter(prefix="/cases", tags=["cases"])
 
@@ -1215,10 +1215,10 @@ async def export_declaration_docx(
     case_id: uuid.UUID,
     draft_id: uuid.UUID,
     mode: Annotated[Literal["working", "clean"], Query()],
-    parallel: Annotated[bool, Query()] = False,
     auth: Annotated[RequestAuth, Depends(get_request_auth)],
     db: Annotated[AsyncSession, Depends(get_db_session)],
     audit: Annotated[AuditWriter, Depends(get_audit_writer)],
+    parallel: Annotated[bool, Query()] = False,
 ) -> StreamingResponse:
     user = auth.user
     org_id = auth.organization.id
@@ -1276,7 +1276,9 @@ async def export_declaration_docx(
         else:
             docx_bytes = render_working_copy(render_inp)
     except CleanExportBlockedError as exc:
-        payload = CleanExportBlockedResponse(unresolved_flag_ids=exc.unresolved_flag_ids)
+        payload = CleanExportBlockedResponse(
+            unresolved_flag_ids=exc.unresolved_flag_ids,
+        )
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail=payload.model_dump(mode="json"),

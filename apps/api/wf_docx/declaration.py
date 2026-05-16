@@ -20,7 +20,6 @@ from docx.text.paragraph import Paragraph
 
 from declarations.flags import unresolved_required_flag_ids
 from declarations.schemas import (
-    DECLARATION_SECTION_IDS,
     DeclarationDraftContent,
     DeclarationFlag,
     DeclarationFlagType,
@@ -36,7 +35,11 @@ from wf_docx.ooxml_annotations import (
     inject_comments_and_footnotes,
     rebuild_paragraph_with_annotations,
 )
-from wf_docx.section_labels import ELEMENT_KEY_SECTION, ordered_section_ids, section_heading
+from wf_docx.section_labels import (
+    ELEMENT_KEY_SECTION,
+    ordered_section_ids,
+    section_heading,
+)
 
 log = structlog.get_logger()
 
@@ -66,9 +69,8 @@ class CleanExportBlockedError(Exception):
 
     def __init__(self, unresolved_flag_ids: list[uuid.UUID]) -> None:
         self.unresolved_flag_ids = unresolved_flag_ids
-        super().__init__(
-            f"Clean export blocked: {len(unresolved_flag_ids)} unresolved required flag(s)",
-        )
+        n = len(unresolved_flag_ids)
+        super().__init__(f"Clean export blocked: {n} unresolved required flag(s)")
 
 
 @dataclass(frozen=True)
@@ -259,13 +261,15 @@ def _fill_body_paragraph(
             )
 
     for inf in para.inference_spans:
-        shadings.append(ShadingSpec(start=prefix_len + inf.start, end=prefix_len + inf.end))
+        shadings.append(
+            ShadingSpec(start=prefix_len + inf.start, end=prefix_len + inf.end),
+        )
 
     for fl in para_flags:
         if fl.type == DeclarationFlagType.INFERENCE:
-            shadings.append(
-                ShadingSpec(start=prefix_len + fl.span.start, end=prefix_len + fl.span.end),
-            )
+            s0 = prefix_len + fl.span.start
+            s1 = prefix_len + fl.span.end
+            shadings.append(ShadingSpec(start=s0, end=s1))
 
     rebuild_paragraph_with_annotations(
         paragraph,
@@ -283,18 +287,14 @@ def _attach_gap_comments(
     comment_store: CommentStore,
 ) -> None:
     by_para: dict[str, _ParagraphAnchor] = {a.paragraph_id: a for a in anchors}
-    by_section_first: dict[str, _ParagraphAnchor] = {}
-    for section_id in DECLARATION_SECTION_IDS:
-        sec = inp.draft.sections[section_id]
-        if sec.paragraphs and sec.paragraphs[0].id in by_para:
-            by_section_first[section_id] = by_para[sec.paragraphs[0].id]
 
     for fl in inp.flags:
         if fl.type != DeclarationFlagType.GAP or not fl.paragraph_id.startswith("gap:"):
             continue
         element_key = fl.paragraph_id.removeprefix("gap:")
         section_id = ELEMENT_KEY_SECTION.get(element_key, "identity_background")
-        target = by_section_first.get(section_id) or by_para.get(f"{section_id}:heading")
+        heading_id = f"{section_id}:heading"
+        target = by_para.get(heading_id)
         if target is None:
             log.warning(
                 "declaration_docx_gap_anchor_missing",

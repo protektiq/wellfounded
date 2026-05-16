@@ -7,7 +7,7 @@ import zipfile
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from io import BytesIO
-from typing import Any, Final
+from typing import Any, Final, cast
 from xml.etree import ElementTree as ET
 
 from docx.oxml import OxmlElement
@@ -196,7 +196,14 @@ class CommentStore:
     specs: list[CommentSpec] = field(default_factory=list)
     _next_id: int = 0
 
-    def add(self, *, start: int, end: int, text: str, author: str = "Wellfounded") -> int:
+    def add(
+        self,
+        *,
+        start: int,
+        end: int,
+        text: str,
+        author: str = "Wellfounded",
+    ) -> int:
         cid = self._next_id
         self._next_id += 1
         self.specs.append(
@@ -220,7 +227,9 @@ class FootnoteStore:
     def add(self, *, start: int, end: int, text: str) -> int:
         fid = self._next_id
         self._next_id += 1
-        self.specs.append(FootnoteSpec(footnote_id=fid, start=start, end=end, text=text))
+        self.specs.append(
+            FootnoteSpec(footnote_id=fid, start=start, end=end, text=text),
+        )
         self.bodies[fid] = text
         return fid
 
@@ -284,7 +293,7 @@ def _build_comments_xml(specs: list[CommentSpec]) -> bytes:
         t = ET.SubElement(r, f"{{{_W_NS}}}t")
         t.set("{http://www.w3.org/XML/1998/namespace}space", "preserve")
         t.text = spec.text
-    return ET.tostring(root, encoding="utf-8", xml_declaration=True)
+    return cast(bytes, ET.tostring(root, encoding="utf-8", xml_declaration=True))
 
 
 def _build_footnotes_xml(bodies: dict[int, str]) -> bytes:
@@ -296,7 +305,7 @@ def _build_footnotes_xml(bodies: dict[int, str]) -> bytes:
         t = ET.SubElement(r, f"{{{_W_NS}}}t")
         t.set("{http://www.w3.org/XML/1998/namespace}space", "preserve")
         t.text = bodies[fid]
-    return ET.tostring(root, encoding="utf-8", xml_declaration=True)
+    return cast(bytes, ET.tostring(root, encoding="utf-8", xml_declaration=True))
 
 
 def _patch_content_types(
@@ -333,7 +342,7 @@ def _patch_content_types(
                 ),
             },
         )
-    return ET.tostring(root, encoding="utf-8", xml_declaration=True)
+    return cast(bytes, ET.tostring(root, encoding="utf-8", xml_declaration=True))
 
 
 def _patch_document_rels(
@@ -377,15 +386,16 @@ def _patch_document_rels(
             "footnotes.xml",
             "http://schemas.openxmlformats.org/officeDocument/2006/relationships/footnotes",
         )
-    return ET.tostring(root, encoding="utf-8", xml_declaration=True)
+    return cast(bytes, ET.tostring(root, encoding="utf-8", xml_declaration=True))
 
 
 def count_comments_in_docx(docx_bytes: bytes) -> int:
     with zipfile.ZipFile(BytesIO(docx_bytes)) as zf:
         if "word/comments.xml" not in zf.namelist():
             return 0
-        xml = zf.read("word/comments.xml").decode("utf-8")
-    return len(re.findall(r"<w:comment\b", xml))
+        root = ET.fromstring(zf.read("word/comments.xml"))
+    suffix = "}comment"
+    return sum(1 for el in root.iter() if el.tag.endswith(suffix))
 
 
 def document_xml_has_review_markup(docx_bytes: bytes) -> bool:
