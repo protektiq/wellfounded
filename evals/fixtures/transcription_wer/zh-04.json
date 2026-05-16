@@ -1,0 +1,15 @@
+{
+  "id": "zh-04",
+  "category": "transcription_wer",
+  "scorer": "wer",
+  "tags": [
+    "zh"
+  ],
+  "input": {
+    "reference": "我无法安全返回祖国",
+    "hypothesis": "我无法安全返回祖国"
+  },
+  "expected": {
+    "max_wer": 0.08
+  }
+}

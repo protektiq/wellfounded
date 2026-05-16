@@ -1,0 +1,15 @@
+{
+  "id": "ti-04",
+  "category": "transcription_wer",
+  "scorer": "wer",
+  "tags": [
+    "ti"
+  ],
+  "input": {
+    "reference": "ንሃገረይ ብድሕነት ክምለስ ኣይክእልን",
+    "hypothesis": "ንሃገረይ ብድሕነት ክምለስ ኣይክእልን"
+  },
+  "expected": {
+    "max_wer": 0.08
+  }
+}

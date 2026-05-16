@@ -1,0 +1,12 @@
+{
+  "model_version": "transcription-stub@1",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 3.0,
+      "speaker": "Speaker 1",
+      "source_text": "Mwen te oblije kouri kite peyi m akoz persekisyon politik.",
+      "english_text": "I had to flee my country because of political persecution."
+    }
+  ]
+}

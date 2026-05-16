@@ -1,0 +1,15 @@
+{
+  "id": "ht-05",
+  "category": "transcription_wer",
+  "scorer": "wer",
+  "tags": [
+    "ht"
+  ],
+  "input": {
+    "reference": "mwen mande azil nan etazini",
+    "hypothesis": "mwen mande azil nan etazini"
+  },
+  "expected": {
+    "max_wer": 0.08
+  }
+}

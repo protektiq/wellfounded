@@ -1,0 +1,15 @@
+{
+  "id": "prs-04",
+  "category": "transcription_wer",
+  "scorer": "wer",
+  "tags": [
+    "prs"
+  ],
+  "input": {
+    "reference": "نمی توانم به وطنم با امنیت برگردم",
+    "hypothesis": "نمی توانم به وطنم با امنیت برگردم"
+  },
+  "expected": {
+    "max_wer": 0.08
+  }
+}

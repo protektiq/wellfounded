@@ -39,6 +39,14 @@ import structlog
 from pydantic import ValidationError
 from sqlalchemy.ext.asyncio import AsyncSession
 
+# Register ORM tables before LLMClient persists llm_call_records (FK to users).
+import audit.models  # noqa: E402, F401
+import auth.models  # noqa: E402, F401
+import cases.models  # noqa: E402, F401
+import country_conditions.models  # noqa: E402, F401
+import llm.models  # noqa: E402, F401
+import orgs.models  # noqa: E402, F401
+import retrieval.models  # noqa: E402, F401
 from evals.fixtures import (
     CATEGORIES,
     Category,
@@ -55,15 +63,6 @@ from evals.paths import (
 )
 from evals.scorers import SCORER_REGISTRY, ScorerContext
 from llm.client import LLMClient
-
-# Register ORM tables before LLMClient persists llm_call_records (FK to users).
-import audit.models  # noqa: E402, F401
-import auth.models  # noqa: E402, F401
-import cases.models  # noqa: E402, F401
-import country_conditions.models  # noqa: E402, F401
-import llm.models  # noqa: E402, F401
-import orgs.models  # noqa: E402, F401
-import retrieval.models  # noqa: E402, F401
 
 _RUNNER_VERSION: Literal[1] = 1
 _LOG = structlog.get_logger("evals.runner")

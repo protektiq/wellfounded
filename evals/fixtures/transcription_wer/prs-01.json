@@ -1,0 +1,15 @@
+{
+  "id": "prs-01",
+  "category": "transcription_wer",
+  "scorer": "wer",
+  "tags": [
+    "prs"
+  ],
+  "input": {
+    "reference": "من به دلیل آزار سیاسی مجبور شدم از کشورم فرار کنم",
+    "hypothesis": "من به دلیل آزار سیاسی مجبور شدم از کشورم فرار کنم"
+  },
+  "expected": {
+    "max_wer": 0.08
+  }
+}

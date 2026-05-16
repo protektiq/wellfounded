@@ -1,0 +1,67 @@
+{
+  "transcript": {
+    "source_language": "ti",
+    "segments": [
+      {
+        "start": 0.0,
+        "end": 12.0,
+        "speaker": "client",
+        "source_text": "እየ ስምየ M.A. ኣብ ኤርትራ ዜግነኛ ነበርኩ።",
+        "english_text": "My name is M.A. I was a journalist in Eritrea."
+      },
+      {
+        "start": 12.0,
+        "end": 45.0,
+        "speaker": "client",
+        "source_text": "ብሓደሮ ሰነይ 2023 ኣርባዕተ ሰባት ኣብ ልብሲ ኣቆፅዕዎኒ።",
+        "english_text": "In March 2023, four men in plain clothes detained me at my office."
+      },
+      {
+        "start": 45.0,
+        "end": 80.0,
+        "speaker": "client",
+        "source_text": "ስለ ዘካየድኩዎም ዜና ስለዝጸልዉኒ እዮም።",
+        "english_text": "They said it was because of my reporting on the government."
+      }
+    ],
+    "full_source_text": "እየ ስምየ M.A. ...",
+    "full_english_text": "My name is M.A. I was a journalist in Eritrea. In March 2023, four men in plain clothes detained me at my office. They said it was because of my reporting on the government.",
+    "model_version": "test-fixture-v1"
+  },
+  "prior_statement": {
+    "statement_type": "credible_fear_interview",
+    "source_language": "ti",
+    "source_text": "ሰለስተ ሰባት ተኣሲረ።",
+    "english_text": "Three men in plain clothes grabbed me at my office in March 2023."
+  },
+  "claim_ir": {
+    "biographical_data": {"occupation": "journalist", "country": "Eritrea"},
+    "timeline_events": [
+      {
+        "event_date": "2023-03",
+        "description": "Detained by four men in plain clothes at office",
+        "segment_ids": ["seg-1"]
+      }
+    ],
+    "identified_persecutors": ["men in plain clothes, state security"],
+    "articulated_harms": ["detention", "threats"],
+    "protected_ground_evidence": "political opinion as a journalist",
+    "nexus_evidence": "targeted because of reporting",
+    "well_founded_fear_evidence": "fear of arrest upon return",
+    "internal_relocation_evidence": "cannot live safely elsewhere due to surveillance",
+    "one_year_filing_bar_facts": "entered the United States in April 2023",
+    "first_incident_date": null
+  },
+  "inconsistency": {
+    "description": "Number of agents at March 2023 incident differs between interview and credible fear statement",
+    "transcript_quote": "four men in plain clothes detained me",
+    "prior_quote": "Three men in plain clothes grabbed me"
+  },
+  "draft_inference": {
+    "paragraph_id": "past_persecution:p0",
+    "text": "In March 2023, four men in plain clothes detained me. This occurred in 2022 according to the pattern of earlier harassment.",
+    "inference_start": 72,
+    "inference_end": 110,
+    "rationale": "Year 2022 inferred from context; client did not state 2022"
+  }
+}

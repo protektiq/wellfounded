@@ -1,0 +1,15 @@
+{
+  "id": "ti-03",
+  "category": "transcription_wer",
+  "scorer": "wer",
+  "tags": [
+    "ti"
+  ],
+  "input": {
+    "reference": "ስድራቤተይ ብሓደጋ ይነብር ኣሎ",
+    "hypothesis": "ስድራቤተይ ብሓደጋ ይነብር ኣሎ"
+  },
+  "expected": {
+    "max_wer": 0.08
+  }
+}

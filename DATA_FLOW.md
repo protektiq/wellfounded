@@ -74,6 +74,41 @@ Redis backs an optional 24-hour retrieval candidate cache (passage UUID lists ke
 
 **Country conditions workbench (Next.js).** Server components under `apps/web/app/cases/[caseId]/country-conditions/` call FastAPI with the browser `wf_session` cookie forwarded on the `Cookie` header (`lib/server-api.ts`, `cache: "no-store"`). `GET /cases/{id}` powers the case shell; `GET /cases/{id}/country-conditions` lists memo rows; `POST` the same path schedules LangGraph (or the **local-only** `country_conditions_e2e_stub` fast path). `GET /cases/{id}/country-conditions/{memo_id}` returns memo JSON plus `cited_passages`: ordered passage bodies joined from `source_passages` / `source_documents` via `fetch_passages_by_ordered_ids` so superscript citations open a client sheet without an extra API call. The browser uses `fetch(..., { credentials: "include" })` for memo creation, DOCX export, and failed-memo retry; pending or generating memos trigger a lightweight client poller that calls `router.refresh()` on an interval. **Playwright E2E** (`make test-e2e`): `scripts.e2e_seed_country_conditions` seeds org, attorney, case, and a fixed `source_passages` row; global setup exchanges `WF_E2E_MAGIC_LINK_SECRET` for `magic_link_url`, follows callback to capture `wf_session`, and writes `e2e/.auth/storage.json`. The API must run with `ENVIRONMENT=local`, `E2E_MAGIC_LINK_REVEAL_ENABLED=true`, `E2E_MAGIC_LINK_SECRET` matching `WF_E2E_MAGIC_LINK_SECRET`, and `COUNTRY_CONDITIONS_E2E_STUB=true`.
 
+**Interview audio and transcription.** `POST /cases/{case_id}/interviews` accepts multipart audio (WAV/MP3/M4A/OGG, max 200 MB, max 60 minutes) with a declared `source_language` (`es`, `zh`, `fr`, `ht`, `ti`, `prs`). The API validates the file, encrypts plaintext with per-tenant envelope encryption (`apps/api/encryption/`, master key `ENVELOPE_MASTER_KEY` locally), stores the blob in MinIO/S3 (`apps/api/storage/`), and creates `interview_audio` plus a pending `transcripts` row. Response is **202** with `interview_audio_id` and `transcript_id`. `TranscriptionService` runs Whisper-large-v3 via `faster-whisper` (CPU locally), then NLLB-200 segment translation and an LLM review pass (`apps/api/translation/`) before marking the transcript `complete`. Poll `GET /cases/{case_id}/interviews/{audio_id}` or `GET /cases/{case_id}/transcripts/{transcript_id}`. Local stub: `TRANSCRIPTION_E2E_STUB=true` uses fixture segment JSON under `apps/api/tests/fixtures/transcription_stub_*.json`. Admin `POST /orgs/admin/revoke-data-key` sets `organizations.data_key_revoked_at` and blocks further decrypt/upload. Seed path `POST /cases/{case_id}/transcripts` remains for tests. Tables: `interview_audio`, extended `transcripts` (Alembic `o5p6q7r8s9t0`, `p6q7r8s9t0u1`).
+
+```mermaid
+flowchart LR
+  upload[POST_interviews]
+  enc[Envelope_encrypt]
+  s3[(S3_MinIO)]
+  whisper[Whisper_large_v3]
+  nllb[NLLB_plus_LLM_review]
+  tx[(transcripts)]
+  upload --> enc --> s3
+  upload --> tx
+  upload --> whisper
+  whisper --> nllb --> tx
+```
+
+**Declaration drafting (LangGraph).** Interview text enters via the transcription pipeline above or `POST /cases/{case_id}/transcripts` (manual seed for tests) and optional `POST /cases/{case_id}/prior-statements`. `POST /cases/{case_id}/declarations` creates a versioned `declaration_drafts` row plus `case_artifacts` stub, audits `declaration.generate.start`, commits, and schedules a background LangGraph run (`DeclarationsService` mirrors country conditions). The graph in `apps/api/declarations/graph.py` runs `extract` (structured `ClaimIntermediateRepresentation` via `LLMClient.complete_structured`), deterministic `gap_check` against `declarations/elements.py`, `inconsistency_check` when prior statements exist, then `compose_draft` (first-person sections with inline flag metadata). Flags (GAP, INFERENCE, INCONSISTENCY, AMBIGUITY, TRANSLATION_UNCERTAINTY) persist on the draft row; `PATCH .../flags/{flag_id}` resolves or defers. `POST .../declarations/{draft_id}/revise` creates a new version, runs a scoped LLM revise, and merges flags so open GAP/INCONSISTENCY flags are not silently dropped. `GET .../export.docx?mode=clean` returns HTTP 409 with `unresolved_flag_ids` when required flags remain open (DOCX bytes ship in Task 3.3). Local-only `DECLARATION_E2E_STUB=true` skips the graph and writes a fixture draft. Tables: `transcripts`, `prior_statements`, `declaration_drafts` (Alembic `n3o4p5q6r7s8`).
+
+```mermaid
+flowchart LR
+  seedT[POST_transcripts]
+  seedP[POST_prior_statements]
+  gen[POST_declarations]
+  graph[LangGraph_extract_gap_inconsistency_compose]
+  row[(declaration_drafts)]
+  revise[POST_revise]
+  export[GET_export_clean_409_gate]
+  seedT --> gen
+  seedP --> gen
+  gen --> graph
+  graph --> row
+  row --> revise
+  row --> export
+```
+
 ```mermaid
 flowchart LR
   nextRSC[Next_RSC_serverFetchJson]

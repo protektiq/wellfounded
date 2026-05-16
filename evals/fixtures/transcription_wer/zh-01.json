@@ -1,0 +1,15 @@
+{
+  "id": "zh-01",
+  "category": "transcription_wer",
+  "scorer": "wer",
+  "tags": [
+    "zh"
+  ],
+  "input": {
+    "reference": "我因为政治迫害不得不离开我的国家",
+    "hypothesis": "我因为政治迫害不得不离开我的国家"
+  },
+  "expected": {
+    "max_wer": 0.08
+  }
+}

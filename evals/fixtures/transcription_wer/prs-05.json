@@ -1,0 +1,15 @@
+{
+  "id": "prs-05",
+  "category": "transcription_wer",
+  "scorer": "wer",
+  "tags": [
+    "prs"
+  ],
+  "input": {
+    "reference": "در ایالات متحده درخواست پناهندگی می کنم",
+    "hypothesis": "در ایالات متحده درخواست پناهندگی می کنم"
+  },
+  "expected": {
+    "max_wer": 0.08
+  }
+}

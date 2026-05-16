@@ -1,6 +1,6 @@
 COMPOSE := docker-compose -f infra/local/docker-compose.yml
 
-.PHONY: up down db-migrate db-revision api web test test-e2e lint ingest ingest-all refresh-living-sources benchmark-retrieval eval-run eval-view eval-collect-baseline
+.PHONY: up down db-migrate db-revision api web test test-e2e test-transcription lint ingest ingest-all refresh-living-sources benchmark-retrieval eval-run eval-view eval-collect-baseline
 
 up:
 	$(COMPOSE) up -d
@@ -44,6 +44,9 @@ web:
 test:
 	cd apps/api && poetry run pytest
 	cd apps/web && npm test
+
+test-transcription:
+	cd apps/api && ENVELOPE_MASTER_KEY="$$(python3 -c 'import base64; print(base64.b64encode(bytes(32)).decode())')" TRANSCRIPTION_E2E_STUB=true ENVIRONMENT=local poetry run pytest tests/test_transcription_api.py -v
 
 test-e2e:
 	cd apps/web && npx playwright install chromium && npm run test:e2e

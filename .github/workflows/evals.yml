@@ -20,6 +20,10 @@ on:
       - "evals/fixtures/citation_faithfulness_live/**"
       - "evals/results/baseline-claude-opus-4-7.json"
       - "evals/results/baseline-live-claude-opus-4-7.json"
+      - "evals/fixtures/transcription_wer/**"
+      - "evals/results/baseline-transcription-wer.json"
+      - "apps/api/transcription/**"
+      - "apps/api/translation/**"
       - ".github/workflows/evals.yml"
 
 permissions:
@@ -92,7 +96,7 @@ jobs:
     name: citation_faithfulness_live
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    if: ${{ secrets.ANTHROPIC_API_KEY != '' }}
+    if: github.event.pull_request.head.repo.full_name == github.repository
     defaults:
       run:
         working-directory: apps/api
@@ -167,5 +171,63 @@ jobs:
         with:
           name: eval-citation-faithfulness-live
           path: evals/results/live-pr-*.json
+          if-no-files-found: warn
+          retention-days: 30
+
+  transcription_wer:
+    name: transcription_wer
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: apps/api
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Poetry
+        run: pipx install poetry==1.8.3
+
+      - name: Cache Poetry virtualenv
+        uses: actions/cache@v4
+        with:
+          path: apps/api/.venv
+          key: poetry-${{ runner.os }}-py3.12-${{ hashFiles('apps/api/poetry.lock') }}
+
+      - name: Configure Poetry to use in-project venv
+        run: poetry config virtualenvs.in-project true
+
+      - name: Install dependencies
+        run: poetry install --no-interaction --no-root
+
+      - name: Run transcription_wer eval
+        env:
+          GIT_SHA: ${{ github.sha }}
+        run: |
+          mkdir -p ../../evals/results
+          poetry run python -m evals.runner \
+            --category transcription_wer \
+            --output "../../evals/results/transcription-wer-pr-${GIT_SHA}.json"
+
+      - name: Compare mean score to committed baseline
+        run: |
+          poetry run python -m evals.baseline_compare \
+            ../../evals/results/baseline-transcription-wer.json \
+            "../../evals/results/transcription-wer-pr-${GITHUB_SHA}.json" \
+            --max-drop 0.02
+
+      - name: Upload result manifest
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: eval-transcription-wer
+          path: evals/results/transcription-wer-pr-*.json
           if-no-files-found: warn
           retention-days: 30

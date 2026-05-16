@@ -1,0 +1,12 @@
+{
+  "model_version": "transcription-stub@1",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 3.5,
+      "speaker": "Speaker 1",
+      "source_text": "Tuve que huir de mi pais por persecucion politica.",
+      "english_text": "I had to flee my country because of political persecution."
+    }
+  ]
+}

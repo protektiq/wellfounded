@@ -1,0 +1,12 @@
+{
+  "model_version": "transcription-stub@1",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 3.0,
+      "speaker": "Speaker 1",
+      "source_text": "من به دلیل آزار سیاسی مجبور شدم از کشورم فرار کنم.",
+      "english_text": "I had to flee my country because of political persecution."
+    }
+  ]
+}

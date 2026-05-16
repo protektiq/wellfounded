@@ -43,6 +43,14 @@ def pytest_configure() -> None:
         "DATABASE_URL",
         os.environ.get("TEST_DATABASE_URL", _default),
     )
+    import base64
+
+    os.environ.setdefault(
+        "ENVELOPE_MASTER_KEY",
+        base64.b64encode(b"\x00" * 32).decode("ascii"),
+    )
+    os.environ.setdefault("TRANSCRIPTION_E2E_STUB", "true")
+    os.environ.setdefault("ENVIRONMENT", "local")
     from config import get_settings
 
     get_settings.cache_clear()
@@ -91,10 +99,17 @@ async def api_client(db_session: AsyncSession) -> AsyncIterator[AsyncClient]:
 
     def _settings_override() -> Settings:
         get_settings.cache_clear()
+        import base64
+
         return Settings().model_copy(
             update={
                 "public_app_url": "http://test/web",
                 "api_public_url": "http://test",
+                "envelope_master_key_b64": base64.b64encode(b"\x00" * 32).decode(
+                    "ascii",
+                ),
+                "transcription_e2e_stub": True,
+                "environment": "local",
             },
         )
 
@@ -121,10 +136,17 @@ async def api_client_webauthn(db_session: AsyncSession) -> AsyncIterator[AsyncCl
 
     def _settings_override() -> Settings:
         get_settings.cache_clear()
+        import base64
+
         return Settings().model_copy(
             update={
                 "public_app_url": "http://localhost:5000",
                 "api_public_url": "http://localhost:5000",
+                "envelope_master_key_b64": base64.b64encode(b"\x00" * 32).decode(
+                    "ascii",
+                ),
+                "transcription_e2e_stub": True,
+                "environment": "local",
             },
         )
 

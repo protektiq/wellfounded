@@ -1,0 +1,15 @@
+{
+  "id": "prs-02",
+  "category": "transcription_wer",
+  "scorer": "wer",
+  "tags": [
+    "prs"
+  ],
+  "input": {
+    "reference": "دولت به خاطر عقایدم مرا تعقیب می کرد",
+    "hypothesis": "دولت به خاطر عقایدم مرا تعقیب می کرد"
+  },
+  "expected": {
+    "max_wer": 0.08
+  }
+}

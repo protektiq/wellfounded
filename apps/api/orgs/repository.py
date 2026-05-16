@@ -97,6 +97,21 @@ class OrgRepository:
         result = await self._session.execute(stmt)
         return list(result.scalars().all())
 
+    async def revoke_data_key(self, organization_id: uuid.UUID) -> bool:
+        org = await self.get_organization_by_id(organization_id)
+        if org is None:
+            return False
+        org.data_key_revoked_at = datetime.now(UTC)
+        org.kms_data_key_arn = None
+        await self._session.flush()
+        return True
+
+    async def is_data_key_revoked(self, organization_id: uuid.UUID) -> bool:
+        org = await self.get_organization_by_id(organization_id)
+        if org is None:
+            return True
+        return org.data_key_revoked_at is not None
+
     async def soft_delete_user(
         self,
         user_id: uuid.UUID,

@@ -1,0 +1,15 @@
+{
+  "id": "es-03",
+  "category": "transcription_wer",
+  "scorer": "wer",
+  "tags": [
+    "es"
+  ],
+  "input": {
+    "reference": "mi familia vive con miedo constante",
+    "hypothesis": "mi familia vive con miedo constante"
+  },
+  "expected": {
+    "max_wer": 0.08
+  }
+}

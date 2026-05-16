@@ -1,0 +1,15 @@
+{
+  "id": "fr-01",
+  "category": "transcription_wer",
+  "scorer": "wer",
+  "tags": [
+    "fr"
+  ],
+  "input": {
+    "reference": "j ai du fuir mon pays a cause de persecutions politiques",
+    "hypothesis": "j ai du fuir mon pays a cause de persecutions politiques"
+  },
+  "expected": {
+    "max_wer": 0.08
+  }
+}

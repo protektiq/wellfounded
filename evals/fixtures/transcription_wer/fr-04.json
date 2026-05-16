@@ -1,0 +1,15 @@
+{
+  "id": "fr-04",
+  "category": "transcription_wer",
+  "scorer": "wer",
+  "tags": [
+    "fr"
+  ],
+  "input": {
+    "reference": "je ne peux pas retourner chez moi en securite",
+    "hypothesis": "je ne peux pas retourner chez moi en securite"
+  },
+  "expected": {
+    "max_wer": 0.08
+  }
+}

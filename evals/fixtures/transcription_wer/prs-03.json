@@ -1,0 +1,15 @@
+{
+  "id": "prs-03",
+  "category": "transcription_wer",
+  "scorer": "wer",
+  "tags": [
+    "prs"
+  ],
+  "input": {
+    "reference": "خانواده ام در ترس دائمی زندگی می کنند",
+    "hypothesis": "خانواده ام در ترس دائمی زندگی می کنند"
+  },
+  "expected": {
+    "max_wer": 0.08
+  }
+}

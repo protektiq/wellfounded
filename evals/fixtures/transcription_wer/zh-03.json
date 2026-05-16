@@ -1,0 +1,15 @@
+{
+  "id": "zh-03",
+  "category": "transcription_wer",
+  "scorer": "wer",
+  "tags": [
+    "zh"
+  ],
+  "input": {
+    "reference": "我的家人一直生活在恐惧中",
+    "hypothesis": "我的家人一直生活在恐惧中"
+  },
+  "expected": {
+    "max_wer": 0.08
+  }
+}
