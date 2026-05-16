@@ -1,0 +1,76 @@
+{
+  "category": "citation_faithfulness_live",
+  "finished_at": "2026-05-14T00:00:00+00:00",
+  "fixtures": [
+    {
+      "fixture_id": "er-live-adversarial-01",
+      "fixture_path": "citation_faithfulness_live/er-live-adversarial-01.json",
+      "latency_ms": 0,
+      "model_id": null,
+      "result": {
+        "details": {},
+        "error": null,
+        "passed": true,
+        "score": 1.0
+      },
+      "scorer": "country_conditions_draft"
+    },
+    {
+      "fixture_id": "hn-live-supported-01",
+      "fixture_path": "citation_faithfulness_live/hn-live-supported-01.json",
+      "latency_ms": 0,
+      "model_id": null,
+      "result": {
+        "details": {},
+        "error": null,
+        "passed": true,
+        "score": 1.0
+      },
+      "scorer": "country_conditions_draft"
+    },
+    {
+      "fixture_id": "af-live-adversarial-01",
+      "fixture_path": "citation_faithfulness_live/af-live-adversarial-01.json",
+      "latency_ms": 0,
+      "model_id": null,
+      "result": {
+        "details": {},
+        "error": null,
+        "passed": true,
+        "score": 1.0
+      },
+      "scorer": "country_conditions_draft"
+    },
+    {
+      "fixture_id": "ir-live-supported-01",
+      "fixture_path": "citation_faithfulness_live/ir-live-supported-01.json",
+      "latency_ms": 0,
+      "model_id": null,
+      "result": {
+        "details": {},
+        "error": null,
+        "passed": true,
+        "score": 1.0
+      },
+      "scorer": "country_conditions_draft"
+    },
+    {
+      "fixture_id": "ve-live-adversarial-01",
+      "fixture_path": "citation_faithfulness_live/ve-live-adversarial-01.json",
+      "latency_ms": 0,
+      "model_id": null,
+      "result": {
+        "details": {},
+        "error": null,
+        "passed": true,
+        "score": 1.0
+      },
+      "scorer": "country_conditions_draft"
+    }
+  ],
+  "fixtures_root": "/home/carlos/wellfounded/evals/fixtures",
+  "git_sha": "bootstrap",
+  "run_id": "bootstrap",
+  "runner_version": 1,
+  "started_at": "2026-05-14T00:00:00+00:00"
+}

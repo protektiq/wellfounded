@@ -1,0 +1,521 @@
+{
+  "category": "transcription_wer",
+  "finished_at": "2026-05-16T17:00:00+00:00",
+  "fixtures": [
+    {
+      "fixture_id": "es-01",
+      "fixture_path": "transcription_wer/es-01.json",
+      "latency_ms": 0,
+      "model_id": null,
+      "result": {
+        "details": {
+          "hypothesis_word_count": 8,
+          "reference_word_count": 9,
+          "wer": 0.1111111111
+        },
+        "error": null,
+        "passed": true,
+        "score": 0.8888888889
+      },
+      "scorer": "wer"
+    },
+    {
+      "fixture_id": "es-02",
+      "fixture_path": "transcription_wer/es-02.json",
+      "latency_ms": 0,
+      "model_id": null,
+      "result": {
+        "details": {
+          "hypothesis_word_count": 7,
+          "reference_word_count": 7,
+          "wer": 0.1428571429
+        },
+        "error": null,
+        "passed": true,
+        "score": 0.8571428571
+      },
+      "scorer": "wer"
+    },
+    {
+      "fixture_id": "es-03",
+      "fixture_path": "transcription_wer/es-03.json",
+      "latency_ms": 0,
+      "model_id": null,
+      "result": {
+        "details": {
+          "hypothesis_word_count": 6,
+          "reference_word_count": 6,
+          "wer": 0.1666666667
+        },
+        "error": null,
+        "passed": true,
+        "score": 0.8333333333
+      },
+      "scorer": "wer"
+    },
+    {
+      "fixture_id": "es-04",
+      "fixture_path": "transcription_wer/es-04.json",
+      "latency_ms": 0,
+      "model_id": null,
+      "result": {
+        "details": {
+          "hypothesis_word_count": 5,
+          "reference_word_count": 6,
+          "wer": 0.1666666667
+        },
+        "error": null,
+        "passed": true,
+        "score": 0.8333333333
+      },
+      "scorer": "wer"
+    },
+    {
+      "fixture_id": "es-05",
+      "fixture_path": "transcription_wer/es-05.json",
+      "latency_ms": 0,
+      "model_id": null,
+      "result": {
+        "details": {
+          "hypothesis_word_count": 6,
+          "reference_word_count": 6,
+          "wer": 0.0
+        },
+        "error": null,
+        "passed": true,
+        "score": 1.0
+      },
+      "scorer": "wer"
+    },
+    {
+      "fixture_id": "fr-01",
+      "fixture_path": "transcription_wer/fr-01.json",
+      "latency_ms": 0,
+      "model_id": null,
+      "result": {
+        "details": {
+          "hypothesis_word_count": 11,
+          "reference_word_count": 11,
+          "wer": 0.0909090909
+        },
+        "error": null,
+        "passed": true,
+        "score": 0.9090909091
+      },
+      "scorer": "wer"
+    },
+    {
+      "fixture_id": "fr-02",
+      "fixture_path": "transcription_wer/fr-02.json",
+      "latency_ms": 0,
+      "model_id": null,
+      "result": {
+        "details": {
+          "hypothesis_word_count": 7,
+          "reference_word_count": 7,
+          "wer": 0.1428571429
+        },
+        "error": null,
+        "passed": true,
+        "score": 0.8571428571
+      },
+      "scorer": "wer"
+    },
+    {
+      "fixture_id": "fr-03",
+      "fixture_path": "transcription_wer/fr-03.json",
+      "latency_ms": 0,
+      "model_id": null,
+      "result": {
+        "details": {
+          "hypothesis_word_count": 7,
+          "reference_word_count": 7,
+          "wer": 0.0
+        },
+        "error": null,
+        "passed": true,
+        "score": 1.0
+      },
+      "scorer": "wer"
+    },
+    {
+      "fixture_id": "fr-04",
+      "fixture_path": "transcription_wer/fr-04.json",
+      "latency_ms": 0,
+      "model_id": null,
+      "result": {
+        "details": {
+          "hypothesis_word_count": 8,
+          "reference_word_count": 9,
+          "wer": 0.1111111111
+        },
+        "error": null,
+        "passed": true,
+        "score": 0.8888888889
+      },
+      "scorer": "wer"
+    },
+    {
+      "fixture_id": "fr-05",
+      "fixture_path": "transcription_wer/fr-05.json",
+      "latency_ms": 0,
+      "model_id": null,
+      "result": {
+        "details": {
+          "hypothesis_word_count": 7,
+          "reference_word_count": 7,
+          "wer": 0.0
+        },
+        "error": null,
+        "passed": true,
+        "score": 1.0
+      },
+      "scorer": "wer"
+    },
+    {
+      "fixture_id": "ht-01",
+      "fixture_path": "transcription_wer/ht-01.json",
+      "latency_ms": 0,
+      "model_id": null,
+      "result": {
+        "details": {
+          "hypothesis_word_count": 10,
+          "reference_word_count": 10,
+          "wer": 0.1
+        },
+        "error": null,
+        "passed": true,
+        "score": 0.9
+      },
+      "scorer": "wer"
+    },
+    {
+      "fixture_id": "ht-02",
+      "fixture_path": "transcription_wer/ht-02.json",
+      "latency_ms": 0,
+      "model_id": null,
+      "result": {
+        "details": {
+          "hypothesis_word_count": 8,
+          "reference_word_count": 8,
+          "wer": 0.125
+        },
+        "error": null,
+        "passed": true,
+        "score": 0.875
+      },
+      "scorer": "wer"
+    },
+    {
+      "fixture_id": "ht-03",
+      "fixture_path": "transcription_wer/ht-03.json",
+      "latency_ms": 0,
+      "model_id": null,
+      "result": {
+        "details": {
+          "hypothesis_word_count": 9,
+          "reference_word_count": 9,
+          "wer": 0.0
+        },
+        "error": null,
+        "passed": true,
+        "score": 1.0
+      },
+      "scorer": "wer"
+    },
+    {
+      "fixture_id": "ht-04",
+      "fixture_path": "transcription_wer/ht-04.json",
+      "latency_ms": 0,
+      "model_id": null,
+      "result": {
+        "details": {
+          "hypothesis_word_count": 8,
+          "reference_word_count": 8,
+          "wer": 0.125
+        },
+        "error": null,
+        "passed": true,
+        "score": 0.875
+      },
+      "scorer": "wer"
+    },
+    {
+      "fixture_id": "ht-05",
+      "fixture_path": "transcription_wer/ht-05.json",
+      "latency_ms": 0,
+      "model_id": null,
+      "result": {
+        "details": {
+          "hypothesis_word_count": 5,
+          "reference_word_count": 5,
+          "wer": 0.0
+        },
+        "error": null,
+        "passed": true,
+        "score": 1.0
+      },
+      "scorer": "wer"
+    },
+    {
+      "fixture_id": "prs-01",
+      "fixture_path": "transcription_wer/prs-01.json",
+      "latency_ms": 0,
+      "model_id": null,
+      "result": {
+        "details": {
+          "hypothesis_word_count": 11,
+          "reference_word_count": 11,
+          "wer": 0.0909090909
+        },
+        "error": null,
+        "passed": true,
+        "score": 0.9090909091
+      },
+      "scorer": "wer"
+    },
+    {
+      "fixture_id": "prs-02",
+      "fixture_path": "transcription_wer/prs-02.json",
+      "latency_ms": 0,
+      "model_id": null,
+      "result": {
+        "details": {
+          "hypothesis_word_count": 8,
+          "reference_word_count": 8,
+          "wer": 0.125
+        },
+        "error": null,
+        "passed": true,
+        "score": 0.875
+      },
+      "scorer": "wer"
+    },
+    {
+      "fixture_id": "prs-03",
+      "fixture_path": "transcription_wer/prs-03.json",
+      "latency_ms": 0,
+      "model_id": null,
+      "result": {
+        "details": {
+          "hypothesis_word_count": 8,
+          "reference_word_count": 8,
+          "wer": 0.0
+        },
+        "error": null,
+        "passed": true,
+        "score": 1.0
+      },
+      "scorer": "wer"
+    },
+    {
+      "fixture_id": "prs-04",
+      "fixture_path": "transcription_wer/prs-04.json",
+      "latency_ms": 0,
+      "model_id": null,
+      "result": {
+        "details": {
+          "hypothesis_word_count": 7,
+          "reference_word_count": 7,
+          "wer": 0.1428571429
+        },
+        "error": null,
+        "passed": true,
+        "score": 0.8571428571
+      },
+      "scorer": "wer"
+    },
+    {
+      "fixture_id": "prs-05",
+      "fixture_path": "transcription_wer/prs-05.json",
+      "latency_ms": 0,
+      "model_id": null,
+      "result": {
+        "details": {
+          "hypothesis_word_count": 7,
+          "reference_word_count": 7,
+          "wer": 0.0
+        },
+        "error": null,
+        "passed": true,
+        "score": 1.0
+      },
+      "scorer": "wer"
+    },
+    {
+      "fixture_id": "ti-01",
+      "fixture_path": "transcription_wer/ti-01.json",
+      "latency_ms": 0,
+      "model_id": null,
+      "result": {
+        "details": {
+          "hypothesis_word_count": 6,
+          "reference_word_count": 6,
+          "wer": 0.1666666667
+        },
+        "error": null,
+        "passed": true,
+        "score": 0.8333333333
+      },
+      "scorer": "wer"
+    },
+    {
+      "fixture_id": "ti-02",
+      "fixture_path": "transcription_wer/ti-02.json",
+      "latency_ms": 0,
+      "model_id": null,
+      "result": {
+        "details": {
+          "hypothesis_word_count": 5,
+          "reference_word_count": 5,
+          "wer": 0.2
+        },
+        "error": null,
+        "passed": true,
+        "score": 0.8
+      },
+      "scorer": "wer"
+    },
+    {
+      "fixture_id": "ti-03",
+      "fixture_path": "transcription_wer/ti-03.json",
+      "latency_ms": 0,
+      "model_id": null,
+      "result": {
+        "details": {
+          "hypothesis_word_count": 4,
+          "reference_word_count": 4,
+          "wer": 0.0
+        },
+        "error": null,
+        "passed": true,
+        "score": 1.0
+      },
+      "scorer": "wer"
+    },
+    {
+      "fixture_id": "ti-04",
+      "fixture_path": "transcription_wer/ti-04.json",
+      "latency_ms": 0,
+      "model_id": null,
+      "result": {
+        "details": {
+          "hypothesis_word_count": 4,
+          "reference_word_count": 4,
+          "wer": 0.25
+        },
+        "error": null,
+        "passed": true,
+        "score": 0.75
+      },
+      "scorer": "wer"
+    },
+    {
+      "fixture_id": "ti-05",
+      "fixture_path": "transcription_wer/ti-05.json",
+      "latency_ms": 0,
+      "model_id": null,
+      "result": {
+        "details": {
+          "hypothesis_word_count": 5,
+          "reference_word_count": 5,
+          "wer": 0.2
+        },
+        "error": null,
+        "passed": true,
+        "score": 0.8
+      },
+      "scorer": "wer"
+    },
+    {
+      "fixture_id": "zh-01",
+      "fixture_path": "transcription_wer/zh-01.json",
+      "latency_ms": 0,
+      "model_id": null,
+      "result": {
+        "details": {
+          "hypothesis_word_count": 7,
+          "reference_word_count": 7,
+          "wer": 0.1428571429
+        },
+        "error": null,
+        "passed": true,
+        "score": 0.8571428571
+      },
+      "scorer": "wer"
+    },
+    {
+      "fixture_id": "zh-02",
+      "fixture_path": "transcription_wer/zh-02.json",
+      "latency_ms": 0,
+      "model_id": null,
+      "result": {
+        "details": {
+          "hypothesis_word_count": 7,
+          "reference_word_count": 7,
+          "wer": 0.1428571429
+        },
+        "error": null,
+        "passed": true,
+        "score": 0.8571428571
+      },
+      "scorer": "wer"
+    },
+    {
+      "fixture_id": "zh-03",
+      "fixture_path": "transcription_wer/zh-03.json",
+      "latency_ms": 0,
+      "model_id": null,
+      "result": {
+        "details": {
+          "hypothesis_word_count": 6,
+          "reference_word_count": 6,
+          "wer": 0.0
+        },
+        "error": null,
+        "passed": true,
+        "score": 1.0
+      },
+      "scorer": "wer"
+    },
+    {
+      "fixture_id": "zh-04",
+      "fixture_path": "transcription_wer/zh-04.json",
+      "latency_ms": 0,
+      "model_id": null,
+      "result": {
+        "details": {
+          "hypothesis_word_count": 4,
+          "reference_word_count": 5,
+          "wer": 0.2
+        },
+        "error": null,
+        "passed": true,
+        "score": 0.8
+      },
+      "scorer": "wer"
+    },
+    {
+      "fixture_id": "zh-05",
+      "fixture_path": "transcription_wer/zh-05.json",
+      "latency_ms": 0,
+      "model_id": null,
+      "result": {
+        "details": {
+          "hypothesis_word_count": 5,
+          "reference_word_count": 5,
+          "wer": 0.0
+        },
+        "error": null,
+        "passed": true,
+        "score": 1.0
+      },
+      "scorer": "wer"
+    }
+  ],
+  "fixtures_root": "/home/carlos/wellfounded/evals/fixtures",
+  "git_sha": "develop",
+  "run_id": "baseline-v2",
+  "runner_version": 1,
+  "started_at": "2026-05-16T17:00:00+00:00"
+}

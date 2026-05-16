@@ -5,3 +5,5 @@
 !.gitignore
 !README.md
 !baseline-claude-opus-4-7.json
+!baseline-live-claude-opus-4-7.json
+!baseline-transcription-wer.json

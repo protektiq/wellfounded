@@ -57,13 +57,13 @@ from country_conditions.service import (
 )
 from db.session import get_db_session
 from declarations.flags import flags_from_dicts as decl_flags_from_dicts
-from declarations.flags import unresolved_required_flag_ids
 from declarations.models import DeclarationDraftStatus
 from declarations.models import PriorStatementType as PriorStatementTypeOrm
 from declarations.models import SourceLanguage as SourceLanguageOrm
 from declarations.repository import DeclarationsRepository
 from declarations.schemas import (
     CleanExportBlockedResponse,
+    DeclarationDraftContent,
     DeclarationDraftDetail,
     DeclarationDraftSummary,
     DeclarationGenerateRequest,
@@ -75,8 +75,16 @@ from declarations.schemas import (
     PriorStatementOut,
     TranscriptCreate,
     TranscriptOut,
+    TranscriptSegment,
 )
 from declarations.service import DeclarationsService, get_declarations_service
+from wf_docx.declaration import (
+    CleanExportBlockedError,
+    DeclarationRenderInput,
+    export_declaration_docx_filename,
+    render_clean_copy,
+    render_working_copy,
+)
 from encryption.service import DataKeyRevokedError
 from orgs.models import User, UserRole
 from retrieval.passage_search import (
@@ -1201,16 +1209,17 @@ async def revise_declaration_draft(
     "/{case_id}/declarations/{draft_id}/export.docx",
     responses={
         409: {"model": CleanExportBlockedResponse},
-        501: {"description": "DOCX rendering ships in Task 3.3"},
     },
 )
 async def export_declaration_docx(
     case_id: uuid.UUID,
     draft_id: uuid.UUID,
     mode: Annotated[Literal["working", "clean"], Query()],
+    parallel: Annotated[bool, Query()] = False,
     auth: Annotated[RequestAuth, Depends(get_request_auth)],
     db: Annotated[AsyncSession, Depends(get_db_session)],
-) -> Response:
+    audit: Annotated[AuditWriter, Depends(get_audit_writer)],
+) -> StreamingResponse:
     user = auth.user
     org_id = auth.organization.id
     case_repo = CaseRepository(db)
@@ -1229,20 +1238,84 @@ async def export_declaration_docx(
             status_code=status.HTTP_409_CONFLICT,
             detail="Declaration draft is not ready for export",
         )
-    if mode == "clean":
-        flags = decl_flags_from_dicts(list(row.flags))
-        blocked = unresolved_required_flag_ids(flags)
-        if blocked:
-            payload = CleanExportBlockedResponse(unresolved_flag_ids=blocked)
+    try:
+        draft_content = DeclarationDraftContent.model_validate(row.draft)
+    except ValidationError:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Declaration draft content is invalid for export",
+        ) from None
+
+    flags = decl_flags_from_dicts(list(row.flags))
+    transcript_segments: list[TranscriptSegment] | None = None
+    if parallel:
+        transcript = await decl_repo.get_transcript(org_id, row.transcript_id)
+        if transcript is None or transcript.segments is None:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
-                detail=payload.model_dump(mode="json"),
+                detail="Transcript is not available for parallel export",
             )
+        transcript_segments = [
+            TranscriptSegment.model_validate(seg) for seg in transcript.segments
+        ]
+
+    render_inp = DeclarationRenderInput(
+        draft=draft_content,
+        flags=flags,
+        case_pseudonym=case.pseudonym,
+        country_code=case.country_code,
+        draft_version=row.version,
+        generated_at=row.created_at,
+        transcript_segments=transcript_segments,
+        parallel=parallel,
+    )
+
+    try:
+        if mode == "clean":
+            docx_bytes = render_clean_copy(render_inp)
+        else:
+            docx_bytes = render_working_copy(render_inp)
+    except CleanExportBlockedError as exc:
+        payload = CleanExportBlockedResponse(unresolved_flag_ids=exc.unresolved_flag_ids)
         raise HTTPException(
-            status_code=status.HTTP_501_NOT_IMPLEMENTED,
-            detail="Clean DOCX export is not yet implemented (Task 3.3)",
-        )
-    raise HTTPException(
-        status_code=status.HTTP_501_NOT_IMPLEMENTED,
-        detail="Working DOCX export is not yet implemented (Task 3.3)",
+            status_code=status.HTTP_409_CONFLICT,
+            detail=payload.model_dump(mode="json"),
+        ) from exc
+    except FileNotFoundError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(exc),
+        ) from exc
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=str(exc),
+        ) from exc
+
+    filename = export_declaration_docx_filename(
+        case.pseudonym,
+        row.version,
+        mode,
+        parallel=parallel,
+    )
+    await audit.record(
+        "declaration.draft.export.docx",
+        org_id,
+        user.id,
+        "declaration_draft",
+        draft_id,
+        metadata={
+            "case_id": str(case_id),
+            "draft_version": row.version,
+            "mode": mode,
+            "parallel": parallel,
+        },
+    )
+    await db.commit()
+    return StreamingResponse(
+        BytesIO(docx_bytes),
+        media_type=(
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        ),
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
     )
