@@ -120,6 +120,22 @@ class TranscriptionRepository:
         result = await self._session.execute(stmt)
         return result.scalar_one_or_none()
 
+    async def list_interview_audio_for_case(
+        self,
+        organization_id: uuid.UUID,
+        case_id: uuid.UUID,
+    ) -> list[InterviewAudio]:
+        stmt = (
+            select(InterviewAudio)
+            .where(
+                InterviewAudio.organization_id == organization_id,
+                InterviewAudio.case_id == case_id,
+            )
+            .order_by(InterviewAudio.uploaded_at.desc())
+        )
+        result = await self._session.execute(stmt)
+        return list(result.scalars().all())
+
     async def get_interview_audio_for_case(
         self,
         organization_id: uuid.UUID,

@@ -297,6 +297,51 @@ class TranscriptionService:
                     transcript_id=str(transcript_id),
                 )
 
+    async def stream_interview_audio(
+        self,
+        *,
+        organization_id: uuid.UUID,
+        case_id: uuid.UUID,
+        audio_id: uuid.UUID,
+        session: AsyncSession,
+    ) -> tuple[bytes, str]:
+        org_repo = OrgRepository(session)
+        if await org_repo.is_data_key_revoked(organization_id):
+            raise DataKeyRevokedError("Organization data encryption key was revoked")
+
+        repo = TranscriptionRepository(session)
+        audio = await repo.get_interview_audio_for_case(
+            organization_id,
+            case_id,
+            audio_id,
+        )
+        if audio is None:
+            raise ValueError("Interview audio not found")
+
+        encrypted = s3_client.get_object_bytes(key=audio.storage_key)
+        crypto = get_envelope_crypto()
+        is_revoked = await org_repo.is_data_key_revoked(organization_id)
+        plaintext = decrypt_audio_from_storage(
+            crypto,
+            organization_id,
+            encrypted,
+            is_revoked=is_revoked,
+        )
+        return plaintext, _audio_media_type(audio.source_filename)
+
+
+def _audio_media_type(filename: str) -> str:
+    lower = filename.lower()
+    if lower.endswith(".wav"):
+        return "audio/wav"
+    if lower.endswith(".mp3"):
+        return "audio/mpeg"
+    if lower.endswith(".m4a") or lower.endswith(".mp4"):
+        return "audio/mp4"
+    if lower.endswith(".ogg"):
+        return "audio/ogg"
+    return "application/octet-stream"
+
 
 def _load_stub_segments(
     source_language: SourceLanguage,

@@ -456,6 +456,51 @@ async def test_revise_preserves_open_flags(
 
 
 @pytest.mark.asyncio(loop_scope="session")
+async def test_apply_flag_resolution_updates_text(
+    api_client: AsyncClient,
+    db_session: AsyncSession,
+    capsys: pytest.CaptureFixture[str],
+    eritrea_fixture: dict[str, Any],
+    mock_llm_eritrea: Any,
+) -> None:
+    case_id, transcript_id, prior_id = await _seed_case_and_transcripts(
+        api_client,
+        db_session,
+        capsys,
+        eritrea_fixture,
+        mock_llm_eritrea,
+    )
+    r_post = await api_client.post(
+        f"/cases/{case_id}/declarations",
+        json={
+            "transcript_id": str(transcript_id),
+            "prior_statement_ids": [str(prior_id)],
+        },
+    )
+    draft_id = uuid.UUID(r_post.json()["draft_id"])
+    body = await _wait_for_draft(api_client, case_id, draft_id)
+    gap = next(
+        f
+        for f in body["flags"]
+        if f["type"] == "GAP" and f["status"] == "open"
+    )
+    r_apply = await api_client.post(
+        f"/cases/{case_id}/declarations/{draft_id}/flags/{gap['id']}/apply",
+        json={
+            "resolution_text": "The first incident occurred on March 3, 2023.",
+            "status": "resolved",
+        },
+    )
+    assert r_apply.status_code == 200, r_apply.text
+    applied = r_apply.json()
+    assert applied["flags"][0]["status"] == "resolved" or any(
+        f["id"] == gap["id"] and f["status"] == "resolved" for f in applied["flags"]
+    )
+    filing = applied["draft"]["sections"]["filing_bar_facts"]["paragraphs"][0]["text"]
+    assert "March 3, 2023" in filing
+
+
+@pytest.mark.asyncio(loop_scope="session")
 async def test_clean_export_409(
     api_client: AsyncClient,
     db_session: AsyncSession,

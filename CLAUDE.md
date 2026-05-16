@@ -42,6 +42,8 @@ cd apps/web && npm test -- smoke
 
 Set on the **API** (for example `.env.local`): `ENVIRONMENT=local`, `E2E_MAGIC_LINK_REVEAL_ENABLED=true`, `E2E_MAGIC_LINK_SECRET=<long random>`, `COUNTRY_CONDITIONS_E2E_STUB=true`.
 
+**Declaration Playwright E2E** uses the same magic-link settings plus `DECLARATION_E2E_STUB=true` and `TRANSCRIPTION_E2E_STUB=true` on the API. Run `make test-e2e` with the declarations project filter: `cd apps/web && npm run test:e2e -- declarations`.
+
 Set in the shell running Playwright: `export WF_E2E_MAGIC_LINK_SECRET=<same value as E2E_MAGIC_LINK_SECRET>`.
 
 Then in separate terminals: `make api`, `make web`, and `make test-e2e` (or `cd apps/web && npm run test:e2e`). Optional: `PLAYWRIGHT_API_URL`, `PLAYWRIGHT_BASE_URL` if not using `127.0.0.1:8000` / `:3000`.

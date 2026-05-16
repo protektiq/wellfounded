@@ -16,6 +16,7 @@ from cases.models import Case
 from cases.repository import CaseRepository
 from config import get_settings
 from db.session import get_async_session_maker
+from declarations.apply_resolution import apply_resolution_to_draft
 from declarations.flags import (
     flags_from_dicts,
     flags_to_dicts,
@@ -205,6 +206,48 @@ class DeclarationsService:
         parent_flags = flags_from_dicts(list(parent.flags))
         claim_ir = ClaimIntermediateRepresentation.model_validate(parent.claim_ir)
 
+        settings = get_settings()
+        stub_local = (
+            settings.declaration_e2e_stub
+            and settings.environment.strip().lower() == "local"
+        )
+        if stub_local:
+            from declarations.e2e_stub import e2e_stub_revise_payload
+
+            parent_draft = DeclarationDraftContent.model_validate(parent.draft)
+            stub = e2e_stub_revise_payload(
+                parent_draft=parent_draft,
+                parent_flags=parent_flags,
+                instruction=instruction,
+                scope=scope,
+            )
+            merged_flags = stub["flags"]
+            final_draft = DeclarationDraftContent.model_validate(stub["draft"])
+            st = DeclarationDraftStatus(status_after_flags(merged_flags))
+            await decl_repo.update_draft_complete(
+                organization_id,
+                new_row.id,
+                draft=final_draft.model_dump(mode="json"),
+                flags=flags_to_dicts(merged_flags),
+                claim_ir=claim_ir.model_dump(mode="json"),
+                status=st,
+                model_versions={"revise": "e2e-stub"},
+            )
+            await audit.record(
+                "declaration.revise",
+                organization_id,
+                requested_by_user_id,
+                "declaration_draft",
+                new_row.id,
+                metadata={
+                    "parent_draft_id": str(parent_draft_id),
+                    "version": new_row.version,
+                    "e2e_stub": True,
+                },
+            )
+            await session.flush()
+            return new_row.id, new_row.version, st
+
         llm = LLMClient(session, organization_id, requested_by_user_id)
         prompt = with_variables(
             DECL_REVISE_PROMPT,
@@ -307,6 +350,72 @@ class DeclarationsService:
         )
         await audit.record(
             "declaration.flag.resolve",
+            organization_id,
+            user_id,
+            "declaration_draft",
+            draft_id,
+            metadata={"flag_id": str(flag_id), "status": status.value},
+        )
+        await session.flush()
+        return st
+
+    async def apply_flag_resolution(
+        self,
+        *,
+        organization_id: uuid.UUID,
+        draft_id: uuid.UUID,
+        flag_id: uuid.UUID,
+        resolution_text: str,
+        status: DeclarationFlagStatus,
+        user_id: uuid.UUID,
+        session: AsyncSession,
+        audit: AuditWriter,
+    ) -> DeclarationDraftStatus:
+        from datetime import UTC, datetime
+
+        decl_repo = DeclarationsRepository(session)
+        row = await decl_repo.get_draft(organization_id, draft_id)
+        if row is None:
+            raise ValueError("Draft not found")
+        if row.draft is None:
+            raise ValueError("Draft content is not ready")
+
+        flags = flags_from_dicts(list(row.flags))
+        target: DeclarationFlag | None = None
+        for f in flags:
+            if f.id == flag_id:
+                target = f
+                break
+        if target is None:
+            raise ValueError("Flag not found")
+
+        draft_content = DeclarationDraftContent.model_validate(row.draft)
+        now = datetime.now(UTC)
+        updated_draft = draft_content
+        if status == DeclarationFlagStatus.resolved:
+            updated_draft = apply_resolution_to_draft(
+                draft_content,
+                target,
+                resolution_text,
+            )
+
+        target.status = status
+        target.resolved_by_user_id = user_id
+        target.resolved_at = now
+        target.resolution_note = (
+            resolution_text if status == DeclarationFlagStatus.deferred else None
+        )
+
+        st = DeclarationDraftStatus(status_after_flags(flags))
+        await decl_repo.update_draft_content_and_flags(
+            organization_id,
+            draft_id,
+            draft=updated_draft.model_dump(mode="json"),
+            flags=flags_to_dicts(flags),
+            status=st,
+        )
+        await audit.record(
+            "declaration.flag.apply",
             organization_id,
             user_id,
             "declaration_draft",
