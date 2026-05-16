@@ -58,3 +58,10 @@ volumes:
   postgres_data:
   minio_data:
   redis_data:
+
+# Pin default network settings so Docker Desktop updates do not force manual network
+# recreation ("enable_ipv4/enable_ipv6 has changed"). Recovery: make up-fresh
+networks:
+  default:
+    driver: bridge
+    enable_ipv6: false

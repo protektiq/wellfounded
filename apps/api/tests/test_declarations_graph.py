@@ -6,7 +6,9 @@ import asyncio
 import json
 import re
 import uuid
+import zipfile
 from datetime import UTC, datetime
+from io import BytesIO
 from pathlib import Path
 from typing import Any
 
@@ -524,7 +526,50 @@ async def test_clean_export_allowed_when_resolved(
         f"/cases/{case_id}/declarations/{draft_id}/export.docx",
         params={"mode": "clean"},
     )
-    assert r_exp.status_code == 501
+    assert r_exp.status_code == 200, r_exp.text
+    assert (
+        r_exp.headers.get("content-type", "").startswith(
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        )
+        or r_exp.content[:2] == b"PK"
+    )
+    from wf_docx.ooxml_annotations import count_comments_in_docx
+
+    assert count_comments_in_docx(r_exp.content) == 0
+
+
+@pytest.mark.asyncio(loop_scope="session")
+async def test_working_export_has_comments(
+    api_client: AsyncClient,
+    db_session: AsyncSession,
+    capsys: pytest.CaptureFixture[str],
+    eritrea_fixture: dict[str, Any],
+    mock_llm_eritrea: Any,
+) -> None:
+    case_id, transcript_id, prior_id = await _seed_case_and_transcripts(
+        api_client,
+        db_session,
+        capsys,
+        eritrea_fixture,
+        mock_llm_eritrea,
+    )
+    r_post = await api_client.post(
+        f"/cases/{case_id}/declarations",
+        json={
+            "transcript_id": str(transcript_id),
+            "prior_statement_ids": [str(prior_id)],
+        },
+    )
+    draft_id = uuid.UUID(r_post.json()["draft_id"])
+    await _wait_for_draft(api_client, case_id, draft_id)
+    r_exp = await api_client.get(
+        f"/cases/{case_id}/declarations/{draft_id}/export.docx",
+        params={"mode": "working"},
+    )
+    assert r_exp.status_code == 200, r_exp.text
+    from wf_docx.ooxml_annotations import count_comments_in_docx
+
+    assert count_comments_in_docx(r_exp.content) >= 1
 
 
 @pytest.mark.asyncio(loop_scope="session")
