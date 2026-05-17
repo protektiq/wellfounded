@@ -7,6 +7,7 @@ import uuid
 from typing import Any, cast
 
 from langgraph.checkpoint.memory import MemorySaver
+from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from audit.writer import AuditWriter
@@ -28,11 +29,34 @@ from evals.scorers.rubric_llm_judge import (
     _resolve_rubric_path,
 )
 from llm.prompts import Prompt, with_variables
+from orgs.models import Organization, User, UserRole, UserStatus
 
 _EVAL_ORG_ID = uuid.UUID("00000000-0000-4000-8000-00000000e001")
 _EVAL_USER_ID = uuid.UUID("00000000-0000-4000-8000-00000000e002")
 
 _MAX_PRIORS = 8
+
+
+async def _ensure_eval_org_user(session: AsyncSession) -> None:
+    """Upsert sentinel org/user so llm_call_records FK is satisfied during evals."""
+    await session.execute(
+        pg_insert(Organization)
+        .values(id=_EVAL_ORG_ID, name="__eval__", slug="__eval__")
+        .on_conflict_do_nothing()
+    )
+    await session.execute(
+        pg_insert(User)
+        .values(
+            id=_EVAL_USER_ID,
+            organization_id=_EVAL_ORG_ID,
+            email="__eval__@eval.internal",
+            display_name="__eval__",
+            role=UserRole.admin,
+            status=UserStatus.active,
+        )
+        .on_conflict_do_nothing()
+    )
+    await session.flush()
 
 _SYSTEM_PROMPT = (
     "You evaluate a generated asylum declaration draft against a practitioner rubric. "
@@ -188,6 +212,11 @@ class DeclarationQualityLiveScorer:
             min_criteria = _parse_min_criteria(fixture.expected)
         except (TypeError, ValueError, FileNotFoundError) as exc:
             return ScoreResult(error=str(exc))
+
+        try:
+            await _ensure_eval_org_user(session)
+        except Exception as exc:  # noqa: BLE001
+            return ScoreResult(error=f"eval org/user seed failed: {exc}")
 
         draft_id = uuid.uuid4()
         case_id = uuid.uuid4()
