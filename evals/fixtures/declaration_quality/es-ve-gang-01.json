@@ -1,0 +1,129 @@
+{
+  "id": "es-ve-gang-01",
+  "category": "declaration_quality",
+  "scorer": "declaration_quality_live",
+  "tags": [
+    "es",
+    "ve"
+  ],
+  "input": {
+    "transcript": {
+      "source_language": "es",
+      "segments": [
+        {
+          "start": 0.0,
+          "end": 30.0,
+          "speaker": "client",
+          "source_text": "Soy de Venezuela",
+          "english_text": "I am from Venezuela."
+        },
+        {
+          "start": 30.0,
+          "end": 60.0,
+          "speaker": "client",
+          "source_text": "Una pandilla exigio vacuna",
+          "english_text": "A gang demanded extortion payments from my shop in 2023."
+        }
+      ],
+      "full_source_text": "Soy de Venezuela Una pandilla exigio vacuna",
+      "full_english_text": "I am from Venezuela. A gang demanded extortion payments from my shop in 2023."
+    },
+    "prior_statements": [],
+    "case_metadata": {
+      "pseudonym": "C.P. — Venezuela",
+      "country_code": "VE",
+      "basis": "particular_social_group",
+      "group_description": "Venezuelan small business owners targeted by gangs"
+    }
+  },
+  "expected": {
+    "rubric_path": "declaration_v1.md",
+    "min_score": 4,
+    "min_criteria": {
+      "faithfulness_to_source": 4.5
+    },
+    "gold_declaration": {
+      "sections": {
+        "identity_background": {
+          "section_id": "identity_background",
+          "paragraphs": [
+            {
+              "id": "identity_background:p0",
+              "text": "I am C.P. from Venezuela.",
+              "source_segment_ids": [
+                "seg-0"
+              ],
+              "inference_spans": []
+            }
+          ]
+        },
+        "past_persecution": {
+          "section_id": "past_persecution",
+          "paragraphs": [
+            {
+              "id": "past_persecution:p0",
+              "text": "In 2023, a gang demanded extortion payments from my shop.",
+              "source_segment_ids": [
+                "seg-0"
+              ],
+              "inference_spans": []
+            }
+          ]
+        },
+        "perpetrator_motivation": {
+          "section_id": "perpetrator_motivation",
+          "paragraphs": [
+            {
+              "id": "perpetrator_motivation:p0",
+              "text": "They targeted me as a shop owner who refused to pay.",
+              "source_segment_ids": [
+                "seg-0"
+              ],
+              "inference_spans": []
+            }
+          ]
+        },
+        "well_founded_fear_future": {
+          "section_id": "well_founded_fear_future",
+          "paragraphs": [
+            {
+              "id": "well_founded_fear_future:p0",
+              "text": "I fear killing if returned because the gang controls my neighborhood.",
+              "source_segment_ids": [
+                "seg-0"
+              ],
+              "inference_spans": []
+            }
+          ]
+        },
+        "internal_relocation": {
+          "section_id": "internal_relocation",
+          "paragraphs": [
+            {
+              "id": "internal_relocation:p0",
+              "text": "The gang operates across the city; relocation would not help.",
+              "source_segment_ids": [
+                "seg-0"
+              ],
+              "inference_spans": []
+            }
+          ]
+        },
+        "filing_bar_facts": {
+          "section_id": "filing_bar_facts",
+          "paragraphs": [
+            {
+              "id": "filing_bar_facts:p0",
+              "text": "I entered the United States in October 2023.",
+              "source_segment_ids": [
+                "seg-0"
+              ],
+              "inference_spans": []
+            }
+          ]
+        }
+      },
+      "notes": "PIR reference — Venezuela gang targeting."
+    }
+  }
+}

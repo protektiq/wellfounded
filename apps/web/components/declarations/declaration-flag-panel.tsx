@@ -10,6 +10,7 @@ type DeclarationFlagPanelProps = {
   flags: DeclarationFlag[];
   activeFlagId: string | null;
   onSelectFlag: (flagId: string) => void;
+  onEditFlag: (flag: DeclarationFlag) => void;
   onResolveQuick: (flag: DeclarationFlag) => void;
   onDeferQuick: (flag: DeclarationFlag) => void;
 };
@@ -18,6 +19,7 @@ export const DeclarationFlagPanel = ({
   flags,
   activeFlagId,
   onSelectFlag,
+  onEditFlag,
   onResolveQuick,
   onDeferQuick,
 }: DeclarationFlagPanelProps) => {
@@ -71,7 +73,7 @@ export const DeclarationFlagPanel = ({
                     size="sm"
                     onClick={() => onResolveQuick(flag)}
                   >
-                    Resolve
+                    Accept
                   </Button>
                   <Button
                     type="button"
@@ -85,7 +87,7 @@ export const DeclarationFlagPanel = ({
                     type="button"
                     size="sm"
                     variant="ghost"
-                    onClick={() => onSelectFlag(flag.id)}
+                    onClick={() => onEditFlag(flag)}
                   >
                     Edit
                   </Button>

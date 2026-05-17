@@ -20,6 +20,7 @@ type FlagResolutionDrawerProps = {
   draftId: string;
   flag: DeclarationFlag | null;
   open: boolean;
+  initialMode?: "view" | "edit";
   onOpenChange: (open: boolean) => void;
   transcript: TranscriptDetail | null;
   onApplied: () => void;
@@ -45,12 +46,13 @@ export const FlagResolutionDrawer = ({
   draftId,
   flag,
   open,
+  initialMode = "view",
   onOpenChange,
   transcript,
   onApplied,
   onPlaySegment,
 }: FlagResolutionDrawerProps) => {
-  const [mode, setMode] = useState<"view" | "edit" | "reject">("view");
+  const [mode, setMode] = useState<"view" | "edit" | "reject">(initialMode);
   const [text, setText] = useState("");
   const [rejectNote, setRejectNote] = useState("");
   const [pending, setPending] = useState(false);
@@ -60,10 +62,10 @@ export const FlagResolutionDrawer = ({
     if (flag !== null) {
       setText(flag.suggested_resolution);
       setRejectNote("");
-      setMode("view");
+      setMode(initialMode);
       setError(null);
     }
-  }, [flag]);
+  }, [flag, initialMode]);
 
   if (flag === null) {
     return null;

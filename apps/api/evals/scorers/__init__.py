@@ -10,6 +10,7 @@ from __future__ import annotations
 
 from evals.scorers import (  # noqa: F401 - registration side effects
     country_conditions_draft,
+    declaration_quality_live,
     exact_citation_match,
     rubric_llm_judge,
     wer,

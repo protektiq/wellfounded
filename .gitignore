@@ -30,3 +30,4 @@ apps/web/out/
 evals/results/*.json
 !evals/results/baseline-claude-opus-4-7.json
 !evals/results/baseline-transcription-wer.json
+!evals/results/baseline-declaration-claude-opus-4-7.json

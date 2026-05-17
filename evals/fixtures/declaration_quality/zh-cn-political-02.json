@@ -1,0 +1,129 @@
+{
+  "id": "zh-cn-political-02",
+  "category": "declaration_quality",
+  "scorer": "declaration_quality_live",
+  "tags": [
+    "zh",
+    "cn"
+  ],
+  "input": {
+    "transcript": {
+      "source_language": "zh",
+      "segments": [
+        {
+          "start": 0.0,
+          "end": 30.0,
+          "speaker": "client",
+          "source_text": "我参与了对政府的抗议",
+          "english_text": "I joined protests against government policies."
+        },
+        {
+          "start": 30.0,
+          "end": 60.0,
+          "speaker": "client",
+          "source_text": "2023年被国安约谈",
+          "english_text": "In 2023 state security questioned me and warned me to stop."
+        }
+      ],
+      "full_source_text": "我参与了对政府的抗议 2023年被国安约谈",
+      "full_english_text": "I joined protests against government policies. In 2023 state security questioned me and warned me to stop."
+    },
+    "prior_statements": [],
+    "case_metadata": {
+      "pseudonym": "H.Z. — China",
+      "country_code": "CN",
+      "basis": "political_opinion",
+      "group_description": "Chinese activists targeted after protest participation"
+    }
+  },
+  "expected": {
+    "rubric_path": "declaration_v1.md",
+    "min_score": 4,
+    "min_criteria": {
+      "faithfulness_to_source": 4.5
+    },
+    "gold_declaration": {
+      "sections": {
+        "identity_background": {
+          "section_id": "identity_background",
+          "paragraphs": [
+            {
+              "id": "identity_background:p0",
+              "text": "I am H.Z. from China.",
+              "source_segment_ids": [
+                "seg-0"
+              ],
+              "inference_spans": []
+            }
+          ]
+        },
+        "past_persecution": {
+          "section_id": "past_persecution",
+          "paragraphs": [
+            {
+              "id": "past_persecution:p0",
+              "text": "In 2023, state security questioned me and warned me to stop protesting.",
+              "source_segment_ids": [
+                "seg-0"
+              ],
+              "inference_spans": []
+            }
+          ]
+        },
+        "perpetrator_motivation": {
+          "section_id": "perpetrator_motivation",
+          "paragraphs": [
+            {
+              "id": "perpetrator_motivation:p0",
+              "text": "They targeted me for political opinions expressed in protests.",
+              "source_segment_ids": [
+                "seg-0"
+              ],
+              "inference_spans": []
+            }
+          ]
+        },
+        "well_founded_fear_future": {
+          "section_id": "well_founded_fear_future",
+          "paragraphs": [
+            {
+              "id": "well_founded_fear_future:p0",
+              "text": "I fear detention if returned for continued dissent.",
+              "source_segment_ids": [
+                "seg-0"
+              ],
+              "inference_spans": []
+            }
+          ]
+        },
+        "internal_relocation": {
+          "section_id": "internal_relocation",
+          "paragraphs": [
+            {
+              "id": "internal_relocation:p0",
+              "text": "National security can track activists across provinces.",
+              "source_segment_ids": [
+                "seg-0"
+              ],
+              "inference_spans": []
+            }
+          ]
+        },
+        "filing_bar_facts": {
+          "section_id": "filing_bar_facts",
+          "paragraphs": [
+            {
+              "id": "filing_bar_facts:p0",
+              "text": "I entered the United States in April 2024.",
+              "source_segment_ids": [
+                "seg-0"
+              ],
+              "inference_spans": []
+            }
+          ]
+        }
+      },
+      "notes": "PIR reference — China political opinion."
+    }
+  }
+}

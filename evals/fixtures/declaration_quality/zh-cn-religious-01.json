@@ -1,0 +1,130 @@
+{
+  "id": "zh-cn-religious-01",
+  "category": "declaration_quality",
+  "scorer": "declaration_quality_live",
+  "tags": [
+    "zh",
+    "calibration",
+    "cn"
+  ],
+  "input": {
+    "transcript": {
+      "source_language": "zh",
+      "segments": [
+        {
+          "start": 0.0,
+          "end": 30.0,
+          "speaker": "client",
+          "source_text": "我是来自中国的L.W.",
+          "english_text": "I am L.W. from China."
+        },
+        {
+          "start": 30.0,
+          "end": 60.0,
+          "speaker": "client",
+          "source_text": "2022年因为家庭教会被拘留",
+          "english_text": "In 2022 police detained me for attending a house church."
+        }
+      ],
+      "full_source_text": "我是来自中国的L.W. 2022年因为家庭教会被拘留",
+      "full_english_text": "I am L.W. from China. In 2022 police detained me for attending a house church."
+    },
+    "prior_statements": [],
+    "case_metadata": {
+      "pseudonym": "L.W. — China",
+      "country_code": "CN",
+      "basis": "religion",
+      "group_description": "Chinese Christians targeted for house church participation"
+    }
+  },
+  "expected": {
+    "rubric_path": "declaration_v1.md",
+    "min_score": 4,
+    "min_criteria": {
+      "faithfulness_to_source": 4.5
+    },
+    "gold_declaration": {
+      "sections": {
+        "identity_background": {
+          "section_id": "identity_background",
+          "paragraphs": [
+            {
+              "id": "identity_background:p0",
+              "text": "I am L.W. from China.",
+              "source_segment_ids": [
+                "seg-0"
+              ],
+              "inference_spans": []
+            }
+          ]
+        },
+        "past_persecution": {
+          "section_id": "past_persecution",
+          "paragraphs": [
+            {
+              "id": "past_persecution:p0",
+              "text": "In 2022, police detained me for attending a house church.",
+              "source_segment_ids": [
+                "seg-0"
+              ],
+              "inference_spans": []
+            }
+          ]
+        },
+        "perpetrator_motivation": {
+          "section_id": "perpetrator_motivation",
+          "paragraphs": [
+            {
+              "id": "perpetrator_motivation:p0",
+              "text": "They punished me because of my Christian faith outside state control.",
+              "source_segment_ids": [
+                "seg-0"
+              ],
+              "inference_spans": []
+            }
+          ]
+        },
+        "well_founded_fear_future": {
+          "section_id": "well_founded_fear_future",
+          "paragraphs": [
+            {
+              "id": "well_founded_fear_future:p0",
+              "text": "I fear detention if returned for continuing religious practice.",
+              "source_segment_ids": [
+                "seg-0"
+              ],
+              "inference_spans": []
+            }
+          ]
+        },
+        "internal_relocation": {
+          "section_id": "internal_relocation",
+          "paragraphs": [
+            {
+              "id": "internal_relocation:p0",
+              "text": "Police can locate house church members across provinces.",
+              "source_segment_ids": [
+                "seg-0"
+              ],
+              "inference_spans": []
+            }
+          ]
+        },
+        "filing_bar_facts": {
+          "section_id": "filing_bar_facts",
+          "paragraphs": [
+            {
+              "id": "filing_bar_facts:p0",
+              "text": "I entered the United States in June 2023.",
+              "source_segment_ids": [
+                "seg-0"
+              ],
+              "inference_spans": []
+            }
+          ]
+        }
+      },
+      "notes": "PIR reference — China religion."
+    }
+  }
+}

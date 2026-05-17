@@ -1,0 +1,130 @@
+{
+  "id": "ti-er-teacher-02",
+  "category": "declaration_quality",
+  "scorer": "declaration_quality_live",
+  "tags": [
+    "ti",
+    "calibration",
+    "er"
+  ],
+  "input": {
+    "transcript": {
+      "source_language": "ti",
+      "segments": [
+        {
+          "start": 0.0,
+          "end": 30.0,
+          "speaker": "client",
+          "source_text": "ኣነ መምህር ነበርኩ",
+          "english_text": "I was a teacher in Asmara."
+        },
+        {
+          "start": 30.0,
+          "end": 60.0,
+          "speaker": "client",
+          "source_text": "ኣብ 2022 ብሓደሮ ሰነይ ተኣሲረ",
+          "english_text": "In June 2022 security agents detained me for refusing propaganda lessons."
+        }
+      ],
+      "full_source_text": "ኣነ መምህር ነበርኩ ኣብ 2022 ብሓደሮ ሰነይ ተኣሲረ",
+      "full_english_text": "I was a teacher in Asmara. In June 2022 security agents detained me for refusing propaganda lessons."
+    },
+    "prior_statements": [],
+    "case_metadata": {
+      "pseudonym": "T.B. — Eritrea",
+      "country_code": "ER",
+      "basis": "political_opinion",
+      "group_description": "Eritrean educators who resist state curriculum"
+    }
+  },
+  "expected": {
+    "rubric_path": "declaration_v1.md",
+    "min_score": 4,
+    "min_criteria": {
+      "faithfulness_to_source": 4.5
+    },
+    "gold_declaration": {
+      "sections": {
+        "identity_background": {
+          "section_id": "identity_background",
+          "paragraphs": [
+            {
+              "id": "identity_background:p0",
+              "text": "I am T.B., a teacher from Eritrea.",
+              "source_segment_ids": [
+                "seg-0"
+              ],
+              "inference_spans": []
+            }
+          ]
+        },
+        "past_persecution": {
+          "section_id": "past_persecution",
+          "paragraphs": [
+            {
+              "id": "past_persecution:p0",
+              "text": "In June 2022, security agents detained me for refusing propaganda lessons.",
+              "source_segment_ids": [
+                "seg-0"
+              ],
+              "inference_spans": []
+            }
+          ]
+        },
+        "perpetrator_motivation": {
+          "section_id": "perpetrator_motivation",
+          "paragraphs": [
+            {
+              "id": "perpetrator_motivation:p0",
+              "text": "They punished me because I refused to teach government propaganda.",
+              "source_segment_ids": [
+                "seg-0"
+              ],
+              "inference_spans": []
+            }
+          ]
+        },
+        "well_founded_fear_future": {
+          "section_id": "well_founded_fear_future",
+          "paragraphs": [
+            {
+              "id": "well_founded_fear_future:p0",
+              "text": "I fear detention if returned because the state monitors educators.",
+              "source_segment_ids": [
+                "seg-0"
+              ],
+              "inference_spans": []
+            }
+          ]
+        },
+        "internal_relocation": {
+          "section_id": "internal_relocation",
+          "paragraphs": [
+            {
+              "id": "internal_relocation:p0",
+              "text": "Relocation within Eritrea would not protect me from national surveillance.",
+              "source_segment_ids": [
+                "seg-0"
+              ],
+              "inference_spans": []
+            }
+          ]
+        },
+        "filing_bar_facts": {
+          "section_id": "filing_bar_facts",
+          "paragraphs": [
+            {
+              "id": "filing_bar_facts:p0",
+              "text": "I arrived in the United States in January 2024.",
+              "source_segment_ids": [
+                "seg-0"
+              ],
+              "inference_spans": []
+            }
+          ]
+        }
+      },
+      "notes": "PIR reference — Eritrean teacher political opinion."
+    }
+  }
+}

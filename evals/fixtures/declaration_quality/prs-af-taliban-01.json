@@ -1,0 +1,129 @@
+{
+  "id": "prs-af-taliban-01",
+  "category": "declaration_quality",
+  "scorer": "declaration_quality_live",
+  "tags": [
+    "prs",
+    "af"
+  ],
+  "input": {
+    "transcript": {
+      "source_language": "prs",
+      "segments": [
+        {
+          "start": 0.0,
+          "end": 30.0,
+          "speaker": "client",
+          "source_text": "من از افغانستان هستم",
+          "english_text": "I am from Afghanistan."
+        },
+        {
+          "start": 30.0,
+          "end": 60.0,
+          "speaker": "client",
+          "source_text": "طالبان مرا تهدید کردند",
+          "english_text": "The Taliban threatened me in 2023 for working with a NGO."
+        }
+      ],
+      "full_source_text": "من از افغانستان هستم طالبان مرا تهدید کردند",
+      "full_english_text": "I am from Afghanistan. The Taliban threatened me in 2023 for working with a NGO."
+    },
+    "prior_statements": [],
+    "case_metadata": {
+      "pseudonym": "F.H. — Afghanistan",
+      "country_code": "AF",
+      "basis": "political_opinion",
+      "group_description": "Afghans targeted by the Taliban for NGO affiliation"
+    }
+  },
+  "expected": {
+    "rubric_path": "declaration_v1.md",
+    "min_score": 4,
+    "min_criteria": {
+      "faithfulness_to_source": 4.5
+    },
+    "gold_declaration": {
+      "sections": {
+        "identity_background": {
+          "section_id": "identity_background",
+          "paragraphs": [
+            {
+              "id": "identity_background:p0",
+              "text": "I am F.H. from Afghanistan.",
+              "source_segment_ids": [
+                "seg-0"
+              ],
+              "inference_spans": []
+            }
+          ]
+        },
+        "past_persecution": {
+          "section_id": "past_persecution",
+          "paragraphs": [
+            {
+              "id": "past_persecution:p0",
+              "text": "In 2023, the Taliban threatened me for working with an NGO.",
+              "source_segment_ids": [
+                "seg-0"
+              ],
+              "inference_spans": []
+            }
+          ]
+        },
+        "perpetrator_motivation": {
+          "section_id": "perpetrator_motivation",
+          "paragraphs": [
+            {
+              "id": "perpetrator_motivation:p0",
+              "text": "They targeted me for perceived opposition to their rule.",
+              "source_segment_ids": [
+                "seg-0"
+              ],
+              "inference_spans": []
+            }
+          ]
+        },
+        "well_founded_fear_future": {
+          "section_id": "well_founded_fear_future",
+          "paragraphs": [
+            {
+              "id": "well_founded_fear_future:p0",
+              "text": "I fear detention or execution if returned.",
+              "source_segment_ids": [
+                "seg-0"
+              ],
+              "inference_spans": []
+            }
+          ]
+        },
+        "internal_relocation": {
+          "section_id": "internal_relocation",
+          "paragraphs": [
+            {
+              "id": "internal_relocation:p0",
+              "text": "The Taliban controls the country.",
+              "source_segment_ids": [
+                "seg-0"
+              ],
+              "inference_spans": []
+            }
+          ]
+        },
+        "filing_bar_facts": {
+          "section_id": "filing_bar_facts",
+          "paragraphs": [
+            {
+              "id": "filing_bar_facts:p0",
+              "text": "I entered the United States in January 2024.",
+              "source_segment_ids": [
+                "seg-0"
+              ],
+              "inference_spans": []
+            }
+          ]
+        }
+      },
+      "notes": "PIR reference — Afghanistan Taliban."
+    }
+  }
+}

@@ -16,6 +16,7 @@ import uuid
 from datetime import UTC, date, datetime
 
 from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 
 from cases.models import Case, CaseAssignmentRole, ClaimBasis
 from cases.repository import CaseRepository
@@ -33,7 +34,7 @@ def _ortho_vec(dim_index: int) -> list[float]:
 
 
 _ORG_SLUG = "wf-e2e-cc"
-_USER_EMAIL = "e2e-cc-attorney@example.test"
+_USER_EMAIL = "e2e-cc-attorney@example.com"
 _PASSAGE_TEXT = (
     "E2E seeded passage text for citation drawer verification. "
     "Conditions on the ground are documented in official sources."
@@ -86,15 +87,19 @@ async def _run() -> None:
             )
             await session.flush()
 
-        stmt = select(Case).where(
-            Case.organization_id == org.id,
-            Case.pseudonym == "E2E M.A. — Eritrea",
-            Case.deleted_at.is_(None),
+        stmt = (
+            select(Case)
+            .options(selectinload(Case.assignments))
+            .where(
+                Case.organization_id == org.id,
+                Case.pseudonym == "E2E M.A. — Eritrea",
+                Case.deleted_at.is_(None),
+            )
         )
         result = await session.execute(stmt)
         case_row = result.scalar_one_or_none()
+        case_repo = CaseRepository(session)
         if case_row is None:
-            case_repo = CaseRepository(session)
             case_row = await case_repo.create_case(
                 organization_id=org.id,
                 created_by_user_id=user.id,
@@ -107,6 +112,19 @@ async def _run() -> None:
                 intake_notes="E2E seed",
                 assignments=[(user.id, CaseAssignmentRole.lead_attorney)],
             )
+        else:
+            assigned = any(
+                a.user_id == user.id
+                and a.role_on_case is CaseAssignmentRole.lead_attorney
+                for a in case_row.assignments
+            )
+            if not assigned:
+                await case_repo.apply_assignment_changes(
+                    org.id,
+                    case_row.id,
+                    add=[(user.id, CaseAssignmentRole.lead_attorney)],
+                    remove=[],
+                )
 
         await session.commit()
         payload = {

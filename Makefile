@@ -1,6 +1,6 @@
 COMPOSE := docker-compose -f infra/local/docker-compose.yml
 
-.PHONY: up up-fresh down db-migrate db-revision api web test test-e2e test-transcription lint ingest ingest-all refresh-living-sources benchmark-retrieval eval-run eval-view eval-collect-baseline
+.PHONY: up up-fresh down db-migrate db-revision api web test test-e2e test-transcription lint ingest ingest-all refresh-living-sources benchmark-retrieval eval-run eval-view eval-collect-baseline eval-collect-declaration-baseline eval-calibration-check
 
 up:
 	$(COMPOSE) up -d
@@ -73,3 +73,15 @@ eval-collect-baseline:
 	cd apps/api && poetry run python -m evals.runner \
 	  --category citation_faithfulness_live \
 	  --output ../../evals/results/baseline-live-claude-opus-4-7.json
+
+# Refresh the committed declaration quality baseline (live graph + rubric judge).
+# Requires: make up && make db-migrate && ANTHROPIC_API_KEY set in environment.
+eval-collect-declaration-baseline:
+	cd apps/api && poetry run python -m evals.runner \
+	  --category declaration_quality \
+	  --output ../../evals/results/baseline-declaration-claude-opus-4-7.json
+
+eval-calibration-check:
+	cd apps/api && poetry run python -m evals.calibration_compare \
+	  ../../evals/results/baseline-declaration-claude-opus-4-7.json \
+	  ../../evals/calibration/declaration_practitioner_scores.json

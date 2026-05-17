@@ -26,6 +26,8 @@ make refresh-living-sources  # State Dept + USCIRF + Freedom House (cron)
 make benchmark-retrieval ARGS="--iterations 30 --disable-cache"  # After library load
 make eval-run category=citation_faithfulness   # Run eval harness for a category
 make eval-view a=<a.json> b=<b.json>           # Side-by-side eval result diff
+make eval-collect-declaration-baseline         # Refresh declaration_quality baseline (Postgres + ANTHROPIC_API_KEY)
+make eval-calibration-check                    # Declaration judge vs practitioner calibration (r >= 0.7)
 ```
 
 Run a single API test:

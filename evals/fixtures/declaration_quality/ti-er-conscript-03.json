@@ -1,0 +1,130 @@
+{
+  "id": "ti-er-conscript-03",
+  "category": "declaration_quality",
+  "scorer": "declaration_quality_live",
+  "tags": [
+    "ti",
+    "calibration",
+    "er"
+  ],
+  "input": {
+    "transcript": {
+      "source_language": "ti",
+      "segments": [
+        {
+          "start": 0.0,
+          "end": 30.0,
+          "speaker": "client",
+          "source_text": "ካብ ምዕራፍ ስደት",
+          "english_text": "I fled indefinite national service."
+        },
+        {
+          "start": 30.0,
+          "end": 60.0,
+          "speaker": "client",
+          "source_text": "ብሓደሮ ሰነይ 2021 ተሓዝኩ",
+          "english_text": "In 2021 military police beat me when I tried to leave a camp."
+        }
+      ],
+      "full_source_text": "ካብ ምዕራፍ ስደት ብሓደሮ ሰነይ 2021 ተሓዝኩ",
+      "full_english_text": "I fled indefinite national service. In 2021 military police beat me when I tried to leave a camp."
+    },
+    "prior_statements": [],
+    "case_metadata": {
+      "pseudonym": "S.K. — Eritrea",
+      "country_code": "ER",
+      "basis": "particular_social_group",
+      "group_description": "Eritreans who fled indefinite national service"
+    }
+  },
+  "expected": {
+    "rubric_path": "declaration_v1.md",
+    "min_score": 4,
+    "min_criteria": {
+      "faithfulness_to_source": 4.5
+    },
+    "gold_declaration": {
+      "sections": {
+        "identity_background": {
+          "section_id": "identity_background",
+          "paragraphs": [
+            {
+              "id": "identity_background:p0",
+              "text": "I am S.K. from Eritrea.",
+              "source_segment_ids": [
+                "seg-0"
+              ],
+              "inference_spans": []
+            }
+          ]
+        },
+        "past_persecution": {
+          "section_id": "past_persecution",
+          "paragraphs": [
+            {
+              "id": "past_persecution:p0",
+              "text": "In 2021, military police beat me when I tried to leave a service camp.",
+              "source_segment_ids": [
+                "seg-0"
+              ],
+              "inference_spans": []
+            }
+          ]
+        },
+        "perpetrator_motivation": {
+          "section_id": "perpetrator_motivation",
+          "paragraphs": [
+            {
+              "id": "perpetrator_motivation:p0",
+              "text": "They punished me for attempting to escape indefinite conscription.",
+              "source_segment_ids": [
+                "seg-0"
+              ],
+              "inference_spans": []
+            }
+          ]
+        },
+        "well_founded_fear_future": {
+          "section_id": "well_founded_fear_future",
+          "paragraphs": [
+            {
+              "id": "well_founded_fear_future:p0",
+              "text": "I fear forced return to military service and punishment.",
+              "source_segment_ids": [
+                "seg-0"
+              ],
+              "inference_spans": []
+            }
+          ]
+        },
+        "internal_relocation": {
+          "section_id": "internal_relocation",
+          "paragraphs": [
+            {
+              "id": "internal_relocation:p0",
+              "text": "There is no safe place in Eritrea outside state control.",
+              "source_segment_ids": [
+                "seg-0"
+              ],
+              "inference_spans": []
+            }
+          ]
+        },
+        "filing_bar_facts": {
+          "section_id": "filing_bar_facts",
+          "paragraphs": [
+            {
+              "id": "filing_bar_facts:p0",
+              "text": "I entered the United States in March 2022.",
+              "source_segment_ids": [
+                "seg-0"
+              ],
+              "inference_spans": []
+            }
+          ]
+        }
+      },
+      "notes": "PIR reference — Eritrean national service."
+    }
+  }
+}

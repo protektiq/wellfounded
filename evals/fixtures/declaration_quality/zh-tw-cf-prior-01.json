@@ -1,0 +1,137 @@
+{
+  "id": "zh-tw-cf-prior-01",
+  "category": "declaration_quality",
+  "scorer": "declaration_quality_live",
+  "tags": [
+    "zh",
+    "tw"
+  ],
+  "input": {
+    "transcript": {
+      "source_language": "zh",
+      "segments": [
+        {
+          "start": 0.0,
+          "end": 30.0,
+          "speaker": "client",
+          "source_text": "我来自台湾",
+          "english_text": "I am from Taiwan."
+        },
+        {
+          "start": 30.0,
+          "end": 60.0,
+          "speaker": "client",
+          "source_text": "2024年3月有两名男子威胁我",
+          "english_text": "In March 2024 two men threatened me at my workplace."
+        }
+      ],
+      "full_source_text": "我来自台湾 2024年3月有两名男子威胁我",
+      "full_english_text": "I am from Taiwan. In March 2024 two men threatened me at my workplace."
+    },
+    "prior_statements": [
+      {
+        "id": "cccccccc-cccc-dddd-eeee-ffffffff0002",
+        "statement_type": "credible_fear_interview",
+        "source_language": "zh",
+        "source_text": "2024年1月有三个人",
+        "english_text": "In January 2024 three men threatened me at my workplace."
+      }
+    ],
+    "case_metadata": {
+      "pseudonym": "K.L. — Taiwan",
+      "country_code": "TW",
+      "basis": "political_opinion",
+      "group_description": "Taiwanese civil society members threatened for activism"
+    }
+  },
+  "expected": {
+    "rubric_path": "declaration_v1.md",
+    "min_score": 4,
+    "min_criteria": {
+      "faithfulness_to_source": 4.5
+    },
+    "gold_declaration": {
+      "sections": {
+        "identity_background": {
+          "section_id": "identity_background",
+          "paragraphs": [
+            {
+              "id": "identity_background:p0",
+              "text": "I am K.L. from Taiwan.",
+              "source_segment_ids": [
+                "seg-0"
+              ],
+              "inference_spans": []
+            }
+          ]
+        },
+        "past_persecution": {
+          "section_id": "past_persecution",
+          "paragraphs": [
+            {
+              "id": "past_persecution:p0",
+              "text": "In March 2024, two men threatened me at my workplace.",
+              "source_segment_ids": [
+                "seg-0"
+              ],
+              "inference_spans": []
+            }
+          ]
+        },
+        "perpetrator_motivation": {
+          "section_id": "perpetrator_motivation",
+          "paragraphs": [
+            {
+              "id": "perpetrator_motivation:p0",
+              "text": "They targeted me because of my political activism.",
+              "source_segment_ids": [
+                "seg-0"
+              ],
+              "inference_spans": []
+            }
+          ]
+        },
+        "well_founded_fear_future": {
+          "section_id": "well_founded_fear_future",
+          "paragraphs": [
+            {
+              "id": "well_founded_fear_future:p0",
+              "text": "I fear further threats if returned.",
+              "source_segment_ids": [
+                "seg-0"
+              ],
+              "inference_spans": []
+            }
+          ]
+        },
+        "internal_relocation": {
+          "section_id": "internal_relocation",
+          "paragraphs": [
+            {
+              "id": "internal_relocation:p0",
+              "text": "The same networks operate in other cities.",
+              "source_segment_ids": [
+                "seg-0"
+              ],
+              "inference_spans": []
+            }
+          ]
+        },
+        "filing_bar_facts": {
+          "section_id": "filing_bar_facts",
+          "paragraphs": [
+            {
+              "id": "filing_bar_facts:p0",
+              "text": "I entered the United States in June 2024.",
+              "source_segment_ids": [
+                "seg-0"
+              ],
+              "inference_spans": []
+            }
+          ]
+        }
+      },
+      "notes": "PIR reference — Taiwan with prior statement inconsistency."
+    }
+  }
+}
