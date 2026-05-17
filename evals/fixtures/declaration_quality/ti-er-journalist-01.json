@@ -1,0 +1,145 @@
+{
+  "id": "ti-er-journalist-01",
+  "category": "declaration_quality",
+  "scorer": "declaration_quality_live",
+  "tags": [
+    "ti",
+    "calibration",
+    "er"
+  ],
+  "input": {
+    "transcript": {
+      "source_language": "ti",
+      "segments": [
+        {
+          "start": 0.0,
+          "end": 30.0,
+          "speaker": "client",
+          "source_text": "እየ ስምየ M.A.",
+          "english_text": "My name is M.A."
+        },
+        {
+          "start": 30.0,
+          "end": 60.0,
+          "speaker": "client",
+          "source_text": "ብሓደሮ ሰነይ 2023 ኣርባዕተ ሰባት",
+          "english_text": "In March 2023 four men in plain clothes detained me at my office."
+        },
+        {
+          "start": 60.0,
+          "end": 90.0,
+          "speaker": "client",
+          "source_text": "ስለ ዘካየድኩዎም ዜና",
+          "english_text": "They said it was because of my reporting on the government."
+        }
+      ],
+      "full_source_text": "እየ ስምየ M.A. ብሓደሮ ሰነይ 2023 ኣርባዕተ ሰባት ስለ ዘካየድኩዎም ዜና",
+      "full_english_text": "My name is M.A. In March 2023 four men in plain clothes detained me at my office. They said it was because of my reporting on the government."
+    },
+    "prior_statements": [
+      {
+        "id": "bbbbbbbb-bbbb-cccc-dddd-eeeeeeee0001",
+        "statement_type": "credible_fear_interview",
+        "source_language": "ti",
+        "source_text": "ሰለስተ ሰባት",
+        "english_text": "Three men in plain clothes grabbed me at my office in March 2023."
+      }
+    ],
+    "case_metadata": {
+      "pseudonym": "M.A. — Eritrea",
+      "country_code": "ER",
+      "basis": "political_opinion",
+      "group_description": "Eritrean journalists"
+    }
+  },
+  "expected": {
+    "rubric_path": "declaration_v1.md",
+    "min_score": 4,
+    "min_criteria": {
+      "faithfulness_to_source": 4.5
+    },
+    "gold_declaration": {
+      "sections": {
+        "identity_background": {
+          "section_id": "identity_background",
+          "paragraphs": [
+            {
+              "id": "identity_background:p0",
+              "text": "I am M.A., a journalist from Eritrea.",
+              "source_segment_ids": [
+                "seg-0"
+              ],
+              "inference_spans": []
+            }
+          ]
+        },
+        "past_persecution": {
+          "section_id": "past_persecution",
+          "paragraphs": [
+            {
+              "id": "past_persecution:p0",
+              "text": "In March 2023, four men in plain clothes detained me at my office.",
+              "source_segment_ids": [
+                "seg-0"
+              ],
+              "inference_spans": []
+            }
+          ]
+        },
+        "perpetrator_motivation": {
+          "section_id": "perpetrator_motivation",
+          "paragraphs": [
+            {
+              "id": "perpetrator_motivation:p0",
+              "text": "They targeted me because of my reporting critical of the government.",
+              "source_segment_ids": [
+                "seg-0"
+              ],
+              "inference_spans": []
+            }
+          ]
+        },
+        "well_founded_fear_future": {
+          "section_id": "well_founded_fear_future",
+          "paragraphs": [
+            {
+              "id": "well_founded_fear_future:p0",
+              "text": "I fear arrest and indefinite detention if I am returned.",
+              "source_segment_ids": [
+                "seg-0"
+              ],
+              "inference_spans": []
+            }
+          ]
+        },
+        "internal_relocation": {
+          "section_id": "internal_relocation",
+          "paragraphs": [
+            {
+              "id": "internal_relocation:p0",
+              "text": "I cannot live safely elsewhere in Eritrea because of surveillance.",
+              "source_segment_ids": [
+                "seg-0"
+              ],
+              "inference_spans": []
+            }
+          ]
+        },
+        "filing_bar_facts": {
+          "section_id": "filing_bar_facts",
+          "paragraphs": [
+            {
+              "id": "filing_bar_facts:p0",
+              "text": "I entered the United States in April 2023.",
+              "source_segment_ids": [
+                "seg-0"
+              ],
+              "inference_spans": []
+            }
+          ]
+        }
+      },
+      "notes": "PIR reference — Eritrean journalist canonical demo."
+    }
+  }
+}

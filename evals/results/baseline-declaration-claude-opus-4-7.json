@@ -1,0 +1,521 @@
+{
+  "runner_version": 1,
+  "run_id": "baseline-seed",
+  "git_sha": "baseline",
+  "category": "declaration_quality",
+  "started_at": "2026-05-17T03:44:22+00:00",
+  "finished_at": "2026-05-17T03:44:22+00:00",
+  "fixtures_root": "/home/carlos/wellfounded/evals/fixtures",
+  "fixtures": [
+    {
+      "fixture_id": "es-hn-gender-01",
+      "fixture_path": "declaration_quality/es-hn-gender-01.json",
+      "scorer": "declaration_quality_live",
+      "model_id": "claude-opus-4-7",
+      "latency_ms": 0,
+      "result": {
+        "score": 4.0,
+        "passed": true,
+        "error": null,
+        "details": {
+          "judge_score": 4,
+          "criteria": {
+            "faithfulness_to_source": 5,
+            "structural_completeness": 4,
+            "voice_authenticity": 4,
+            "flag_accuracy": 4,
+            "legal_element_coverage": 4
+          },
+          "reasoning": "Engineering-seeded baseline; replace via eval-collect-declaration-baseline.",
+          "rubric_path": "declaration_v1.md",
+          "threshold": 4,
+          "min_criteria": {
+            "faithfulness_to_source": 4.5
+          },
+          "failures": [],
+          "evaluation_package_hash": "seed000000000000",
+          "flag_count": 0,
+          "model_versions": {
+            "draft": "claude-opus-4-7"
+          }
+        }
+      }
+    },
+    {
+      "fixture_id": "es-mx-political-01",
+      "fixture_path": "declaration_quality/es-mx-political-01.json",
+      "scorer": "declaration_quality_live",
+      "model_id": "claude-opus-4-7",
+      "latency_ms": 0,
+      "result": {
+        "score": 4.0,
+        "passed": true,
+        "error": null,
+        "details": {
+          "judge_score": 4,
+          "criteria": {
+            "faithfulness_to_source": 5,
+            "structural_completeness": 4,
+            "voice_authenticity": 4,
+            "flag_accuracy": 4,
+            "legal_element_coverage": 4
+          },
+          "reasoning": "Engineering-seeded baseline; replace via eval-collect-declaration-baseline.",
+          "rubric_path": "declaration_v1.md",
+          "threshold": 4,
+          "min_criteria": {
+            "faithfulness_to_source": 4.5
+          },
+          "failures": [],
+          "evaluation_package_hash": "seed000000000000",
+          "flag_count": 0,
+          "model_versions": {
+            "draft": "claude-opus-4-7"
+          }
+        }
+      }
+    },
+    {
+      "fixture_id": "es-ve-gang-01",
+      "fixture_path": "declaration_quality/es-ve-gang-01.json",
+      "scorer": "declaration_quality_live",
+      "model_id": "claude-opus-4-7",
+      "latency_ms": 0,
+      "result": {
+        "score": 4.0,
+        "passed": true,
+        "error": null,
+        "details": {
+          "judge_score": 4,
+          "criteria": {
+            "faithfulness_to_source": 5,
+            "structural_completeness": 4,
+            "voice_authenticity": 4,
+            "flag_accuracy": 4,
+            "legal_element_coverage": 4
+          },
+          "reasoning": "Engineering-seeded baseline; replace via eval-collect-declaration-baseline.",
+          "rubric_path": "declaration_v1.md",
+          "threshold": 4,
+          "min_criteria": {
+            "faithfulness_to_source": 4.5
+          },
+          "failures": [],
+          "evaluation_package_hash": "seed000000000000",
+          "flag_count": 0,
+          "model_versions": {
+            "draft": "claude-opus-4-7"
+          }
+        }
+      }
+    },
+    {
+      "fixture_id": "fr-cm-francophone-01",
+      "fixture_path": "declaration_quality/fr-cm-francophone-01.json",
+      "scorer": "declaration_quality_live",
+      "model_id": "claude-opus-4-7",
+      "latency_ms": 0,
+      "result": {
+        "score": 4.0,
+        "passed": true,
+        "error": null,
+        "details": {
+          "judge_score": 4,
+          "criteria": {
+            "faithfulness_to_source": 5,
+            "structural_completeness": 4,
+            "voice_authenticity": 4,
+            "flag_accuracy": 4,
+            "legal_element_coverage": 4
+          },
+          "reasoning": "Engineering-seeded baseline; replace via eval-collect-declaration-baseline.",
+          "rubric_path": "declaration_v1.md",
+          "threshold": 4,
+          "min_criteria": {
+            "faithfulness_to_source": 4.5
+          },
+          "failures": [],
+          "evaluation_package_hash": "seed000000000000",
+          "flag_count": 0,
+          "model_versions": {
+            "draft": "claude-opus-4-7"
+          }
+        }
+      }
+    },
+    {
+      "fixture_id": "fr-ht-political-01",
+      "fixture_path": "declaration_quality/fr-ht-political-01.json",
+      "scorer": "declaration_quality_live",
+      "model_id": "claude-opus-4-7",
+      "latency_ms": 0,
+      "result": {
+        "score": 4.0,
+        "passed": true,
+        "error": null,
+        "details": {
+          "judge_score": 4,
+          "criteria": {
+            "faithfulness_to_source": 5,
+            "structural_completeness": 4,
+            "voice_authenticity": 4,
+            "flag_accuracy": 4,
+            "legal_element_coverage": 4
+          },
+          "reasoning": "Engineering-seeded baseline; replace via eval-collect-declaration-baseline.",
+          "rubric_path": "declaration_v1.md",
+          "threshold": 4,
+          "min_criteria": {
+            "faithfulness_to_source": 4.5
+          },
+          "failures": [],
+          "evaluation_package_hash": "seed000000000000",
+          "flag_count": 0,
+          "model_versions": {
+            "draft": "claude-opus-4-7"
+          }
+        }
+      }
+    },
+    {
+      "fixture_id": "ht-gang-01",
+      "fixture_path": "declaration_quality/ht-gang-01.json",
+      "scorer": "declaration_quality_live",
+      "model_id": "claude-opus-4-7",
+      "latency_ms": 0,
+      "result": {
+        "score": 4.0,
+        "passed": true,
+        "error": null,
+        "details": {
+          "judge_score": 4,
+          "criteria": {
+            "faithfulness_to_source": 5,
+            "structural_completeness": 4,
+            "voice_authenticity": 4,
+            "flag_accuracy": 4,
+            "legal_element_coverage": 4
+          },
+          "reasoning": "Engineering-seeded baseline; replace via eval-collect-declaration-baseline.",
+          "rubric_path": "declaration_v1.md",
+          "threshold": 4,
+          "min_criteria": {
+            "faithfulness_to_source": 4.5
+          },
+          "failures": [],
+          "evaluation_package_hash": "seed000000000000",
+          "flag_count": 0,
+          "model_versions": {
+            "draft": "claude-opus-4-7"
+          }
+        }
+      }
+    },
+    {
+      "fixture_id": "ht-political-02",
+      "fixture_path": "declaration_quality/ht-political-02.json",
+      "scorer": "declaration_quality_live",
+      "model_id": "claude-opus-4-7",
+      "latency_ms": 0,
+      "result": {
+        "score": 4.0,
+        "passed": true,
+        "error": null,
+        "details": {
+          "judge_score": 4,
+          "criteria": {
+            "faithfulness_to_source": 5,
+            "structural_completeness": 4,
+            "voice_authenticity": 4,
+            "flag_accuracy": 4,
+            "legal_element_coverage": 4
+          },
+          "reasoning": "Engineering-seeded baseline; replace via eval-collect-declaration-baseline.",
+          "rubric_path": "declaration_v1.md",
+          "threshold": 4,
+          "min_criteria": {
+            "faithfulness_to_source": 4.5
+          },
+          "failures": [],
+          "evaluation_package_hash": "seed000000000000",
+          "flag_count": 0,
+          "model_versions": {
+            "draft": "claude-opus-4-7"
+          }
+        }
+      }
+    },
+    {
+      "fixture_id": "prs-af-interpreter-01",
+      "fixture_path": "declaration_quality/prs-af-interpreter-01.json",
+      "scorer": "declaration_quality_live",
+      "model_id": "claude-opus-4-7",
+      "latency_ms": 0,
+      "result": {
+        "score": 4.0,
+        "passed": true,
+        "error": null,
+        "details": {
+          "judge_score": 4,
+          "criteria": {
+            "faithfulness_to_source": 5,
+            "structural_completeness": 4,
+            "voice_authenticity": 4,
+            "flag_accuracy": 4,
+            "legal_element_coverage": 4
+          },
+          "reasoning": "Engineering-seeded baseline; replace via eval-collect-declaration-baseline.",
+          "rubric_path": "declaration_v1.md",
+          "threshold": 4,
+          "min_criteria": {
+            "faithfulness_to_source": 4.5
+          },
+          "failures": [],
+          "evaluation_package_hash": "seed000000000000",
+          "flag_count": 0,
+          "model_versions": {
+            "draft": "claude-opus-4-7"
+          }
+        }
+      }
+    },
+    {
+      "fixture_id": "prs-af-taliban-01",
+      "fixture_path": "declaration_quality/prs-af-taliban-01.json",
+      "scorer": "declaration_quality_live",
+      "model_id": "claude-opus-4-7",
+      "latency_ms": 0,
+      "result": {
+        "score": 4.0,
+        "passed": true,
+        "error": null,
+        "details": {
+          "judge_score": 4,
+          "criteria": {
+            "faithfulness_to_source": 5,
+            "structural_completeness": 4,
+            "voice_authenticity": 4,
+            "flag_accuracy": 4,
+            "legal_element_coverage": 4
+          },
+          "reasoning": "Engineering-seeded baseline; replace via eval-collect-declaration-baseline.",
+          "rubric_path": "declaration_v1.md",
+          "threshold": 4,
+          "min_criteria": {
+            "faithfulness_to_source": 4.5
+          },
+          "failures": [],
+          "evaluation_package_hash": "seed000000000000",
+          "flag_count": 0,
+          "model_versions": {
+            "draft": "claude-opus-4-7"
+          }
+        }
+      }
+    },
+    {
+      "fixture_id": "ti-er-conscript-03",
+      "fixture_path": "declaration_quality/ti-er-conscript-03.json",
+      "scorer": "declaration_quality_live",
+      "model_id": "claude-opus-4-7",
+      "latency_ms": 0,
+      "result": {
+        "score": 4.0,
+        "passed": true,
+        "error": null,
+        "details": {
+          "judge_score": 4,
+          "criteria": {
+            "faithfulness_to_source": 5,
+            "structural_completeness": 4,
+            "voice_authenticity": 4,
+            "flag_accuracy": 4,
+            "legal_element_coverage": 4
+          },
+          "reasoning": "Engineering-seeded baseline; replace via eval-collect-declaration-baseline.",
+          "rubric_path": "declaration_v1.md",
+          "threshold": 4,
+          "min_criteria": {
+            "faithfulness_to_source": 4.5
+          },
+          "failures": [],
+          "evaluation_package_hash": "seed000000000000",
+          "flag_count": 0,
+          "model_versions": {
+            "draft": "claude-opus-4-7"
+          }
+        }
+      }
+    },
+    {
+      "fixture_id": "ti-er-journalist-01",
+      "fixture_path": "declaration_quality/ti-er-journalist-01.json",
+      "scorer": "declaration_quality_live",
+      "model_id": "claude-opus-4-7",
+      "latency_ms": 0,
+      "result": {
+        "score": 4.0,
+        "passed": true,
+        "error": null,
+        "details": {
+          "judge_score": 4,
+          "criteria": {
+            "faithfulness_to_source": 5,
+            "structural_completeness": 4,
+            "voice_authenticity": 4,
+            "flag_accuracy": 4,
+            "legal_element_coverage": 4
+          },
+          "reasoning": "Engineering-seeded baseline; replace via eval-collect-declaration-baseline.",
+          "rubric_path": "declaration_v1.md",
+          "threshold": 4,
+          "min_criteria": {
+            "faithfulness_to_source": 4.5
+          },
+          "failures": [],
+          "evaluation_package_hash": "seed000000000000",
+          "flag_count": 0,
+          "model_versions": {
+            "draft": "claude-opus-4-7"
+          }
+        }
+      }
+    },
+    {
+      "fixture_id": "ti-er-teacher-02",
+      "fixture_path": "declaration_quality/ti-er-teacher-02.json",
+      "scorer": "declaration_quality_live",
+      "model_id": "claude-opus-4-7",
+      "latency_ms": 0,
+      "result": {
+        "score": 4.0,
+        "passed": true,
+        "error": null,
+        "details": {
+          "judge_score": 4,
+          "criteria": {
+            "faithfulness_to_source": 5,
+            "structural_completeness": 4,
+            "voice_authenticity": 4,
+            "flag_accuracy": 4,
+            "legal_element_coverage": 4
+          },
+          "reasoning": "Engineering-seeded baseline; replace via eval-collect-declaration-baseline.",
+          "rubric_path": "declaration_v1.md",
+          "threshold": 4,
+          "min_criteria": {
+            "faithfulness_to_source": 4.5
+          },
+          "failures": [],
+          "evaluation_package_hash": "seed000000000000",
+          "flag_count": 0,
+          "model_versions": {
+            "draft": "claude-opus-4-7"
+          }
+        }
+      }
+    },
+    {
+      "fixture_id": "zh-cn-political-02",
+      "fixture_path": "declaration_quality/zh-cn-political-02.json",
+      "scorer": "declaration_quality_live",
+      "model_id": "claude-opus-4-7",
+      "latency_ms": 0,
+      "result": {
+        "score": 4.0,
+        "passed": true,
+        "error": null,
+        "details": {
+          "judge_score": 4,
+          "criteria": {
+            "faithfulness_to_source": 5,
+            "structural_completeness": 4,
+            "voice_authenticity": 4,
+            "flag_accuracy": 4,
+            "legal_element_coverage": 4
+          },
+          "reasoning": "Engineering-seeded baseline; replace via eval-collect-declaration-baseline.",
+          "rubric_path": "declaration_v1.md",
+          "threshold": 4,
+          "min_criteria": {
+            "faithfulness_to_source": 4.5
+          },
+          "failures": [],
+          "evaluation_package_hash": "seed000000000000",
+          "flag_count": 0,
+          "model_versions": {
+            "draft": "claude-opus-4-7"
+          }
+        }
+      }
+    },
+    {
+      "fixture_id": "zh-cn-religious-01",
+      "fixture_path": "declaration_quality/zh-cn-religious-01.json",
+      "scorer": "declaration_quality_live",
+      "model_id": "claude-opus-4-7",
+      "latency_ms": 0,
+      "result": {
+        "score": 4.0,
+        "passed": true,
+        "error": null,
+        "details": {
+          "judge_score": 4,
+          "criteria": {
+            "faithfulness_to_source": 5,
+            "structural_completeness": 4,
+            "voice_authenticity": 4,
+            "flag_accuracy": 4,
+            "legal_element_coverage": 4
+          },
+          "reasoning": "Engineering-seeded baseline; replace via eval-collect-declaration-baseline.",
+          "rubric_path": "declaration_v1.md",
+          "threshold": 4,
+          "min_criteria": {
+            "faithfulness_to_source": 4.5
+          },
+          "failures": [],
+          "evaluation_package_hash": "seed000000000000",
+          "flag_count": 0,
+          "model_versions": {
+            "draft": "claude-opus-4-7"
+          }
+        }
+      }
+    },
+    {
+      "fixture_id": "zh-tw-cf-prior-01",
+      "fixture_path": "declaration_quality/zh-tw-cf-prior-01.json",
+      "scorer": "declaration_quality_live",
+      "model_id": "claude-opus-4-7",
+      "latency_ms": 0,
+      "result": {
+        "score": 4.0,
+        "passed": true,
+        "error": null,
+        "details": {
+          "judge_score": 4,
+          "criteria": {
+            "faithfulness_to_source": 5,
+            "structural_completeness": 4,
+            "voice_authenticity": 4,
+            "flag_accuracy": 4,
+            "legal_element_coverage": 4
+          },
+          "reasoning": "Engineering-seeded baseline; replace via eval-collect-declaration-baseline.",
+          "rubric_path": "declaration_v1.md",
+          "threshold": 4,
+          "min_criteria": {
+            "faithfulness_to_source": 4.5
+          },
+          "failures": [],
+          "evaluation_package_hash": "seed000000000000",
+          "flag_count": 0,
+          "model_versions": {
+            "draft": "claude-opus-4-7"
+          }
+        }
+      }
+    }
+  ]
+}

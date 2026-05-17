@@ -275,7 +275,7 @@ async def run_category(
         llm: LLMClient | None = None
         if session is not None:
             llm = LLMClient(session, organization_id=None, user_id=None)
-        ctx = ScorerContext(llm=llm, rubrics_root=rubrics_root)
+        ctx = ScorerContext(llm=llm, rubrics_root=rubrics_root, session=session)
 
         for p, fx, err in loaded:
             if fx is None:

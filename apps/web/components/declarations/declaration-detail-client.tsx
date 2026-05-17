@@ -45,6 +45,7 @@ export const DeclarationDetailClient = ({
   const router = useRouter();
   const audioRef = useRef<TranscriptAudioHandle | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [drawerInitialMode, setDrawerInitialMode] = useState<"view" | "edit">("view");
   const [activeFlagId, setActiveFlagId] = useState<string | null>(null);
 
   const polling =
@@ -58,7 +59,14 @@ export const DeclarationDetailClient = ({
   }, [router]);
 
   const openFlag = (flagId: string) => {
+    setDrawerInitialMode("view");
     setActiveFlagId(flagId);
+    setDrawerOpen(true);
+  };
+
+  const openFlagForEdit = (flag: DeclarationFlag) => {
+    setDrawerInitialMode("edit");
+    setActiveFlagId(flag.id);
     setDrawerOpen(true);
   };
 
@@ -155,6 +163,7 @@ export const DeclarationDetailClient = ({
             flags={detail.flags}
             activeFlagId={activeFlagId}
             onSelectFlag={openFlag}
+            onEditFlag={openFlagForEdit}
             onResolveQuick={(f) =>
               void quickApply(f, {
                 resolution_text: f.suggested_resolution,
@@ -189,6 +198,7 @@ export const DeclarationDetailClient = ({
         draftId={draftId}
         flag={activeFlag}
         open={drawerOpen}
+        initialMode={drawerInitialMode}
         onOpenChange={setDrawerOpen}
         transcript={transcript}
         onApplied={handleRefresh}

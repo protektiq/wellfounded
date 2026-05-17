@@ -34,9 +34,7 @@ export const NewDeclarationForm = ({
   interviews,
 }: NewDeclarationFormProps) => {
   const router = useRouter();
-  const [mode, setMode] = useState<"upload" | "existing">(
-    interviews.length > 0 ? "existing" : "upload",
-  );
+  const [mode, setMode] = useState<"upload" | "existing">("upload");
   const [sourceLanguage, setSourceLanguage] = useState<SourceLanguage>("es");
   const [selectedAudioId, setSelectedAudioId] = useState(
     interviews[0]?.id ?? "",

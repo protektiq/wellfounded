@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "scored_by": "engineering-seed",
+  "notes": "Replace with practitioner-in-residence scores before launch GO. r >= 0.7 is only meaningful with real PIR input.",
+  "fixture_scores": {
+    "ti-er-journalist-01": {
+      "faithfulness_to_source": 5,
+      "structural_completeness": 4,
+      "voice_authenticity": 4,
+      "flag_accuracy": 4,
+      "legal_element_coverage": 4
+    },
+    "ti-er-teacher-02": {
+      "faithfulness_to_source": 5,
+      "structural_completeness": 4,
+      "voice_authenticity": 4,
+      "flag_accuracy": 4,
+      "legal_element_coverage": 4
+    },
+    "ti-er-conscript-03": {
+      "faithfulness_to_source": 5,
+      "structural_completeness": 4,
+      "voice_authenticity": 4,
+      "flag_accuracy": 4,
+      "legal_element_coverage": 4
+    },
+    "es-mx-political-01": {
+      "faithfulness_to_source": 5,
+      "structural_completeness": 4,
+      "voice_authenticity": 4,
+      "flag_accuracy": 4,
+      "legal_element_coverage": 4
+    },
+    "zh-cn-religious-01": {
+      "faithfulness_to_source": 5,
+      "structural_completeness": 4,
+      "voice_authenticity": 4,
+      "flag_accuracy": 4,
+      "legal_element_coverage": 4
+    }
+  }
+}

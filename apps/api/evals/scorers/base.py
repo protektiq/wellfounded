@@ -12,10 +12,13 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
 from evals.fixtures import Fixture, ScoreResult
 from llm.client import LLMClient
+
+if TYPE_CHECKING:
+    from sqlalchemy.ext.asyncio import AsyncSession
 
 
 @dataclass(frozen=True)
@@ -24,6 +27,7 @@ class ScorerContext:
 
     llm: LLMClient | None = None
     rubrics_root: Path | None = None
+    session: AsyncSession | None = None
 
 
 @runtime_checkable

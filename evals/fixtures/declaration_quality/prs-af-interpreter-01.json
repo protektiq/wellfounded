@@ -1,0 +1,137 @@
+{
+  "id": "prs-af-interpreter-01",
+  "category": "declaration_quality",
+  "scorer": "declaration_quality_live",
+  "tags": [
+    "prs",
+    "af"
+  ],
+  "input": {
+    "transcript": {
+      "source_language": "prs",
+      "segments": [
+        {
+          "start": 0.0,
+          "end": 30.0,
+          "speaker": "client",
+          "source_text": "من مترجم بودم",
+          "english_text": "I was an interpreter for foreign forces."
+        },
+        {
+          "start": 30.0,
+          "end": 60.0,
+          "speaker": "client",
+          "source_text": "طالبان به دنبال مترجمین است",
+          "english_text": "The Taliban searches for former interpreters."
+        }
+      ],
+      "full_source_text": "من مترجم بودم طالبان به دنبال مترجمین است",
+      "full_english_text": "I was an interpreter for foreign forces. The Taliban searches for former interpreters."
+    },
+    "prior_statements": [
+      {
+        "id": "dddddddd-dddd-eeee-ffff-000000000003",
+        "statement_type": "airport_statement",
+        "source_language": "prs",
+        "source_text": "من کارگر بودم",
+        "english_text": "I said I was a laborer at the airport interview."
+      }
+    ],
+    "case_metadata": {
+      "pseudonym": "W.A. — Afghanistan",
+      "country_code": "AF",
+      "basis": "particular_social_group",
+      "group_description": "Afghans who interpreted for foreign military forces"
+    }
+  },
+  "expected": {
+    "rubric_path": "declaration_v1.md",
+    "min_score": 4,
+    "min_criteria": {
+      "faithfulness_to_source": 4.5
+    },
+    "gold_declaration": {
+      "sections": {
+        "identity_background": {
+          "section_id": "identity_background",
+          "paragraphs": [
+            {
+              "id": "identity_background:p0",
+              "text": "I am W.A. from Afghanistan. I was an interpreter for foreign forces.",
+              "source_segment_ids": [
+                "seg-0"
+              ],
+              "inference_spans": []
+            }
+          ]
+        },
+        "past_persecution": {
+          "section_id": "past_persecution",
+          "paragraphs": [
+            {
+              "id": "past_persecution:p0",
+              "text": "After the Taliban returned, they searched for former interpreters.",
+              "source_segment_ids": [
+                "seg-0"
+              ],
+              "inference_spans": []
+            }
+          ]
+        },
+        "perpetrator_motivation": {
+          "section_id": "perpetrator_motivation",
+          "paragraphs": [
+            {
+              "id": "perpetrator_motivation:p0",
+              "text": "They target interpreters as collaborators.",
+              "source_segment_ids": [
+                "seg-0"
+              ],
+              "inference_spans": []
+            }
+          ]
+        },
+        "well_founded_fear_future": {
+          "section_id": "well_founded_fear_future",
+          "paragraphs": [
+            {
+              "id": "well_founded_fear_future:p0",
+              "text": "I fear execution if returned.",
+              "source_segment_ids": [
+                "seg-0"
+              ],
+              "inference_spans": []
+            }
+          ]
+        },
+        "internal_relocation": {
+          "section_id": "internal_relocation",
+          "paragraphs": [
+            {
+              "id": "internal_relocation:p0",
+              "text": "The Taliban operates nationwide.",
+              "source_segment_ids": [
+                "seg-0"
+              ],
+              "inference_spans": []
+            }
+          ]
+        },
+        "filing_bar_facts": {
+          "section_id": "filing_bar_facts",
+          "paragraphs": [
+            {
+              "id": "filing_bar_facts:p0",
+              "text": "I entered the United States in August 2021.",
+              "source_segment_ids": [
+                "seg-0"
+              ],
+              "inference_spans": []
+            }
+          ]
+        }
+      },
+      "notes": "PIR reference — Afghanistan interpreter with prior statement."
+    }
+  }
+}

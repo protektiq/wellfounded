@@ -22,6 +22,11 @@ on:
       - "evals/results/baseline-live-claude-opus-4-7.json"
       - "evals/fixtures/transcription_wer/**"
       - "evals/results/baseline-transcription-wer.json"
+      - "evals/fixtures/declaration_quality/**"
+      - "evals/rubrics/**"
+      - "evals/calibration/**"
+      - "evals/results/baseline-declaration-claude-opus-4-7.json"
+      - "apps/api/declarations/**"
       - "apps/api/transcription/**"
       - "apps/api/translation/**"
       - ".github/workflows/evals.yml"
@@ -229,5 +234,94 @@ jobs:
         with:
           name: eval-transcription-wer
           path: evals/results/transcription-wer-pr-*.json
+          if-no-files-found: warn
+          retention-days: 30
+
+  declaration_quality:
+    name: declaration_quality
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    defaults:
+      run:
+        working-directory: apps/api
+
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_DB: wf_eval
+          POSTGRES_USER: wf_eval
+          POSTGRES_PASSWORD: wf_eval
+        ports:
+          - 15432:5432
+        options: >-
+          --health-cmd "pg_isready -U wf_eval"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Poetry
+        run: pipx install poetry==1.8.3
+
+      - name: Cache Poetry virtualenv
+        uses: actions/cache@v4
+        with:
+          path: apps/api/.venv
+          key: poetry-${{ runner.os }}-py3.12-${{ hashFiles('apps/api/poetry.lock') }}
+
+      - name: Configure Poetry to use in-project venv
+        run: poetry config virtualenvs.in-project true
+
+      - name: Install dependencies
+        run: poetry install --no-interaction --no-root
+
+      - name: Run database migrations
+        env:
+          DATABASE_URL: postgresql+asyncpg://wf_eval:wf_eval@localhost:15432/wf_eval
+        run: poetry run alembic upgrade head
+
+      - name: Run declaration_quality eval
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          DATABASE_URL: postgresql+asyncpg://wf_eval:wf_eval@localhost:15432/wf_eval
+          GIT_SHA: ${{ github.sha }}
+        run: |
+          mkdir -p ../../evals/results
+          poetry run python -m evals.runner \
+            --category declaration_quality \
+            --output "../../evals/results/declaration-pr-${GIT_SHA}.json"
+
+      - name: Compare to committed declaration baseline
+        run: |
+          poetry run python -m evals.declaration_baseline_compare \
+            ../../evals/results/baseline-declaration-claude-opus-4-7.json \
+            "../../evals/results/declaration-pr-${GITHUB_SHA}.json" \
+            --max-drop 0.2
+
+      - name: Calibration correlation check
+        run: |
+          poetry run python -m evals.calibration_compare \
+            "../../evals/results/declaration-pr-${GITHUB_SHA}.json" \
+            ../../evals/calibration/declaration_practitioner_scores.json \
+            --min-r 0.7
+
+      - name: Upload declaration result manifest
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: eval-declaration-quality
+          path: evals/results/declaration-pr-*.json
           if-no-files-found: warn
           retention-days: 30
