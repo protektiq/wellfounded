@@ -69,8 +69,11 @@ jobs:
       - name: Configure Poetry to use in-project venv
         run: poetry config virtualenvs.in-project true
 
+      - name: Install Socket CLI
+        run: npm install -g @socketsecurity/cli
+
       - name: Install dependencies
-        run: poetry install --no-interaction --no-root
+        run: sfw poetry install --no-interaction --no-root
 
       - name: Run citation_faithfulness eval
         env:
@@ -144,8 +147,11 @@ jobs:
       - name: Configure Poetry to use in-project venv
         run: poetry config virtualenvs.in-project true
 
+      - name: Install Socket CLI
+        run: npm install -g @socketsecurity/cli
+
       - name: Install dependencies
-        run: poetry install --no-interaction --no-root
+        run: sfw poetry install --no-interaction --no-root
 
       - name: Run database migrations
         env:
@@ -209,8 +215,11 @@ jobs:
       - name: Configure Poetry to use in-project venv
         run: poetry config virtualenvs.in-project true
 
+      - name: Install Socket CLI
+        run: npm install -g @socketsecurity/cli
+
       - name: Install dependencies
-        run: poetry install --no-interaction --no-root
+        run: sfw poetry install --no-interaction --no-root
 
       - name: Run transcription_wer eval
         env:
@@ -284,8 +293,11 @@ jobs:
       - name: Configure Poetry to use in-project venv
         run: poetry config virtualenvs.in-project true
 
+      - name: Install Socket CLI
+        run: npm install -g @socketsecurity/cli
+
       - name: Install dependencies
-        run: poetry install --no-interaction --no-root
+        run: sfw poetry install --no-interaction --no-root
 
       - name: Run database migrations
         env:
